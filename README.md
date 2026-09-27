@@ -1,4 +1,4 @@
-# Battery Consumption
+# battery_consumption
 
 Battery Consumption is a custom integration for [Home Assistant](https://www.home-assistant.io/) that calculates battery charge, discharge, accumulated changes, energy values, and estimated power from an existing battery-level entity.
 
@@ -211,7 +211,15 @@ Replace the example entity IDs with the entities created in your Home Assistant 
 
 ## Noise-resistant tracking and battery sessions
 
-Version 2.4.0 adds optional noise-resistant accounting and two optional entities. All new features are disabled by default, so upgrading retains the existing behavior until they are enabled from **Configure**.
+Version 2.4.0 adds optional noise-resistant accounting and two optional entities. Version 2.4.1 polishes their Home Assistant presentation with appropriate entity categories and dynamic battery icons. All new features are disabled by default, so upgrading retains the existing behavior until they are enabled from **Configure**.
+
+
+### Home Assistant entity presentation
+
+- The main Battery Consumption percentage is a regular sensor with the battery device class. Home Assistant can therefore display its battery icon according to the current percentage.
+- Battery activity is a regular operational sensor because `charging`, `discharging`, and `idle` are useful in dashboards and automations. Its icon changes between charging, discharging, and idle states.
+- Equivalent full cycles is categorized as a diagnostic sensor because it is a derived long-term battery usage metric rather than a current operating state.
+- Precision, battery capacity, capacity unit, minimum meaningful change, session timeout, and optional sensor creation remain integration configuration options. They are not entities, so they are not assigned the `config` entity category.
 
 ### Minimum meaningful change
 

@@ -8,7 +8,7 @@ Battery Consumption is a custom integration for [Home Assistant](https://www.hom
 
 The integration keeps the battery level as the sensor state and updates whenever its source entity changes. It can expose current variation, charge and discharge percentages, accumulated values, energy values, and estimated instantaneous power.
 
-This fork targets Home Assistant 2025.12.2. Version 2.4.0 adds optional noise filtering, battery activity sessions, and equivalent full-cycle tracking. The new entities and filtering are disabled by default.
+This fork targets Home Assistant 2025.12.2. Version 2.4.0 adds optional noise filtering, battery activity sessions, and equivalent full-cycle tracking. Version 2.4.1 adds polished entity categories and dynamic icons. The new entities and filtering are disabled by default.
 
 ## Configuration
 

@@ -17,6 +17,7 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
 
@@ -160,6 +161,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
     """Track battery changes and accumulated charge and discharge."""
 
     _attr_should_poll = False
+    _attr_device_class = SensorDeviceClass.BATTERY
 
     def __init__(
         self,
@@ -448,6 +450,15 @@ class BatteryActivitySensor(SensorEntity):
         return self._tracker.activity
 
     @property
+    def icon(self) -> str:
+        """Return an icon matching the current battery activity."""
+        return {
+            ACTIVITY_CHARGING: "mdi:battery-charging",
+            ACTIVITY_DISCHARGING: "mdi:battery-minus",
+            ACTIVITY_IDLE: "mdi:battery-outline",
+        }[self._tracker.activity]
+
+    @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return self._tracker.session_attributes
 
@@ -458,6 +469,7 @@ class BatteryCycleSensor(SensorEntity):
     _attr_should_poll = False
     _attr_translation_key = "equivalent_full_cycles"
     _attr_icon = "mdi:battery-sync"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = "cycles"
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
