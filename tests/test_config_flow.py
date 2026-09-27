@@ -17,6 +17,7 @@ async def test_user_flow(hass: HomeAssistant) -> None:
         result["flow_id"],
         {
             "tracker_name": "Pixel 9",
+            "device_profile": "manual",
             CONF_SOURCE: "sensor.phone_battery",
             "precision": 2,
             "battery_capacity": 5,
@@ -52,6 +53,7 @@ async def test_duplicate_is_rejected(hass: HomeAssistant) -> None:
         result["flow_id"],
         {
             "tracker_name": "Pixel 9",
+            "device_profile": "manual",
             CONF_SOURCE: "sensor.phone_battery",
             "precision": 2,
             "battery_capacity": 5,

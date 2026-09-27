@@ -25,6 +25,7 @@ from homeassistant.util import slugify
 
 from .const import (
     CONF_BATTERY_CAPACITY,
+    CONF_BATTERY_VOLTAGE,
     CONF_BATTERY_CONSUMPTION,
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
@@ -122,6 +123,7 @@ async def async_setup_entry(
         conf.get(CONF_SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT),
         entry.entry_id,
         conf.get(CONF_TRACKER_NAME) or entry.title,
+        conf.get(CONF_BATTERY_VOLTAGE),
     )
     entities: list[SensorEntity] = [tracker]
     if conf.get(CONF_CREATE_ACTIVITY_SENSOR, DEFAULT_CREATE_ACTIVITY_SENSOR):
@@ -200,14 +202,23 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         session_timeout: int,
         entry_id: str | None,
         tracker_name: str | None,
+        battery_voltage: float | None = None,
     ) -> None:
         self._attr_unique_id = unique_id
         self._attr_name = name
         self._source_entity_id = source
         self._source_attribute = attribute
         self._precision = precision
-        self._battery_capacity = battery_capacity
-        self._unit_of_measurement = unit_of_measurement
+        self._configured_battery_capacity = battery_capacity
+        self._configured_capacity_unit = unit_of_measurement
+        self._battery_voltage = battery_voltage
+        if battery_capacity is not None and unit_of_measurement == "mAh":
+            voltage = battery_voltage or 3.85
+            self._battery_capacity = battery_capacity * voltage / 1000
+            self._unit_of_measurement = "Wh"
+        else:
+            self._battery_capacity = battery_capacity
+            self._unit_of_measurement = unit_of_measurement
         self._minimum_change = float(minimum_change)
         self._session_timeout = int(session_timeout)
         self._entry_id = entry_id
@@ -224,7 +235,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.6.1",
+                "sw_version": "2.8.0",
             }
 
         self._state: float | None = None

@@ -14,9 +14,11 @@ from homeassistant.util import slugify
 
 from .const import (
     CONF_BATTERY_CAPACITY,
+    CONF_BATTERY_VOLTAGE,
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
     CONF_CREATE_POWER_SENSOR,
+    CONF_DEVICE_PROFILE,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
@@ -27,8 +29,10 @@ from .const import (
     DEFAULT_MINIMUM_CHANGE,
     DEFAULT_PRECISION,
     DEFAULT_SESSION_TIMEOUT,
+    DEVICE_PROFILE_MANUAL,
     DOMAIN,
 )
+from .device_profiles import async_load_device_profiles
 
 
 def _identity_schema() -> vol.Schema:
@@ -42,17 +46,49 @@ def _identity_schema() -> vol.Schema:
     )
 
 
-def _options_schema() -> vol.Schema:
+def _profile_selector(
+    profiles: dict[str, dict[str, Any]],
+) -> selector.SelectSelector:
+    """Build a searchable device profile selector."""
+    options: list[dict[str, str]] = [
+        {"value": DEVICE_PROFILE_MANUAL, "label": "Manual configuration"}
+    ]
+    options.extend(
+        {
+            "value": profile_id,
+            "label": f"{profile['manufacturer']} · {profile['model']}",
+        }
+        for profile_id, profile in profiles.items()
+    )
+    return selector.SelectSelector(
+        selector.SelectSelectorConfig(
+            options=options,
+            mode=selector.SelectSelectorMode.DROPDOWN,
+        )
+    )
+
+
+def _options_schema(
+    profiles: dict[str, dict[str, Any]],
+) -> vol.Schema:
     """Build the schema for calculation options."""
     return vol.Schema(
         {
+            vol.Required(
+                CONF_DEVICE_PROFILE, default=DEVICE_PROFILE_MANUAL
+            ): _profile_selector(profiles),
             vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(
                 vol.Coerce(int), vol.Range(min=1)
             ),
-            vol.Optional(
-                CONF_BATTERY_CAPACITY, default=DEFAULT_PRECISION
-            ): vol.All(vol.Coerce(float), vol.Range(min=0)),
-            vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
+            vol.Optional(CONF_BATTERY_CAPACITY): vol.All(
+                vol.Coerce(float), vol.Range(min=0)
+            ),
+            vol.Optional(CONF_UNIT_OF_MEASUREMENT): vol.In(
+                ["mAh", "Wh", "kWh", "MWh"]
+            ),
+            vol.Optional(CONF_BATTERY_VOLTAGE, default=3.85): vol.All(
+                vol.Coerce(float), vol.Range(min=0.1)
+            ),
             vol.Required(
                 CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
             ): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
@@ -75,9 +111,9 @@ def _options_schema() -> vol.Schema:
     )
 
 
-def _user_schema() -> vol.Schema:
+def _user_schema(profiles: dict[str, dict[str, Any]]) -> vol.Schema:
     """Build the complete schema used when creating an entry."""
-    return _identity_schema().extend(_options_schema().schema)
+    return _identity_schema().extend(_options_schema(profiles).schema)
 
 
 def _clean_input(user_input: dict[str, Any]) -> dict[str, Any]:
@@ -87,6 +123,36 @@ def _clean_input(user_input: dict[str, Any]) -> dict[str, Any]:
         if not cleaned.get(key):
             cleaned.pop(key, None)
     return cleaned
+
+
+def _apply_device_profile(
+    data: dict[str, Any], profiles: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
+    """Copy the selected profile values into the config entry."""
+    result = dict(data)
+    profile_id = result.get(CONF_DEVICE_PROFILE, DEVICE_PROFILE_MANUAL)
+    if profile_id == DEVICE_PROFILE_MANUAL:
+        if not result.get(CONF_BATTERY_CAPACITY):
+            result.pop(CONF_UNIT_OF_MEASUREMENT, None)
+            result.pop(CONF_BATTERY_VOLTAGE, None)
+        elif result.get(CONF_UNIT_OF_MEASUREMENT) == "mAh":
+            result.setdefault(CONF_BATTERY_VOLTAGE, 3.85)
+        else:
+            result.pop(CONF_BATTERY_VOLTAGE, None)
+        return result
+
+    profile = profiles.get(profile_id)
+    if profile is None:
+        result[CONF_DEVICE_PROFILE] = DEVICE_PROFILE_MANUAL
+        return result
+
+    result[CONF_BATTERY_CAPACITY] = profile["capacity"]
+    result[CONF_UNIT_OF_MEASUREMENT] = profile["capacity_unit"]
+    if profile["capacity_unit"] == "mAh":
+        result[CONF_BATTERY_VOLTAGE] = profile["nominal_voltage"]
+    else:
+        result.pop(CONF_BATTERY_VOLTAGE, None)
+    return result
 
 
 def _source_key(data: dict[str, Any]) -> tuple[str, str]:
@@ -103,8 +169,9 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Create a Battery Consumption tracker."""
+        profiles = await async_load_device_profiles(self.hass)
         if user_input is not None:
-            data = _clean_input(user_input)
+            data = _apply_device_profile(_clean_input(user_input), profiles)
             wanted_slug = slugify(data[CONF_TRACKER_NAME])
             if any(
                 slugify(entry.data.get(CONF_TRACKER_NAME, entry.title))
@@ -114,7 +181,7 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_show_form(
                     step_id="user",
                     data_schema=self.add_suggested_values_to_schema(
-                        _user_schema(), data
+                        _user_schema(profiles), data
                     ),
                     errors={"base": "name_already_configured"},
                 )
@@ -125,7 +192,9 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 title=data[CONF_TRACKER_NAME], data=data
             )
 
-        return self.async_show_form(step_id="user", data_schema=_user_schema())
+        return self.async_show_form(
+            step_id="user", data_schema=_user_schema(profiles)
+        )
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
@@ -199,13 +268,18 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Manage calculation options without changing tracker identity."""
+        profiles = await async_load_device_profiles(self.hass)
         if user_input is not None:
-            return self.async_create_entry(data=_clean_input(user_input))
+            data = _apply_device_profile(_clean_input(user_input), profiles)
+            return self.async_create_entry(data=data)
 
         values = {**self.config_entry.data, **self.config_entry.options}
+        selected_profile = values.get(CONF_DEVICE_PROFILE, DEVICE_PROFILE_MANUAL)
+        if selected_profile != DEVICE_PROFILE_MANUAL and selected_profile not in profiles:
+            values[CONF_DEVICE_PROFILE] = DEVICE_PROFILE_MANUAL
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                _options_schema(), values
+                _options_schema(profiles), values
             ),
         )

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "devices": [
+    {
+      "id": "google_pixel_8_pro",
+      "manufacturer": "Google",
+      "model": "Pixel 8 Pro",
+      "capacity": 5050,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.85,
+      "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X"
+    },
+    {
+      "id": "google_pixel_watch_2",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 2",
+      "capacity": 306,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.87,
+      "source": "https://www.ebay.com/itm/395783229847"
+    },
+    {
+      "id": "meta_quest_2",
+      "manufacturer": "Meta",
+      "model": "Quest 2",
+      "capacity": 3640,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.85,
+      "source": "https://www.amazon.com/IFRESEM-Internal-Battery-Replacement-Headset/dp/B0CGNT9XRF"
+    }
+  ]
+}

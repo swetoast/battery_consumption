@@ -6,6 +6,8 @@ SENSOR = "battery_consumption"
 CONF_BATTERY_CONSUMPTION = "battery_consumption"
 CONF_PRECISION = "precision"
 CONF_BATTERY_CAPACITY = "battery_capacity"
+CONF_BATTERY_VOLTAGE = "battery_voltage"
+CONF_DEVICE_PROFILE = "device_profile"
 CONF_TRACKER_NAME = "tracker_name"
 CONF_MINIMUM_CHANGE = "minimum_change"
 CONF_SESSION_TIMEOUT = "session_timeout"
@@ -16,6 +18,8 @@ CONF_CREATE_POWER_SENSOR = "create_power_sensor"
 DATA_BATTERY_CONSUMPTION = "battery_consumption"
 
 DEFAULT_NAME = "battery_consumption"
+DEVICE_PROFILE_MANUAL = "manual"
+USER_DEVICE_PROFILES_FILE = "battery_consumption_device_profiles.json"
 DEFAULT_PRECISION = 2
 DEFAULT_MINIMUM_CHANGE = 0.0
 DEFAULT_SESSION_TIMEOUT = 15

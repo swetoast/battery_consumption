@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.6.1-blue" alt="Version 2.6.1">
+  <img src="https://img.shields.io/badge/version-2.8.0-blue" alt="Version 2.8.0">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -88,9 +88,11 @@ Entity IDs already registered by Home Assistant are not forcibly renamed. The na
 | Tracker name | Short device name used in displayed names and namespaced entity IDs | Required |
 | Source entity | Entity that provides the battery percentage | Required |
 | Source attribute | Optional attribute containing the percentage | Entity state |
+| Device profile | Known device battery profile or manual setup | Manual configuration |
 | Precision | Decimal places shown for calculated values | `2` |
-| Battery capacity | Full battery capacity used for energy and power calculations | Optional |
-| Capacity unit | Capacity unit such as `Wh`, `kWh`, or `MWh` | Optional |
+| Battery capacity | Capacity printed on the battery, such as `5050` | Optional |
+| Capacity unit | `mAh`, `Wh`, `kWh`, or `MWh`; mAh is converted automatically | Optional |
+| Battery nominal voltage | Voltage used for mAh conversion | `3.85 V` |
 | Minimum meaningful change | Percentage-point movement required before accounting confirms a change | `0` |
 | Session timeout | Minutes without confirmed movement before activity becomes idle | `15` |
 | Create battery activity sensor | Adds the charging, discharging, and idle sensor | Disabled |
@@ -98,6 +100,43 @@ Entity IDs already registered by Home Assistant are not forcibly renamed. The na
 | Create battery power sensor | Adds a native signed power sensor | Disabled |
 
 Use **Configure** to change calculation options. Use **Reconfigure** to change the source entity or source attribute. Reconfiguration keeps the existing Home Assistant entity identity while starting accounting from the new source.
+
+## Device profiles
+
+Select a known device during setup to fill battery capacity, unit, and nominal voltage automatically. The bundled catalog currently includes:
+
+- Google Pixel 8 Pro
+- Google Pixel Watch 2
+- Meta Quest 2
+
+The built-in catalog is stored in `custom_components/battery_consumption/device_profiles.json`. To add devices without modifying integration files, create:
+
+```text
+/config/battery_consumption_device_profiles.json
+```
+
+Use this format:
+
+```json
+{
+  "schema_version": 1,
+  "devices": [
+    {
+      "id": "manufacturer_device_model",
+      "manufacturer": "Manufacturer",
+      "model": "Device model",
+      "capacity": 4000,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.85,
+      "source": "https://example.com/device-specification"
+    }
+  ]
+}
+```
+
+Restart Home Assistant after editing the user profile file. User profiles are added to the bundled catalog. A user profile with the same `id` replaces the bundled entry. Invalid profiles are skipped and logged without preventing the integration from loading.
+
+The selected profile values are copied into the config entry, so an existing tracker keeps working if its profile is later removed or changed.
 
 ## Entities
 

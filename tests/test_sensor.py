@@ -60,3 +60,22 @@ def test_namespaced_suggested_object_ids() -> None:
         "battery_consumption_pixel_9_battery_level"
     )
     assert tracker.device_info["name"] == "Battery Consumption Pixel 9"
+
+
+def test_mah_capacity_is_converted_to_wh() -> None:
+    tracker = BatteryConsumptionSensor(
+        "test-mah", "Phone battery", "sensor.phone_battery", None,
+        2, 5050, "mAh", 0, 15, "entry-mah", "Pixel 8 Pro", 3.85
+    )
+    assert tracker._battery_capacity == 19.4425
+    assert tracker._unit_of_measurement == "Wh"
+    assert tracker.power_unit == "W"
+
+
+def test_wh_capacity_remains_unchanged() -> None:
+    tracker = BatteryConsumptionSensor(
+        "test-wh", "Phone battery", "sensor.phone_battery", None,
+        2, 19.5, "Wh", 0, 15, "entry-wh", "Pixel 8 Pro", None
+    )
+    assert tracker._battery_capacity == 19.5
+    assert tracker._unit_of_measurement == "Wh"
