@@ -7,8 +7,8 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
-from homeassistant.data_entry_flow import ConfigFlowResult
 from homeassistant.helpers import config_validation as cv, selector
 from homeassistant.util import slugify
 
