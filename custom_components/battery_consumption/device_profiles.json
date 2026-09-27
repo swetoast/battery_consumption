@@ -2,13 +2,104 @@
   "schema_version": 1,
   "devices": [
     {
+      "id": "apple_iphone_13",
+      "manufacturer": "Apple",
+      "model": "iPhone 13",
+      "capacity": 12.41,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-13-battery",
+      "notes": "3227 mAh, 3.84 V, 12.41 Wh"
+    },
+    {
+      "id": "apple_iphone_13_mini",
+      "manufacturer": "Apple",
+      "model": "iPhone 13 mini",
+      "capacity": 9.34,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-13-mini-battery",
+      "notes": "2406 mAh, 3.88 V, 9.34 Wh"
+    },
+    {
+      "id": "apple_iphone_13_pro",
+      "manufacturer": "Apple",
+      "model": "iPhone 13 Pro",
+      "capacity": 11.97,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-13-pro-battery",
+      "notes": "3095 mAh, 3.97 V, 11.97 Wh"
+    },
+    {
+      "id": "apple_iphone_13_pro_max",
+      "manufacturer": "Apple",
+      "model": "iPhone 13 Pro Max",
+      "capacity": 16.75,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-13-pro-max-battery",
+      "notes": "4352 mAh, 3.85 V, 16.75 Wh"
+    },
+    {
+      "id": "apple_iphone_14",
+      "manufacturer": "Apple",
+      "model": "iPhone 14",
+      "capacity": 12.86,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-14-battery",
+      "notes": "3279 mAh, 3.87 V, 12.86 Wh"
+    },
+    {
+      "id": "apple_iphone_14_plus",
+      "manufacturer": "Apple",
+      "model": "iPhone 14 Plus",
+      "capacity": 16.68,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-14-plus-battery",
+      "notes": "4323 mAh, 3.86 V, 16.68 Wh"
+    },
+    {
+      "id": "apple_iphone_14_pro",
+      "manufacturer": "Apple",
+      "model": "iPhone 14 Pro",
+      "capacity": 12.38,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-14-pro-battery",
+      "notes": "3200 mAh, 3.87 V, 12.38 Wh"
+    },
+    {
+      "id": "apple_iphone_14_pro_max",
+      "manufacturer": "Apple",
+      "model": "iPhone 14 Pro Max",
+      "capacity": 16.68,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-14-pro-max-battery",
+      "notes": "4323 mAh, 3.86 V, 16.68 Wh"
+    },
+    {
+      "id": "apple_iphone_15",
+      "manufacturer": "Apple",
+      "model": "iPhone 15",
+      "capacity": 12.98,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-15-battery",
+      "notes": "3349 mAh, 3.87 V, 12.98 Wh"
+    },
+    {
+      "id": "apple_iphone_15_pro_max",
+      "manufacturer": "Apple",
+      "model": "iPhone 15 Pro Max",
+      "capacity": 17.1,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-15-pro-max-battery",
+      "notes": "4422 mAh, 3.86 V, 17.1 Wh"
+    },
+    {
       "id": "google_pixel_8_pro",
       "manufacturer": "Google",
       "model": "Pixel 8 Pro",
       "capacity": 5050,
       "capacity_unit": "mAh",
       "nominal_voltage": 3.85,
-      "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X"
+      "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X",
+      "notes": "5050 mAh, 3.85 V, approximately 19.44 Wh"
     },
     {
       "id": "google_pixel_watch_2",
@@ -17,16 +108,161 @@
       "capacity": 306,
       "capacity_unit": "mAh",
       "nominal_voltage": 3.87,
-      "source": "https://www.ebay.com/itm/395783229847"
+      "source": "https://www.ebay.com/itm/395783229847",
+      "notes": "306 mAh, 3.87 V, approximately 1.18 Wh"
     },
     {
       "id": "meta_quest_2",
       "manufacturer": "Meta",
       "model": "Quest 2",
-      "capacity": 3640,
+      "capacity": 14,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/IFRESEM-Internal-Battery-Replacement-Headset/dp/B0CGNT9XRF",
+      "notes": "3640 mAh, 3.85 V, 14 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s23",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23",
+      "capacity": 15.13,
+      "capacity_unit": "Wh",
+      "source": "https://lcphones.com/en/productos/samsung-galaxy-s23-5g-s911-battery-eb-bs912aby-3900mah-15-13wh-service-pack-22591",
+      "notes": "3900 mAh, 3.88 V, 15.13 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s23_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23 Ultra",
+      "capacity": 19.4,
+      "capacity_unit": "Wh",
+      "source": "https://www.mytrendyphone.se/shop/samsung-galaxy-s23-ultra-5g-batteri-eb-bs918aby-5000mah-307277p.html",
+      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s24",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24",
+      "capacity": 15.52,
+      "capacity_unit": "Wh",
+      "source": "https://cdon.se/produkt/ersattningsbatteri-for-galaxy-s24-li-ion-3-88v-4000mah-vit-svart-6e49a07147b156d5/",
+      "notes": "4000 mAh, 3.88 V, 15.52 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s24_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24 Ultra",
+      "capacity": 19.4,
+      "capacity_unit": "Wh",
+      "source": "https://www.raytech.co.nz/original-s24ultra-battery-skuM0020020119",
+      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
+    },
+    {
+      "id": "valve_steam_deck_lcd",
+      "manufacturer": "Valve",
+      "model": "Steam Deck LCD",
+      "capacity": 40,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/steam-deck-battery",
+      "notes": "5200 mAh, 7.7 V, 40 Wh"
+    },
+    {
+      "id": "ansmann_maxe_c_2500",
+      "manufacturer": "ANSMANN",
+      "model": "maxE C / HR14 2500",
+      "capacity": 2500,
       "capacity_unit": "mAh",
-      "nominal_voltage": 3.85,
-      "source": "https://www.amazon.com/IFRESEM-Internal-Battery-Replacement-Headset/dp/B0CGNT9XRF"
+      "nominal_voltage": 1.2,
+      "source": "https://shop.ansmann.de/en/c-2500-2",
+      "notes": "Rechargeable NiMH C cell, 2500 mAh, 1.2 V"
+    },
+    {
+      "id": "ansmann_maxe_d_5000",
+      "manufacturer": "ANSMANN",
+      "model": "maxE D / HR20 5000",
+      "capacity": 5000,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://shop.ansmann.de/en/d-5000-2",
+      "notes": "Rechargeable NiMH D cell, 5000 mAh, 1.2 V"
+    },
+    {
+      "id": "ansmann_maxe_9v_300",
+      "manufacturer": "ANSMANN",
+      "model": "maxE 9V / 6F22 300",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 8.4,
+      "source": "https://shop.ansmann.de/en/e-300-1",
+      "notes": "Rechargeable NiMH 9V block, 300 mAh, 8.4 V, 2.52 Wh by nominal calculation"
+    },
+    {
+      "id": "ansmann_li_ion_9v_400",
+      "manufacturer": "ANSMANN",
+      "model": "Li-Ion 9V block type 400",
+      "capacity": 3.7,
+      "capacity_unit": "Wh",
+      "source": "https://shop.ansmann.de/en/li-ion-battery-9v-block-typ-400-min-340-mah-1pcs-cardboard-box",
+      "notes": "USB-C rechargeable lithium-ion 9V block, 3.7 Wh"
+    },
+    {
+      "id": "duracell_rechargeable_aa_2500",
+      "manufacturer": "Duracell",
+      "model": "Rechargeable AA 2500",
+      "capacity": 2500,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://www.duracell.co.uk/product/rechargeable-aa/",
+      "notes": "Rechargeable NiMH AA cell, 2500 mAh, 1.2 V"
+    },
+    {
+      "id": "duracell_rechargeable_aaa_850",
+      "manufacturer": "Duracell",
+      "model": "Rechargeable AAA 850",
+      "capacity": 850,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://www.farnell.com/datasheets/1866934.pdf",
+      "notes": "Rechargeable NiMH AAA cell, 850 mAh, 1.2 V"
+    },
+    {
+      "id": "energizer_cr2032",
+      "manufacturer": "Energizer",
+      "model": "CR2032 lithium coin cell",
+      "capacity": 240,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.0,
+      "source": "http://www.cr2032.co/cms/prodimages/energizer_cr2032_datasheet.pdf",
+      "notes": "Primary lithium coin cell. Typical 240 mAh at the datasheet test load; actual delivered capacity depends on load and cutoff voltage. Not rechargeable."
+    },
+    {
+      "id": "panasonic_eneloop_aa_bk_3mcc",
+      "manufacturer": "Panasonic",
+      "model": "eneloop AA BK-3MCC",
+      "capacity": 2000,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://battscore.com/catalog/43-eneloop-panasonic-aa-nimh-2000mah/document/22-datasheet-bk-3mcce/",
+      "notes": "Rechargeable NiMH AA cell, typical 2000 mAh, minimum 1900 mAh, 1.2 V"
+    },
+    {
+      "id": "panasonic_eneloop_aaa_bk_4mcc",
+      "manufacturer": "Panasonic",
+      "model": "eneloop AAA BK-4MCC",
+      "capacity": 800,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://eneloop101.com/wp-content/uploads/BK-4MCC-AE.pdf",
+      "notes": "Rechargeable NiMH AAA cell, typical 800 mAh, minimum 750 mAh, 1.2 V"
+    },
+    {
+      "id": "varta_recharge_accu_power_9v_200",
+      "manufacturer": "VARTA",
+      "model": "Recharge Accu Power 9V 200",
+      "capacity": 200,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 8.4,
+      "source": "https://www.varta-ag.com/se/konsument/produkt-kategorier/accus/recharge-accu-power-9v-200-mah",
+      "notes": "Rechargeable NiMH 9V block, 200 mAh, 8.4 V"
     }
   ]
 }

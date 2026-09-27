@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.8.0-blue" alt="Version 2.8.0">
+  <img src="https://img.shields.io/badge/version-2.9.0-blue" alt="Version 2.9.0">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -103,11 +103,7 @@ Use **Configure** to change calculation options. Use **Reconfigure** to change t
 
 ## Device profiles
 
-Select a known device during setup to fill battery capacity, unit, and nominal voltage automatically. The bundled catalog currently includes:
-
-- Google Pixel 8 Pro
-- Google Pixel Watch 2
-- Meta Quest 2
+Select a known device during setup to fill battery capacity, unit, and nominal voltage automatically. The bundled catalog contains sourced profiles for popular Apple, Google, Samsung, Meta, and Valve devices, plus exact rechargeable AA, AAA, C, D, and 9V products from ANSMANN, Duracell, Panasonic, and VARTA. It also includes an Energizer CR2032 profile whose capacity is explicitly marked as load-dependent. Generic alkaline AA, AAA, C, D, and 9V profiles are intentionally excluded because their delivered capacity changes materially with load, cutoff voltage, temperature, and usage pattern.
 
 The built-in catalog is stored in `custom_components/battery_consumption/device_profiles.json`. To add devices without modifying integration files, create:
 

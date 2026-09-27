@@ -235,7 +235,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.8.0",
+                "sw_version": "2.9.0",
             }
 
         self._state: float | None = None

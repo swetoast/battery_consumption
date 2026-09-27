@@ -10,7 +10,11 @@ def test_bundled_profiles_are_available(tmp_path: Path) -> None:
     profiles = load_device_profiles(str(tmp_path))
     assert profiles["google_pixel_8_pro"]["capacity"] == 5050
     assert profiles["google_pixel_watch_2"]["nominal_voltage"] == 3.87
-    assert profiles["meta_quest_2"]["capacity"] == 3640
+    assert profiles["meta_quest_2"]["capacity"] == 14
+    assert profiles["apple_iphone_15"]["capacity"] == 12.98
+    assert profiles["samsung_galaxy_s24_ultra"]["capacity"] == 19.4
+    assert profiles["panasonic_eneloop_aaa_bk_4mcc"]["nominal_voltage"] == 1.2
+    assert profiles["varta_recharge_accu_power_9v_200"]["nominal_voltage"] == 8.4
 
 
 def test_user_profiles_add_and_override_entries(tmp_path: Path) -> None:
