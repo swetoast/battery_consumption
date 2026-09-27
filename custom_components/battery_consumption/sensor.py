@@ -1,11 +1,14 @@
-"""Support for compensation sensor."""
-import logging
-import datetime
-from datetime import datetime
+"""Battery Consumption sensors."""
 
-from homeassistant.components.sensor import SensorEntity
+from __future__ import annotations
+
+from datetime import datetime
+import logging
+from typing import Any, Callable
+
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    ATTR_UNIT_OF_MEASUREMENT,
     CONF_ATTRIBUTE,
     CONF_SOURCE,
     CONF_UNIQUE_ID,
@@ -13,30 +16,34 @@ from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
-from homeassistant.core import callback
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import (
     CONF_BATTERY_CAPACITY,
     CONF_BATTERY_CONSUMPTION,
+    CONF_CREATE_ACTIVITY_SENSOR,
+    CONF_CREATE_CYCLE_SENSOR,
+    CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
+    CONF_SESSION_TIMEOUT,
     DATA_BATTERY_CONSUMPTION,
+    DEFAULT_CREATE_ACTIVITY_SENSOR,
+    DEFAULT_CREATE_CYCLE_SENSOR,
+    DEFAULT_MINIMUM_CHANGE,
     DEFAULT_NAME,
+    DEFAULT_SESSION_TIMEOUT,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-# attributes
-# indicate the source for battery
 ATTR_SOURCE = "source"
 ATTR_SOURCE_ATTRIBUTE = "source_attribute"
-# different attributes in % (battery level)
 ATTR_PREVIOUS_MONITORED_VALUE = "previous_value"
 ATTR_CURRENT_VARIATION = "variation"
 ATTR_CURRENT_CHARGE = "battery_charge"
 ATTR_CURRENT_DISCHARGE = "battery_discharge"
-# different attributes in Wh (energy)
 ATTR_CURRENT_VARIATION_ENERGY = "energy_variation"
 ATTR_CURRENT_CHARGE_ENERGY = "energy_charge"
 ATTR_CURRENT_DISCHARGE_ENERGY = "energy_discharge"
@@ -47,331 +54,423 @@ ATTR_TOTAL_DISCHARGE_ENERGY = "total_energy_discharge"
 ATTR_CAPACITY_UNIT = "capacity_unit"
 ATTR_CAPACITY = "capacity"
 ATTR_ENERGY_LEVEL = "energy_level"
-# different attributes in time
 ATTR_LAST_UPDATED = "last_updated"
 ATTR_PREVIOUS_LAST_UPDATED = "previous_last_updated"
 ATTR_DELTA_LAST_UPDATED = "delta_last_updated_in_minutes"
-# different attributes in W (power)
 ATTR_CURRENT_POWER = "instant_power"
+ATTR_SESSION_STARTED = "session_started"
+ATTR_SESSION_START_LEVEL = "session_start_level"
+ATTR_SESSION_CHANGE = "session_change"
+ATTR_SESSION_ENERGY = "session_energy"
+ATTR_MINIMUM_CHANGE = "minimum_change"
+
+ACTIVITY_IDLE = "idle"
+ACTIVITY_CHARGING = "charging"
+ACTIVITY_DISCHARGING = "discharging"
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the Battery Consumption sensor."""
-    if discovery_info is None:
-        return
+def _optional_value(value: Any) -> Any:
+    return None if value in (None, STATE_UNKNOWN, STATE_UNAVAILABLE) else value
 
-    battery_consumption = discovery_info[CONF_BATTERY_CONSUMPTION]
-    conf = hass.data[DATA_BATTERY_CONSUMPTION][battery_consumption]
 
+def _optional_float(value: Any) -> float | None:
+    value = _optional_value(value)
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _restored_datetime(value: Any) -> datetime | None:
+    value = _optional_value(value)
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value
+    try:
+        return datetime.fromisoformat(str(value))
+    except ValueError:
+        return None
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: Callable,
+) -> None:
+    """Set up Battery Consumption from a config entry."""
+    conf = {**entry.data, **entry.options}
+    tracker = BatteryConsumptionSensor(
+        conf.get(CONF_UNIQUE_ID, entry.entry_id),
+        _sensor_name(conf),
+        conf[CONF_SOURCE],
+        conf.get(CONF_ATTRIBUTE),
+        conf[CONF_PRECISION],
+        conf.get(CONF_BATTERY_CAPACITY),
+        conf.get(CONF_UNIT_OF_MEASUREMENT),
+        conf.get(CONF_MINIMUM_CHANGE, DEFAULT_MINIMUM_CHANGE),
+        conf.get(CONF_SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT),
+    )
+    entities: list[SensorEntity] = [tracker]
+    if conf.get(CONF_CREATE_ACTIVITY_SENSOR, DEFAULT_CREATE_ACTIVITY_SENSOR):
+        entities.append(BatteryActivitySensor(tracker, entry.entry_id))
+    if conf.get(CONF_CREATE_CYCLE_SENSOR, DEFAULT_CREATE_CYCLE_SENSOR):
+        entities.append(BatteryCycleSensor(tracker, entry.entry_id))
+    async_add_entities(entities)
+
+
+def _sensor_name(conf: dict[str, Any]) -> str:
     source = conf[CONF_SOURCE]
     attribute = conf.get(CONF_ATTRIBUTE)
     name = f"{DEFAULT_NAME}_{source}"
-    if attribute is not None:
-        name = f"{name}_{attribute}"
+    return f"{name}_{attribute}" if attribute is not None else name
 
+
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config: dict[str, Any],
+    async_add_entities: Callable,
+    discovery_info: dict[str, Any] | None = None,
+) -> None:
+    """Set up a YAML Battery Consumption sensor."""
+    if discovery_info is None:
+        return
+    key = discovery_info[CONF_BATTERY_CONSUMPTION]
+    conf = hass.data[DATA_BATTERY_CONSUMPTION][key]
     async_add_entities(
         [
             BatteryConsumptionSensor(
                 conf.get(CONF_UNIQUE_ID),
-                name,
-                source,
-                attribute,
+                _sensor_name(conf),
+                conf[CONF_SOURCE],
+                conf.get(CONF_ATTRIBUTE),
                 conf[CONF_PRECISION],
                 conf.get(CONF_BATTERY_CAPACITY),
                 conf.get(CONF_UNIT_OF_MEASUREMENT),
+                conf.get(CONF_MINIMUM_CHANGE, DEFAULT_MINIMUM_CHANGE),
+                conf.get(CONF_SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT),
             )
         ]
     )
 
 
-def format_receive_value(value):
-    """format if pb then return None"""
-    if value == None or value == STATE_UNKNOWN or value == STATE_UNAVAILABLE:
-        return None
-    else:
-        return value
-
-def format_receive_value_date(value):
-    """format if pb then return None"""
-    if value == None or value == STATE_UNKNOWN or value == STATE_UNAVAILABLE:
-        return None
-    else:
-        return datetime.fromisoformat(value)
-
-def format_receive_value_float(value):
-    """format if pb then return None"""
-    if value == None or value == STATE_UNKNOWN or value == STATE_UNAVAILABLE:
-        return None
-    else:
-        return float(value)
-
-def format_receive_value_zero(value):
-    """format if pb then return 0.0"""
-    if value == None or value == STATE_UNKNOWN or value == STATE_UNAVAILABLE:
-        return float(0.0)
-    else:
-        return float(value)
-
-
 class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
-    """Representation of a BatteryConsumptionSensor."""
+    """Track battery changes and accumulated charge and discharge."""
+
+    _attr_should_poll = False
 
     def __init__(
         self,
-        unique_id,
-        name,
-        source,
-        attribute,
-        precision,
-        battery_capacity,
-        unit_of_measurement,
-    ):
-        """Initialize the BatteryConsumptionSensor."""
-        self._unique_id = unique_id
-        self._name = name
+        unique_id: str | None,
+        name: str,
+        source: str,
+        attribute: str | None,
+        precision: int,
+        battery_capacity: float | None,
+        unit_of_measurement: str | None,
+        minimum_change: float,
+        session_timeout: int,
+    ) -> None:
+        self._attr_unique_id = unique_id
+        self._attr_name = name
         self._source_entity_id = source
         self._source_attribute = attribute
         self._precision = precision
         self._battery_capacity = battery_capacity
         self._unit_of_measurement = unit_of_measurement
+        self._minimum_change = float(minimum_change)
+        self._session_timeout = int(session_timeout)
 
-        # state values
-        self._state = None
-        self._last_updated = None
-        self._previous_state = None
-        self._previous_last_updated = None
-
-        # state value : induced value
+        self._state: float | None = None
+        self._last_updated: datetime | None = None
+        self._previous_state: float | None = None
+        self._previous_last_updated: datetime | None = None
+        self._accounted_state: float | None = None
+        self._accounted_last_updated: datetime | None = None
         self._delta = 0.0
         self._delta_last_updated = 0.0
-
-        # state value : cumulative value
         self._cumulative_charge = 0.0
         self._cumulative_discharge = 0.0
+        self._source_available = True
 
-    async def async_added_to_hass(self):
-        """Handle added to Hass."""
-        # restore from previous run
+        self._activity = ACTIVITY_IDLE
+        self._session_started: datetime | None = None
+        self._session_start_level: float | None = None
+        self._session_change = 0.0
+        self._cancel_idle: Callable[[], None] | None = None
+        self._dependents: list[SensorEntity] = []
+
+    def register_dependent(self, entity: SensorEntity) -> None:
+        """Register an entity which mirrors tracker state."""
+        self._dependents.append(entity)
+
+    async def async_added_to_hass(self) -> None:
+        """Restore state and subscribe to source changes."""
         await super().async_added_to_hass()
-        state_recorded = await self.async_get_last_state()
-        if state_recorded:
-            # state
-            self._state = format_receive_value_float(state_recorded.state)
-            self._last_updated = state_recorded.last_updated
-            # previous
-            self._previous_state = format_receive_value(
-                state_recorded.attributes.get(ATTR_PREVIOUS_MONITORED_VALUE)
+        restored = await self.async_get_last_state()
+        if restored and (
+            restored.attributes.get(ATTR_SOURCE) == self._source_entity_id
+            and restored.attributes.get(ATTR_SOURCE_ATTRIBUTE)
+            == self._source_attribute
+        ):
+            self._state = _optional_float(restored.state)
+            self._last_updated = restored.last_updated
+            self._previous_state = _optional_float(
+                restored.attributes.get(ATTR_PREVIOUS_MONITORED_VALUE)
             )
-            self._previous_last_updated = format_receive_value_date(
-                state_recorded.attributes.get(ATTR_PREVIOUS_LAST_UPDATED)
+            self._previous_last_updated = _restored_datetime(
+                restored.attributes.get(ATTR_PREVIOUS_LAST_UPDATED)
             )
-            #recompute induced data from the 4th above
-            self._compute_induced_data()
+            self._accounted_state = self._state
+            self._accounted_last_updated = self._last_updated
+            self._cumulative_charge = _optional_float(
+                restored.attributes.get(ATTR_TOTAL_CHARGE)
+            ) or 0.0
+            self._cumulative_discharge = _optional_float(
+                restored.attributes.get(ATTR_TOTAL_DISCHARGE)
+            ) or 0.0
 
-            # cumulative
-            self._cumulative_charge = format_receive_value_zero(
-                state_recorded.attributes.get(ATTR_TOTAL_CHARGE)
+        self.async_on_remove(
+            async_track_state_change_event(
+                self.hass,
+                [self._source_entity_id],
+                self._async_source_state_changed,
             )
-            self._cumulative_discharge = format_receive_value_zero(
-                state_recorded.attributes.get(ATTR_TOTAL_DISCHARGE)
-            )
-
-
-
-
-        # listen to source ID
-        async_track_state_change_event(
-            self.hass,
-            [self._source_entity_id],
-            self._async_battery_consumption_sensor_state_listener,
         )
 
+    @property
+    def available(self) -> bool:
+        return self._source_available
 
     @property
-    def unique_id(self):
-        """Return the unique id of this sensor."""
-        return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
+    def state(self) -> float | None:
         return self._state
 
     @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the sensor."""
-        ret = {
-            ATTR_SOURCE: self._source_entity_id,
-        }
-        if self._source_attribute:
-            ret[ATTR_SOURCE_ATTRIBUTE] = self._source_attribute
-        ret[ATTR_PREVIOUS_MONITORED_VALUE] = self._previous_state
-
-        # print update time
-        ret[ATTR_LAST_UPDATED] = self._last_updated
-        ret[ATTR_PREVIOUS_LAST_UPDATED] = self._previous_last_updated
-        # set in minute
-        ret[ATTR_DELTA_LAST_UPDATED] = self._delta_last_updated / 60
-
-        # variation %
-        ret[ATTR_CURRENT_VARIATION] = self._delta
-        if self._delta < 0:
-            ret[ATTR_CURRENT_CHARGE] = 0
-            ret[ATTR_CURRENT_DISCHARGE] = -self._delta
-        else:
-            ret[ATTR_CURRENT_CHARGE] = self._delta
-            ret[ATTR_CURRENT_DISCHARGE] = 0
-
-        ret[ATTR_TOTAL_CHARGE] = self._cumulative_charge
-        ret[ATTR_TOTAL_DISCHARGE] = self._cumulative_discharge
-
-        if self._battery_capacity != None:
-            ret[ATTR_CAPACITY_UNIT] = self._unit_of_measurement
-            ret[ATTR_CAPACITY] = self._battery_capacity
-
-            ret[ATTR_ENERGY_LEVEL] = (
-                self._state * self._battery_capacity / 100
-            )
-
-            ret[ATTR_CURRENT_VARIATION_ENERGY] = (
-                self._delta * self._battery_capacity / 100
-            )
-            if self._delta < 0:
-                ret[ATTR_CURRENT_CHARGE_ENERGY] = 0
-                ret[ATTR_CURRENT_DISCHARGE_ENERGY] = (
-                    -self._delta * self._battery_capacity / 100
-                )
-            else:
-                ret[ATTR_CURRENT_CHARGE_ENERGY] = (
-                    self._delta * self._battery_capacity / 100
-                )
-                ret[ATTR_CURRENT_DISCHARGE_ENERGY] = 0
-
-            ret[ATTR_TOTAL_CHARGE_ENERGY] = (
-                self._cumulative_charge * self._battery_capacity / 100
-            )
-            ret[ATTR_TOTAL_DISCHARGE_ENERGY] = (
-                self._cumulative_discharge * self._battery_capacity / 100
-            )
-
-
-            try:
-                # delta in % --> convert in Wh/kWh/MWh ,
-                # delta_last_updated in second --> convert into h
-                ret[ATTR_CURRENT_POWER] = round(
-                (
-                    ( self._delta * self._battery_capacity / 100 )
-                    /
-                    ( self._delta_last_updated / 3600 )
-                )
-                ,2)
-            except:
-                # manage divide by 0
-                ret[ATTR_CURRENT_POWER] = 0.0
-
-        return ret
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
+    def unit_of_measurement(self) -> str:
         return "%"
 
-    def _compute_induced_data (self):
-        if (
-            self._previous_state != None
-            and self._state != None
-            and self._previous_state != STATE_UNKNOWN
-            and self._state != STATE_UNKNOWN
-        ):
-            try:
-                self._delta = self._state - self._previous_state
-            except:
-                self._delta = 0
-                _LOGGER.warning(
-                    "%s state or %s previous is not numerical",
-                    self._state,
-                    self._previous_state,
-                )
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        attrs: dict[str, Any] = {
+            ATTR_SOURCE: self._source_entity_id,
+            ATTR_PREVIOUS_MONITORED_VALUE: self._previous_state,
+            ATTR_LAST_UPDATED: self._last_updated,
+            ATTR_PREVIOUS_LAST_UPDATED: self._previous_last_updated,
+            ATTR_DELTA_LAST_UPDATED: self._delta_last_updated / 60,
+            ATTR_CURRENT_VARIATION: self._delta,
+            ATTR_CURRENT_CHARGE: max(self._delta, 0),
+            ATTR_CURRENT_DISCHARGE: max(-self._delta, 0),
+            ATTR_TOTAL_CHARGE: self._cumulative_charge,
+            ATTR_TOTAL_DISCHARGE: self._cumulative_discharge,
+        }
+        if self._source_attribute:
+            attrs[ATTR_SOURCE_ATTRIBUTE] = self._source_attribute
+        if self._minimum_change > 0:
+            attrs[ATTR_MINIMUM_CHANGE] = self._minimum_change
+        if self._battery_capacity is not None:
+            variation_energy = self._delta * self._battery_capacity / 100
+            attrs.update(
+                {
+                    ATTR_CAPACITY_UNIT: self._unit_of_measurement,
+                    ATTR_CAPACITY: self._battery_capacity,
+                    ATTR_ENERGY_LEVEL: (
+                        None
+                        if self._state is None
+                        else self._state * self._battery_capacity / 100
+                    ),
+                    ATTR_CURRENT_VARIATION_ENERGY: variation_energy,
+                    ATTR_CURRENT_CHARGE_ENERGY: max(variation_energy, 0),
+                    ATTR_CURRENT_DISCHARGE_ENERGY: max(-variation_energy, 0),
+                    ATTR_TOTAL_CHARGE_ENERGY: (
+                        self._cumulative_charge * self._battery_capacity / 100
+                    ),
+                    ATTR_TOTAL_DISCHARGE_ENERGY: (
+                        self._cumulative_discharge * self._battery_capacity / 100
+                    ),
+                    ATTR_CURRENT_POWER: self._instant_power,
+                }
+            )
+        return attrs
 
+    @property
+    def _instant_power(self) -> float | None:
+        if self._battery_capacity is None or self._delta_last_updated <= 0:
+            return None
+        return round(
+            (self._delta * self._battery_capacity / 100)
+            / (self._delta_last_updated / 3600),
+            2,
+        )
 
-            try:
-                delta_last_updated = self._last_updated - self._previous_last_updated
-                self._delta_last_updated = delta_last_updated.total_seconds()
-            except:
-                self._delta_last_updated = 0.0
-                _LOGGER.warning(
-                    "%s last_updated or %s previous_last_updated is not numerical",
-                    self._last_updated,
-                    self._previous_last_updated,
-                )
+    @property
+    def activity(self) -> str:
+        return self._activity
 
+    @property
+    def session_attributes(self) -> dict[str, Any]:
+        attrs: dict[str, Any] = {
+            ATTR_SESSION_STARTED: self._session_started,
+            ATTR_SESSION_START_LEVEL: self._session_start_level,
+            ATTR_SESSION_CHANGE: self._session_change,
+        }
+        if self._battery_capacity is not None:
+            attrs[ATTR_SESSION_ENERGY] = (
+                self._session_change * self._battery_capacity / 100
+            )
+            attrs[ATTR_CAPACITY_UNIT] = self._unit_of_measurement
+        return attrs
 
-        else:
-            self._delta = 0
-            self._delta_last_updated = 0.0
-
-    def _compute_cumulative_data (self):
-        if self._delta < 0:
-            self._cumulative_discharge = self._cumulative_discharge - self._delta
-        else:
-            self._cumulative_charge = self._cumulative_charge + self._delta
-
-
-
-    def _compute_new_state_and_attribute(self, value, last_updated):
-        """Compute new state of the sensor and its attribute"""
-        #previous
-        self._previous_state = self._state
-        self._previous_last_updated = self._last_updated
-        #new state
-        self._state = round(value, self._precision)
-        self._last_updated = last_updated
-        #compute data from the 4th above
-        self._compute_induced_data()
-        self._compute_cumulative_data()
+    @property
+    def equivalent_full_cycles(self) -> float:
+        return round(self._cumulative_discharge / 100, self._precision)
 
     @callback
-    def _async_battery_consumption_sensor_state_listener(self, event):
-        """Handle sensor state changes."""
-        new_state_valid = False
-        value = None
-        # retrieve state
+    def _async_source_state_changed(self, event: Event) -> None:
         new_state = event.data.get("new_state")
-        last_updated = new_state.last_updated
-        if new_state is None:
+        if new_state is None or new_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            self._source_available = False
+            self.async_write_ha_state()
+            self._write_dependents()
             return
 
-        try:
-            if self._source_attribute:
-                value = float(new_state.attributes.get(self._source_attribute))
-            else:
-                value = (
-                    None if new_state.state == STATE_UNKNOWN else float(new_state.state)
-                )
-            if value != None:
-                new_state_valid = True
-
-        except (ValueError, TypeError):
-            # self._state = None
-            if self._source_attribute:
-                _LOGGER.warning(
-                    "%s attribute %s is not numerical",
-                    self._source_entity_id,
-                    self._source_attribute,
-                )
-            else:
-                _LOGGER.warning("%s state is not numerical", self._source_entity_id)
-
-        if new_state_valid == True:
-            self._compute_new_state_and_attribute(value, last_updated)
+        raw_value = (
+            new_state.attributes.get(self._source_attribute)
+            if self._source_attribute
+            else new_state.state
+        )
+        value = _optional_float(raw_value)
+        if value is None or not 0 <= value <= 100:
+            self._source_available = False
+            _LOGGER.warning(
+                "%s%s must provide a numerical battery level from 0 to 100",
+                self._source_entity_id,
+                f" attribute {self._source_attribute}" if self._source_attribute else "",
+            )
             self.async_write_ha_state()
+            self._write_dependents()
+            return
+
+        self._source_available = True
+        self._previous_state = self._state
+        self._previous_last_updated = self._last_updated
+        self._state = round(value, self._precision)
+        self._last_updated = new_state.last_updated
+
+        if self._accounted_state is None:
+            self._accounted_state = self._state
+            self._accounted_last_updated = self._last_updated
+            self._delta = 0.0
+            self._delta_last_updated = 0.0
+        else:
+            pending_delta = self._state - self._accounted_state
+            threshold = self._minimum_change
+            if pending_delta != 0 and (threshold == 0 or abs(pending_delta) >= threshold):
+                previous_accounted_level = self._accounted_state
+                previous_accounted_time = self._accounted_last_updated
+                self._delta = round(pending_delta, self._precision)
+                self._delta_last_updated = (
+                    (self._last_updated - previous_accounted_time).total_seconds()
+                    if previous_accounted_time is not None
+                    else 0.0
+                )
+                self._accounted_state = self._state
+                self._accounted_last_updated = self._last_updated
+                if self._delta > 0:
+                    self._cumulative_charge += self._delta
+                    activity = ACTIVITY_CHARGING
+                else:
+                    self._cumulative_discharge -= self._delta
+                    activity = ACTIVITY_DISCHARGING
+                self._update_session(activity, previous_accounted_level)
+            else:
+                self._delta = 0.0
+                self._delta_last_updated = 0.0
+
+        self.async_write_ha_state()
+        self._write_dependents()
+
+    @callback
+    def _update_session(
+        self, activity: str, previous_accounted_level: float
+    ) -> None:
+        if activity != self._activity:
+            self._activity = activity
+            self._session_started = self._last_updated
+            self._session_start_level = previous_accounted_level
+            self._session_change = self._delta
+        else:
+            self._session_change += self._delta
+
+        if self._cancel_idle is not None:
+            self._cancel_idle()
+        self._cancel_idle = async_call_later(
+            self.hass,
+            self._session_timeout * 60,
+            self._async_mark_idle,
+        )
+
+    @callback
+    def _async_mark_idle(self, _now: datetime) -> None:
+        self._cancel_idle = None
+        self._activity = ACTIVITY_IDLE
+        self._write_dependents()
+
+    @callback
+    def _write_dependents(self) -> None:
+        for entity in self._dependents:
+            if entity.hass is not None:
+                entity.async_write_ha_state()
+
+
+class BatteryActivitySensor(SensorEntity):
+    """Represent current confirmed battery activity."""
+
+    _attr_should_poll = False
+    _attr_translation_key = "activity"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = [ACTIVITY_IDLE, ACTIVITY_CHARGING, ACTIVITY_DISCHARGING]
+
+    def __init__(self, tracker: BatteryConsumptionSensor, entry_id: str) -> None:
+        self._tracker = tracker
+        self._attr_unique_id = f"{entry_id}_activity"
+        self._attr_name = "Battery activity"
+        tracker.register_dependent(self)
+
+    @property
+    def available(self) -> bool:
+        return self._tracker.available
+
+    @property
+    def state(self) -> str:
+        return self._tracker.activity
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return self._tracker.session_attributes
+
+
+class BatteryCycleSensor(SensorEntity):
+    """Represent equivalent full discharge cycles."""
+
+    _attr_should_poll = False
+    _attr_translation_key = "equivalent_full_cycles"
+    _attr_icon = "mdi:battery-sync"
+    _attr_native_unit_of_measurement = "cycles"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, tracker: BatteryConsumptionSensor, entry_id: str) -> None:
+        self._tracker = tracker
+        self._attr_unique_id = f"{entry_id}_equivalent_full_cycles"
+        self._attr_name = "Equivalent full cycles"
+        tracker.register_dependent(self)
+
+    @property
+    def available(self) -> bool:
+        return self._tracker.available
+
+    @property
+    def native_value(self) -> float:
+        return self._tracker.equivalent_full_cycles

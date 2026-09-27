@@ -1,22 +1,25 @@
 # battery_consumption
 ## Description
 
-Battery Consumption custom component for [Home Assistant](https://home-assistant.io/).
+Battery Consumption is a custom integration for [Home Assistant](https://www.home-assistant.io/) that calculates battery charge, discharge, accumulated changes, energy values, and estimated power from an existing battery-level entity.
 
+![GitHub release](https://img.shields.io/github/release/swetoast/battery_consumption)
+[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
 
-![GitHub release](https://img.shields.io/github/release/jugla/battery_consumption)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+The integration keeps the battery level as the sensor state and updates whenever its source entity changes. It can expose current variation, charge and discharge percentages, accumulated values, energy values, and estimated instantaneous power.
 
+This fork targets Home Assistant 2025.12.2. Version 2.4.0 adds optional noise filtering, battery activity sessions, and equivalent full-cycle tracking. The new entities and filtering are disabled by default.
 
-This component is used to compute statistics on a battery (based on its level state)
+## Configuration
 
-This component allows to :
-- to display the current varation of battery
-- the charge in % or in Wh/kWh...
-- the discharge in % or in Wh/kWh ...
-- the total charge/discharge
+Add Battery Consumption from **Settings → Devices & services → Add integration**. Configure the source entity, optional source attribute, precision, optional battery capacity, and optional capacity unit.
 
-The refresh rate is based on battery's level state
+After setup, use **Configure** for precision, battery capacity, capacity unit, minimum meaningful change, session timeout, and the optional activity and equivalent full-cycle sensors. Use **Reconfigure** for the source entity or source attribute. The existing sensor keeps its stable unique ID and entity-registry identity. Existing YAML configuration remains supported but is not imported automatically into the user interface.
+
+For HACS, add `https://github.com/swetoast/battery_consumption` as a custom **Integration** repository, install Battery Consumption, restart Home Assistant, and then add the integration from **Settings → Devices & services**.
 
 ## Other information
-Detail information on use, breaking change, example are given at [worldtidesinfocustom repository](https://github.com/jugla/battery_consumption)
+
+Full installation instructions, YAML examples, attribute descriptions, upgrade guidance, and release information are available in the [Battery Consumption repository](https://github.com/swetoast/battery_consumption).
+
+This is a fork of the original Battery Consumption project by `jugla`. The project remains distributed under the included MIT License, and the original copyright and permission notice are retained in `LICENSE`.

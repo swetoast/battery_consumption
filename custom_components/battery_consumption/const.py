@@ -1,18 +1,21 @@
-"""Compensation constants."""
-# Domain name
-DOMAIN = "battery_consumption"
+"""Constants for Battery Consumption."""
 
-# Sensor  Name
+DOMAIN = "battery_consumption"
 SENSOR = "battery_consumption"
 
-# YAML
 CONF_BATTERY_CONSUMPTION = "battery_consumption"
 CONF_PRECISION = "precision"
 CONF_BATTERY_CAPACITY = "battery_capacity"
+CONF_MINIMUM_CHANGE = "minimum_change"
+CONF_SESSION_TIMEOUT = "session_timeout"
+CONF_CREATE_ACTIVITY_SENSOR = "create_activity_sensor"
+CONF_CREATE_CYCLE_SENSOR = "create_cycle_sensor"
 
-# initialisation process
 DATA_BATTERY_CONSUMPTION = "battery_consumption"
 
-# Default
 DEFAULT_NAME = "battery_consumption"
 DEFAULT_PRECISION = 2
+DEFAULT_MINIMUM_CHANGE = 0.0
+DEFAULT_SESSION_TIMEOUT = 15
+DEFAULT_CREATE_ACTIVITY_SENSOR = False
+DEFAULT_CREATE_CYCLE_SENSOR = False

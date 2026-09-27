@@ -1,10 +1,13 @@
 {
   "domain": "battery_consumption",
   "name": "battery_consumption",
-  "codeowners": ["@jugla"],
-  "documentation": "https://github.com/jugla/battery_consumption",
+  "codeowners": [
+    "@swetoast"
+  ],
+  "documentation": "https://github.com/swetoast/battery_consumption",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/jugla/battery_consumption/issues",
+  "issue_tracker": "https://github.com/swetoast/battery_consumption/issues",
   "requirements": [],
-  "version": "2.1.0"
+  "version": "2.4.0",
+  "config_flow": true
 }

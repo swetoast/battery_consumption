@@ -1,0 +1,67 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Consumption",
+        "description": "Create a battery consumption sensor.",
+        "data": {
+          "source": "Source entity",
+          "attribute": "Source attribute",
+          "precision": "Precision",
+          "battery_capacity": "Battery capacity",
+          "unit_of_measurement": "Capacity unit",
+          "minimum_change": "Minimum meaningful change",
+          "session_timeout": "Session timeout",
+          "create_activity_sensor": "Create battery activity sensor",
+          "create_cycle_sensor": "Create equivalent full cycles sensor"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Battery Consumption",
+        "description": "Change the source entity or source attribute. The existing sensor identity and entity registry settings are preserved.",
+        "data": {
+          "source": "Source entity",
+          "attribute": "Source attribute"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This source is already configured.",
+      "reconfigure_successful": "Battery Consumption was reconfigured successfully."
+    },
+    "error": {
+      "already_configured": "This source and attribute combination is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Battery Consumption options",
+        "data": {
+          "precision": "Precision",
+          "battery_capacity": "Battery capacity",
+          "unit_of_measurement": "Capacity unit",
+          "minimum_change": "Minimum meaningful change",
+          "session_timeout": "Session timeout",
+          "create_activity_sensor": "Create battery activity sensor",
+          "create_cycle_sensor": "Create equivalent full cycles sensor"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "activity": {
+        "name": "Battery activity",
+        "state": {
+          "idle": "Idle",
+          "charging": "Charging",
+          "discharging": "Discharging"
+        }
+      },
+      "equivalent_full_cycles": {
+        "name": "Equivalent full cycles"
+      }
+    }
+  }
+}
