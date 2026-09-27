@@ -110,7 +110,7 @@ def _tracking_schema() -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(
-                vol.Coerce(int), vol.Range(min=1)
+                vol.Coerce(int), vol.Range(min=0)
             ),
             vol.Required(
                 CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
@@ -457,6 +457,18 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             if not self._profiles:
                 self._profiles = await async_load_device_profiles(self.hass)
             data = _apply_device_profile(self._data, self._profiles)
+            # Options are merged over entry data at runtime. Explicitly store nulls
+            # for inactive capacity fields so values from the original config entry
+            # cannot leak back in after switching profile/manual modes.
+            if data.get(CONF_DEVICE_PROFILE) == DEVICE_PROFILE_MANUAL:
+                if CONF_BATTERY_CAPACITY not in data:
+                    data[CONF_BATTERY_CAPACITY] = None
+                    data[CONF_UNIT_OF_MEASUREMENT] = None
+                    data[CONF_BATTERY_VOLTAGE] = None
+                elif data.get(CONF_UNIT_OF_MEASUREMENT) != "mAh":
+                    data[CONF_BATTERY_VOLTAGE] = None
+            elif data.get(CONF_UNIT_OF_MEASUREMENT) != "mAh":
+                data[CONF_BATTERY_VOLTAGE] = None
             return self.async_create_entry(data=data)
         return self.async_show_form(
             step_id="tracking",

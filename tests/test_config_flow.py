@@ -131,3 +131,98 @@ async def test_duplicate_is_rejected_on_identity_step(hass: HomeAssistant) -> No
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "user"
     assert result["errors"] == {"base": "already_configured"}
+
+
+async def test_options_manual_without_capacity_clears_profile_values(
+    hass: HomeAssistant,
+) -> None:
+    """Switching to manual with no capacity must disable stored profile values."""
+    entry = config_entries.ConfigEntry(
+        version=1,
+        minor_version=1,
+        domain=DOMAIN,
+        title="Phone",
+        data={
+            "tracker_name": "Phone",
+            CONF_SOURCE: "sensor.phone_battery",
+            "device_profile": "google_pixel_8_pro",
+            "battery_capacity": 5050,
+            "unit_of_measurement": "mAh",
+            "battery_voltage": 3.85,
+        },
+        source=config_entries.SOURCE_USER,
+        unique_id="sensor.phone_battery:",
+        discovery_keys={},
+        options={},
+        subentries_data={},
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"configuration_mode": "manual"}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], TRACKING
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"]["device_profile"] == "manual"
+    assert result["data"]["battery_capacity"] is None
+    assert result["data"]["unit_of_measurement"] is None
+    assert result["data"]["battery_voltage"] is None
+
+
+async def test_options_manual_wh_clears_old_voltage(hass: HomeAssistant) -> None:
+    """A manual Wh configuration must not inherit an old mAh voltage."""
+    entry = config_entries.ConfigEntry(
+        version=1,
+        minor_version=1,
+        domain=DOMAIN,
+        title="Phone",
+        data={
+            "tracker_name": "Phone",
+            CONF_SOURCE: "sensor.phone_battery",
+            "device_profile": "google_pixel_8_pro",
+            "battery_capacity": 5050,
+            "unit_of_measurement": "mAh",
+            "battery_voltage": 3.85,
+        },
+        source=config_entries.SOURCE_USER,
+        unique_id="sensor.phone_battery:",
+        discovery_keys={},
+        options={},
+        subentries_data={},
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"configuration_mode": "manual"}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"battery_capacity": 19.44, "unit_of_measurement": "Wh"},
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], TRACKING
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"]["battery_capacity"] == 19.44
+    assert result["data"]["unit_of_measurement"] == "Wh"
+    assert result["data"]["battery_voltage"] is None
+
+
+async def test_zero_precision_is_allowed(hass: HomeAssistant) -> None:
+    """Allow whole-number output with zero decimal places."""
+    result = await _start(hass)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], IDENTITY)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"configuration_mode": "manual"}
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {**TRACKING, "precision": 0}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"]["precision"] == 0
