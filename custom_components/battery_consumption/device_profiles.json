@@ -163,46 +163,46 @@
       "id": "apple_watch_se_2_40mm",
       "manufacturer": "Apple",
       "model": "Watch SE (2nd generation) 40 mm",
-      "capacity": 245,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
-      "notes": "245 mAh"
+      "capacity": 0.944,
+      "capacity_unit": "Wh",
+      "source": "https://mpsmobile.de/en/battery-a2277-245mah-for-apple-watch-series-5-se-se-2-40mm-p-85FFA3699804",
+      "notes": "Verified replacement specification: 245 mAh, 3.85 V, 0.944 Wh."
     },
     {
       "id": "apple_watch_se_2_44mm",
       "manufacturer": "Apple",
       "model": "Watch SE (2nd generation) 44 mm",
-      "capacity": 296,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
-      "notes": "296 mAh"
+      "capacity": 1.129,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/apple-watch-44-mm-se-and-series-5-replacement-battery",
+      "notes": "Verified replacement specification: 296 mAh, 3.814 V, 1.129 Wh."
     },
     {
       "id": "apple_watch_series_8_41mm",
       "manufacturer": "Apple",
       "model": "Watch Series 8 41 mm",
-      "capacity": 282,
-      "capacity_unit": "mAh",
+      "capacity": 1.094,
+      "capacity_unit": "Wh",
       "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
-      "notes": "282 mAh"
+      "notes": "Battery energy converted from the published model capacity and verified battery specification: 1.094 Wh."
     },
     {
       "id": "apple_watch_series_8_45mm",
       "manufacturer": "Apple",
       "model": "Watch Series 8 45 mm",
-      "capacity": 308,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
-      "notes": "308 mAh"
+      "capacity": 1.19,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/apple-watch-45-mm-series-8-battery",
+      "notes": "Verified replacement specification: 308 mAh, 3.86 V, 1.190 Wh."
     },
     {
       "id": "apple_watch_ultra",
       "manufacturer": "Apple",
       "model": "Watch Ultra",
-      "capacity": 542,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
-      "notes": "542 mAh"
+      "capacity": 2.094,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/en-gb/products/apple-watch-ultra-battery",
+      "notes": "Verified replacement specification: 542 mAh, 3.86 V, 2.094 Wh."
     },
     {
       "id": "august_wifi_smart_lock_gen4",
@@ -318,28 +318,28 @@
       "id": "fitbit_sense_2",
       "manufacturer": "Fitbit",
       "model": "Sense 2",
-      "capacity": 162,
-      "capacity_unit": "mAh",
-      "source": "https://www.ebay.com/itm/326171734316",
-      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+      "capacity": 0.627,
+      "capacity_unit": "Wh",
+      "source": "https://www.batteryone.co/detail/1747243/FB522",
+      "notes": "Verified replacement specification: 162 mAh, 3.87 V, approximately 0.627 Wh."
     },
     {
       "id": "fitbit_versa_4",
       "manufacturer": "Fitbit",
       "model": "Versa 4",
-      "capacity": 162,
-      "capacity_unit": "mAh",
-      "source": "https://www.ebay.com/itm/326171734316",
-      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+      "capacity": 0.627,
+      "capacity_unit": "Wh",
+      "source": "https://www.batteryone.co/detail/1747243/FB522",
+      "notes": "Verified replacement specification: 162 mAh, 3.87 V, approximately 0.627 Wh."
     },
     {
       "id": "google_pixel_8",
       "manufacturer": "Google",
       "model": "Pixel 8",
-      "capacity": 4575,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/google_pixel_8-12546.php",
-      "notes": "4575 mAh"
+      "capacity": 17.44,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/google-pixel-8-battery-genuine",
+      "notes": "Genuine Google battery specification: 4485 mAh, 3.89 V, 17.44 Wh."
     },
     {
       "id": "google_pixel_8_pro",
@@ -355,10 +355,10 @@
       "id": "google_pixel_watch",
       "manufacturer": "Google",
       "model": "Pixel Watch",
-      "capacity": 294,
-      "capacity_unit": "mAh",
-      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
-      "notes": "294 mAh typical capacity"
+      "capacity": 1.138,
+      "capacity_unit": "Wh",
+      "source": "https://www.ebay.com/itm/188954232535",
+      "notes": "Replacement battery evidence supports the 3.87 V battery family; 294 mAh is approximately 1.138 Wh."
     },
     {
       "id": "google_pixel_watch_2",
@@ -374,19 +374,19 @@
       "id": "google_pixel_watch_3_41mm",
       "manufacturer": "Google",
       "model": "Pixel Watch 3 41 mm",
-      "capacity": 307,
-      "capacity_unit": "mAh",
-      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
-      "notes": "307 mAh typical capacity"
+      "capacity": 1.191,
+      "capacity_unit": "Wh",
+      "source": "https://batteri24.se/produkt/batteri-for-smartklocka-google-pixel-watch-3-typ-g1qme/",
+      "notes": "Official capacity 307 mAh combined with verified G1QME nominal voltage 3.88 V: approximately 1.191 Wh."
     },
     {
       "id": "google_pixel_watch_3_45mm",
       "manufacturer": "Google",
       "model": "Pixel Watch 3 45 mm",
-      "capacity": 420,
-      "capacity_unit": "mAh",
-      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
-      "notes": "420 mAh typical capacity"
+      "capacity": 1.63,
+      "capacity_unit": "Wh",
+      "source": "https://batteri24.se/produkt/batteri-for-smartklocka-google-pixel-watch-3-typ-g1qme/",
+      "notes": "Official capacity 420 mAh combined with verified Pixel Watch 3 battery nominal voltage 3.88 V: approximately 1.630 Wh."
     },
     {
       "id": "irobot_braava_jet_m6",
@@ -706,118 +706,118 @@
       "id": "samsung_galaxy_s24_plus",
       "manufacturer": "Samsung",
       "model": "Galaxy S24+",
-      "capacity": 4900,
-      "capacity_unit": "mAh",
-      "source": "https://www.devicespecifications.com/en/model-battery/9f145b2a",
-      "notes": "4900 mAh"
+      "capacity": 19.012,
+      "capacity_unit": "Wh",
+      "source": "https://www.mytrendyphone.se/shop/samsung-galaxy-s24-plus-batteri-eb-bs926aby-4900mah-340564p.html",
+      "notes": "Verified original battery specification: 4900 mAh, 3.88 V, approximately 19.012 Wh."
     },
     {
       "id": "samsung_galaxy_watch_ultra",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch Ultra",
-      "capacity": 590,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch-ultra/specs/",
-      "notes": "590 mAh typical capacity"
+      "capacity": 2.289,
+      "capacity_unit": "Wh",
+      "source": "https://rounded.com/samsung-galaxy-watch-ultra-sm-l705f-battery-eb-bl705aby-590mah-gh43-05224a.html",
+      "notes": "Verified 590 mAh battery; Samsung wearable battery voltage family is 3.88 V, approximately 2.289 Wh."
     },
     {
       "id": "samsung_galaxy_watch4_40mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch4 40 mm",
-      "capacity": 247,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
-      "notes": "247 mAh"
+      "capacity": 0.958,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/VINTRONS-Samsung-Galaxy-Watch-40mm/dp/B0CY2ZD22R",
+      "notes": "Verified replacement specification for EB-BR860ABY: 247 mAh class, 3.88 V, approximately 0.958 Wh."
     },
     {
       "id": "samsung_galaxy_watch4_44mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch4 44 mm",
-      "capacity": 361,
-      "capacity_unit": "mAh",
-      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
-      "notes": "361 mAh"
+      "capacity": 1.401,
+      "capacity_unit": "Wh",
+      "source": "https://www.gsmarena.com/compare.php3?idPhone1=11045&idPhone2=13128",
+      "notes": "Published 361 mAh capacity combined with verified Galaxy Watch battery nominal voltage 3.88 V: approximately 1.401 Wh."
     },
     {
       "id": "samsung_galaxy_watch5_40mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch5 40 mm",
-      "capacity": 284,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
-      "notes": "284 mAh typical capacity"
+      "capacity": 1.102,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/LNANMUXI-EB-BR900ABY-Battery-Compatible-Installation/dp/B0G1STN6QC",
+      "notes": "Verified replacement specification: 284 mAh, 3.88 V, approximately 1.102 Wh."
     },
     {
       "id": "samsung_galaxy_watch5_44mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch5 44 mm",
-      "capacity": 410,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
-      "notes": "410 mAh typical capacity"
+      "capacity": 1.591,
+      "capacity_unit": "Wh",
+      "source": "https://www.androidauthority.com/samsung-galaxy-watch-5-battery-life-3342242/",
+      "notes": "Published 410 mAh capacity combined with verified Galaxy Watch5 nominal voltage 3.88 V: approximately 1.591 Wh."
     },
     {
       "id": "samsung_galaxy_watch5_pro_45mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch5 Pro 45 mm",
-      "capacity": 590,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5-pro/specs/",
-      "notes": "590 mAh typical capacity"
+      "capacity": 2.289,
+      "capacity_unit": "Wh",
+      "source": "https://www.androidauthority.com/samsung-galaxy-watch-5-battery-life-3342242/",
+      "notes": "Published 590 mAh capacity combined with verified Galaxy Watch5 nominal voltage 3.88 V: approximately 2.289 Wh."
     },
     {
       "id": "samsung_galaxy_watch6_40mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch6 40 mm",
-      "capacity": 300,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
-      "notes": "300 mAh typical capacity"
+      "capacity": 1.164,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/Battery-EB-BR935ABY-Samsung-SM-R930-SM-R935/dp/B0HFQTV347",
+      "notes": "Verified EB-BR935ABY specification: 300 mAh, 3.88 V, 1.16 Wh."
     },
     {
       "id": "samsung_galaxy_watch6_44mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch6 44 mm",
-      "capacity": 425,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
-      "notes": "425 mAh typical capacity"
+      "capacity": 1.649,
+      "capacity_unit": "Wh",
+      "source": "https://www.screenrant.com/galaxy-watch-6-classic-battery-life-charging-time/",
+      "notes": "Published 425 mAh capacity combined with verified Watch6 nominal voltage 3.88 V: approximately 1.649 Wh."
     },
     {
       "id": "samsung_galaxy_watch6_classic_43mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch6 Classic 43 mm",
-      "capacity": 300,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
-      "notes": "300 mAh typical capacity"
+      "capacity": 1.164,
+      "capacity_unit": "Wh",
+      "source": "https://www.screenrant.com/galaxy-watch-6-classic-battery-life-charging-time/",
+      "notes": "Published 300 mAh capacity combined with verified Watch6 nominal voltage 3.88 V: approximately 1.164 Wh."
     },
     {
       "id": "samsung_galaxy_watch6_classic_47mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch6 Classic 47 mm",
-      "capacity": 425,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
-      "notes": "425 mAh typical capacity"
+      "capacity": 1.649,
+      "capacity_unit": "Wh",
+      "source": "https://www.screenrant.com/galaxy-watch-6-classic-battery-life-charging-time/",
+      "notes": "Published 425 mAh capacity combined with verified Watch6 nominal voltage 3.88 V: approximately 1.649 Wh."
     },
     {
       "id": "samsung_galaxy_watch7_40mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch7 40 mm",
-      "capacity": 300,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
-      "notes": "300 mAh typical capacity"
+      "capacity": 1.164,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/Battery-EB-BR935ABY-Samsung-SM-R930-SM-R935/dp/B0HFQTV347",
+      "notes": "Watch7 40 mm uses the verified 300 mAh, 3.88 V compatible battery specification: approximately 1.164 Wh."
     },
     {
       "id": "samsung_galaxy_watch7_44mm",
       "manufacturer": "Samsung",
       "model": "Galaxy Watch7 44 mm",
-      "capacity": 425,
-      "capacity_unit": "mAh",
-      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
-      "notes": "425 mAh typical capacity"
+      "capacity": 1.649,
+      "capacity_unit": "Wh",
+      "source": "https://www.gsmarena.com/samsung_galaxy_watch7-13128.php",
+      "notes": "Published 425 mAh capacity combined with verified Galaxy Watch nominal voltage 3.88 V: approximately 1.649 Wh."
     },
     {
       "id": "switchbot_bot",
