@@ -99,7 +99,7 @@ Entity IDs already registered by Home Assistant are not forcibly renamed. The na
 | Create equivalent full cycles sensor | Adds the derived cycle-count sensor | Disabled |
 | Create battery power sensor | Adds a native signed power sensor | Disabled |
 
-Use **Configure** to change calculation options. The options flow first asks whether battery specifications come from a **Device profile** or **Manual configuration**. Profile mode shows the device list without manual capacity fields. Manual mode shows battery capacity, capacity unit, and nominal voltage without the device list. Use **Reconfigure** to change the source entity or source attribute. Reconfiguration keeps the existing Home Assistant entity identity while starting accounting from the new source.
+Use **Configure** to change calculation options. Use **Reconfigure** to change the source entity or source attribute. Reconfiguration keeps the existing Home Assistant entity identity while starting accounting from the new source.
 
 ## Device profiles
 

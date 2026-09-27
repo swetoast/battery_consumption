@@ -79,3 +79,64 @@ def test_wh_capacity_remains_unchanged() -> None:
     )
     assert tracker._battery_capacity == 19.5
     assert tracker._unit_of_measurement == "Wh"
+
+
+def test_options_replace_stale_profile_capacity() -> None:
+    from types import SimpleNamespace
+
+    from custom_components.battery_consumption.sensor import _effective_entry_config
+
+    entry = SimpleNamespace(
+        data={
+            "source": "sensor.phone_battery",
+            "tracker_name": "Phone",
+            "device_profile": "old_profile",
+            "precision": 2,
+            "battery_capacity": 20.0,
+            "unit_of_measurement": "Wh",
+            "battery_voltage": 3.85,
+            "minimum_change": 0.0,
+            "session_timeout": 15,
+            "create_activity_sensor": False,
+            "create_cycle_sensor": False,
+            "create_power_sensor": False,
+        },
+        options={
+            "device_profile": "manual",
+            "precision": 2,
+            "minimum_change": 0.0,
+            "session_timeout": 15,
+            "create_activity_sensor": False,
+            "create_cycle_sensor": False,
+            "create_power_sensor": False,
+        },
+    )
+
+    conf = _effective_entry_config(entry)
+    assert conf["source"] == "sensor.phone_battery"
+    assert conf["device_profile"] == "manual"
+    assert "battery_capacity" not in conf
+    assert "unit_of_measurement" not in conf
+    assert "battery_voltage" not in conf
+
+
+def test_manual_mah_capacity_requires_voltage() -> None:
+    import pytest
+
+    from custom_components.battery_consumption.sensor import BatteryConsumptionSensor
+
+    with pytest.raises(ValueError, match="battery_voltage is required"):
+        BatteryConsumptionSensor(
+            "test",
+            "Test",
+            "sensor.test_battery",
+            None,
+            2,
+            1000,
+            "mAh",
+            0,
+            15,
+            "entry",
+            "Test",
+            None,
+        )

@@ -75,3 +75,24 @@ def test_invalid_user_profiles_are_skipped(tmp_path: Path) -> None:
     profiles = load_device_profiles(str(tmp_path))
     assert "invalid profile id" not in profiles
     assert "missing_voltage" not in profiles
+
+
+def test_user_profile_override_logs_warning(tmp_path: Path, caplog) -> None:
+    user_profiles = {
+        "schema_version": 1,
+        "devices": [
+            {
+                "id": "google_pixel_8_pro",
+                "manufacturer": "Google",
+                "model": "Pixel 8 Pro custom",
+                "capacity": 20,
+                "capacity_unit": "Wh",
+            }
+        ],
+    }
+    (tmp_path / "battery_consumption_device_profiles.json").write_text(
+        json.dumps(user_profiles)
+    )
+
+    load_device_profiles(str(tmp_path))
+    assert "User battery profile overrides bundled profile: google_pixel_8_pro" in caplog.text

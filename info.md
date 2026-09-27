@@ -14,7 +14,7 @@ This fork targets Home Assistant 2025.12.2. Version 2.5.0 adds device grouping, 
 
 Add Battery Consumption from **Settings → Devices & services → Add integration**. Configure the source entity, optional source attribute, precision, optional battery capacity, and optional capacity unit.
 
-After setup, use **Configure** and choose either **Device profile** or **Manual configuration**. Profile mode shows only the profile list and shared calculation options. Manual mode shows only battery capacity, capacity unit, nominal voltage, and shared calculation options. Use **Reconfigure** for the source entity or source attribute. The existing sensor keeps its stable unique ID and entity-registry identity. Existing YAML configuration remains supported but is not imported automatically into the user interface.
+After setup, use **Configure** for precision, battery capacity, capacity unit, minimum meaningful change, session timeout, and the optional activity and equivalent full-cycle sensors. Use **Reconfigure** for the source entity or source attribute. The existing sensor keeps its stable unique ID and entity-registry identity. Existing YAML configuration remains supported but is not imported automatically into the user interface.
 
 For HACS, add `https://github.com/swetoast/battery_consumption` as a custom **Integration** repository, install Battery Consumption, restart Home Assistant, and then add the integration from **Settings → Devices & services**.
 

@@ -211,7 +211,6 @@
       "capacity": 9,
       "capacity_unit": "Wh",
       "source": "https://data.energizer.com/pdfs/123.pdf",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/august/",
       "notes": "August specifies two non-rechargeable 3 V CR123/CR123A lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total for two cells."
     },
     {
@@ -395,7 +394,6 @@
       "capacity": 28.08,
       "capacity_unit": "Wh",
       "source": "https://www.batteriesplus.com/product-details/hhd/battery/cameron-sino-technology/hhd10679",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "M611020 / ABL-C Li-ion battery specification: 2600 mAh, 10.8 V, 28.08 Wh."
     },
     {
@@ -405,7 +403,6 @@
       "capacity": 64.224,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
     },
     {
@@ -415,7 +412,6 @@
       "capacity": 64.224,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
     },
     {
@@ -425,7 +421,6 @@
       "capacity": 64.224,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
     },
     {
@@ -435,7 +430,6 @@
       "capacity": 64.224,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
     },
     {
@@ -445,7 +439,6 @@
       "capacity": 31.824,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
     },
     {
@@ -455,7 +448,6 @@
       "capacity": 31.824,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
     },
     {
@@ -465,7 +457,6 @@
       "capacity": 31.824,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
     },
     {
@@ -475,7 +466,6 @@
       "capacity": 31.824,
       "capacity_unit": "Wh",
       "source": "https://homesupport.irobot.com/s/article/21019",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
     },
     {
@@ -485,7 +475,6 @@
       "capacity": 48,
       "capacity_unit": "Wh",
       "source": "https://www.laptopbatteryexpress.com/Roomba-S9-Battery-p/cr-ablb.htm",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
       "notes": "ABL-B Li-ion battery specification: 3300 mAh, 14.4 V, 48 Wh."
     },
     {
@@ -583,7 +572,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
     },
     {
@@ -593,7 +581,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses one Ring Quick Release Battery Pack V4: 6040 mAh, 3.65 V, 22 Wh. Configure one profile per installed pack."
     },
     {
@@ -603,7 +590,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
     },
     {
@@ -613,7 +599,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
     },
     {
@@ -623,7 +608,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
     },
     {
@@ -633,7 +617,6 @@
       "capacity": 22,
       "capacity_unit": "Wh",
       "source": "https://www.amazon.com/clp/B0C9JGD2LK",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
       "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
     },
     {
@@ -826,7 +809,6 @@
       "capacity": 2.4,
       "capacity_unit": "Wh",
       "source": "https://data.energizer.com/pdfs/cr2_eu.pdf",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
       "notes": "SwitchBot specifies one CR2 lithium cell. Using the Energizer CR2 typical 800 mAh, 3 V specification gives 2.4 Wh."
     },
     {
@@ -836,7 +818,6 @@
       "capacity": 9,
       "capacity_unit": "Wh",
       "source": "https://data.energizer.com/pdfs/123.pdf",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
       "notes": "SwitchBot specifies two CR123A 3 V lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total."
     },
     {
@@ -846,7 +827,6 @@
       "capacity": 9,
       "capacity_unit": "Wh",
       "source": "https://data.energizer.com/pdfs/123.pdf",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
       "notes": "SwitchBot specifies two CR123A 3 V lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total."
     },
     {
@@ -856,7 +836,6 @@
       "capacity": 1.86,
       "capacity_unit": "Wh",
       "source": "https://data.energizer.com/pdfs/cr2450.pdf",
-      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
       "notes": "SwitchBot specifies one CR2450 lithium coin cell. Using the Energizer CR2450 typical 620 mAh, 3 V specification gives 1.86 Wh."
     },
     {

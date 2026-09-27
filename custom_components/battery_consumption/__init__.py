@@ -20,6 +20,7 @@ from homeassistant.helpers.discovery import async_load_platform
 
 from .const import (
     CONF_BATTERY_CAPACITY,
+    CONF_BATTERY_VOLTAGE,
     CONF_BATTERY_CONSUMPTION,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
@@ -35,21 +36,37 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR]
 
-BATTERY_CONSUMPTION_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_SOURCE): cv.entity_id,
-        vol.Optional(CONF_UNIQUE_ID): cv.string,
-        vol.Optional(CONF_ATTRIBUTE): cv.string,
-        vol.Optional(CONF_PRECISION, default=DEFAULT_PRECISION): cv.positive_int,
-        vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
-        vol.Optional(CONF_BATTERY_CAPACITY): cv.positive_float,
-        vol.Optional(
-            CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
-        ): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
-        vol.Optional(
-            CONF_SESSION_TIMEOUT, default=DEFAULT_SESSION_TIMEOUT
-        ): vol.All(vol.Coerce(int), vol.Range(min=1)),
-    }
+
+def _validate_battery_configuration(config: dict) -> dict:
+    """Require an explicit nominal voltage for mAh capacity."""
+    if (
+        config.get(CONF_BATTERY_CAPACITY) is not None
+        and config.get(CONF_UNIT_OF_MEASUREMENT) == "mAh"
+        and config.get(CONF_BATTERY_VOLTAGE) is None
+    ):
+        raise vol.Invalid("battery_voltage is required when capacity is in mAh")
+    return config
+
+
+BATTERY_CONSUMPTION_SCHEMA = vol.All(
+    vol.Schema(
+        {
+            vol.Required(CONF_SOURCE): cv.entity_id,
+            vol.Optional(CONF_UNIQUE_ID): cv.string,
+            vol.Optional(CONF_ATTRIBUTE): cv.string,
+            vol.Optional(CONF_PRECISION, default=DEFAULT_PRECISION): cv.positive_int,
+            vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
+            vol.Optional(CONF_BATTERY_CAPACITY): cv.positive_float,
+            vol.Optional(CONF_BATTERY_VOLTAGE): cv.positive_float,
+            vol.Optional(
+                CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
+            ): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
+            vol.Optional(
+                CONF_SESSION_TIMEOUT, default=DEFAULT_SESSION_TIMEOUT
+            ): vol.All(vol.Coerce(int), vol.Range(min=1)),
+        }
+    ),
+    _validate_battery_configuration,
 )
 
 CONFIG_SCHEMA = vol.Schema(

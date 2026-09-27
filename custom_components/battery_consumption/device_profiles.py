@@ -113,7 +113,12 @@ def load_device_profiles(config_dir: str) -> dict[str, dict[str, Any]]:
     bundled_path = Path(__file__).with_name("device_profiles.json")
     profiles = _load_file(bundled_path, required=True)
     user_path = Path(config_dir) / USER_DEVICE_PROFILES_FILE
-    profiles.update(_load_file(user_path, required=False))
+    user_profiles = _load_file(user_path, required=False)
+    for profile_id in profiles.keys() & user_profiles.keys():
+        _LOGGER.warning(
+            "User battery profile overrides bundled profile: %s", profile_id
+        )
+    profiles.update(user_profiles)
     return dict(
         sorted(
             profiles.items(),

@@ -104,13 +104,37 @@ def _restored_datetime(value: Any) -> datetime | None:
         return None
 
 
+_CALCULATION_KEYS = {
+    CONF_DEVICE_PROFILE,
+    CONF_PRECISION,
+    CONF_BATTERY_CAPACITY,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_BATTERY_VOLTAGE,
+    CONF_MINIMUM_CHANGE,
+    CONF_SESSION_TIMEOUT,
+    CONF_CREATE_ACTIVITY_SENSOR,
+    CONF_CREATE_CYCLE_SENSOR,
+    CONF_CREATE_POWER_SENSOR,
+}
+
+
+def _effective_entry_config(entry: ConfigEntry) -> dict[str, Any]:
+    """Apply options as a complete calculation configuration."""
+    conf = dict(entry.data)
+    if entry.options:
+        for key in _CALCULATION_KEYS:
+            conf.pop(key, None)
+        conf.update(entry.options)
+    return conf
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: Callable,
 ) -> None:
     """Set up Battery Consumption from a config entry."""
-    conf = {**entry.data, **entry.options}
+    conf = _effective_entry_config(entry)
     tracker = BatteryConsumptionSensor(
         conf.get(CONF_UNIQUE_ID, entry.entry_id),
         _sensor_name(conf),
@@ -213,8 +237,9 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._configured_capacity_unit = unit_of_measurement
         self._battery_voltage = battery_voltage
         if battery_capacity is not None and unit_of_measurement == "mAh":
-            voltage = battery_voltage or 3.85
-            self._battery_capacity = battery_capacity * voltage / 1000
+            if battery_voltage is None:
+                raise ValueError("battery_voltage is required when capacity is in mAh")
+            self._battery_capacity = battery_capacity * battery_voltage / 1000
             self._unit_of_measurement = "Wh"
         else:
             self._battery_capacity = battery_capacity
@@ -534,6 +559,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
     def _async_mark_idle(self, _now: datetime) -> None:
         self._cancel_idle = None
         self._activity = ACTIVITY_IDLE
+        self.async_write_ha_state()
         self._write_dependents()
 
     @callback
