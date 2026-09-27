@@ -263,6 +263,419 @@
       "nominal_voltage": 8.4,
       "source": "https://www.varta-ag.com/se/konsument/produkt-kategorier/accus/recharge-accu-power-9v-200-mah",
       "notes": "Rechargeable NiMH 9V block, 200 mAh, 8.4 V"
+    },
+    {
+      "id": "apple_watch_original_38mm",
+      "manufacturer": "Apple",
+      "model": "Watch 38 mm (Original / Series 1)",
+      "capacity": 205,
+      "capacity_unit": "mAh",
+      "source": "https://www.ifixit.com/products/apple-watch-38-mm-original-and-series-1-replacement-battery",
+      "notes": "205 mAh, 3.8 V, 0.78 Wh",
+      "nominal_voltage": 3.8
+    },
+    {
+      "id": "apple_watch_original_42mm",
+      "manufacturer": "Apple",
+      "model": "Watch 42 mm (Original / Series 1)",
+      "capacity": 245,
+      "capacity_unit": "mAh",
+      "source": "https://www.ifixit.com/Parts/Apple_Watch/Batteries",
+      "notes": "245 mAh, 3.78 V, approximately 0.93 Wh",
+      "nominal_voltage": 3.78
+    },
+    {
+      "id": "apple_watch_se_2_40mm",
+      "manufacturer": "Apple",
+      "model": "Watch SE (2nd generation) 40 mm",
+      "capacity": 245,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "245 mAh"
+    },
+    {
+      "id": "apple_watch_se_2_44mm",
+      "manufacturer": "Apple",
+      "model": "Watch SE (2nd generation) 44 mm",
+      "capacity": 296,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "296 mAh"
+    },
+    {
+      "id": "apple_watch_series_8_41mm",
+      "manufacturer": "Apple",
+      "model": "Watch Series 8 41 mm",
+      "capacity": 282,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "282 mAh"
+    },
+    {
+      "id": "apple_watch_series_8_45mm",
+      "manufacturer": "Apple",
+      "model": "Watch Series 8 45 mm",
+      "capacity": 308,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "308 mAh"
+    },
+    {
+      "id": "apple_watch_ultra",
+      "manufacturer": "Apple",
+      "model": "Watch Ultra",
+      "capacity": 542,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "542 mAh"
+    },
+    {
+      "id": "google_pixel_watch",
+      "manufacturer": "Google",
+      "model": "Pixel Watch",
+      "capacity": 294,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "294 mAh typical capacity"
+    },
+    {
+      "id": "google_pixel_watch_3_41mm",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 3 41 mm",
+      "capacity": 307,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "307 mAh typical capacity"
+    },
+    {
+      "id": "google_pixel_watch_3_45mm",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 3 45 mm",
+      "capacity": 420,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "420 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch4_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch4 40 mm",
+      "capacity": 247,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
+      "notes": "247 mAh"
+    },
+    {
+      "id": "samsung_galaxy_watch4_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch4 44 mm",
+      "capacity": 361,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
+      "notes": "361 mAh"
+    },
+    {
+      "id": "samsung_galaxy_watch5_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 40 mm",
+      "capacity": 284,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
+      "notes": "284 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch5_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 44 mm",
+      "capacity": 410,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
+      "notes": "410 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch5_pro_45mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 Pro 45 mm",
+      "capacity": 590,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5-pro/specs/",
+      "notes": "590 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 40 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 44 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_classic_43mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 Classic 43 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_classic_47mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 Classic 47 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch7_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch7 40 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch7_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch7 44 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch Ultra",
+      "capacity": 590,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch-ultra/specs/",
+      "notes": "590 mAh typical capacity"
+    },
+    {
+      "id": "fitbit_versa_4",
+      "manufacturer": "Fitbit",
+      "model": "Versa 4",
+      "capacity": 162,
+      "capacity_unit": "mAh",
+      "source": "https://www.ebay.com/itm/326171734316",
+      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+    },
+    {
+      "id": "fitbit_sense_2",
+      "manufacturer": "Fitbit",
+      "model": "Sense 2",
+      "capacity": 162,
+      "capacity_unit": "mAh",
+      "source": "https://www.ebay.com/itm/326171734316",
+      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+    },
+    {
+      "id": "apple_iphone_15_plus",
+      "manufacturer": "Apple",
+      "model": "iPhone 15 Plus",
+      "capacity": 16.95,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-15-plus-battery",
+      "notes": "4383 mAh, 3.86 V, 16.95 Wh"
+    },
+    {
+      "id": "google_pixel_8",
+      "manufacturer": "Google",
+      "model": "Pixel 8",
+      "capacity": 4575,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/google_pixel_8-12546.php",
+      "notes": "4575 mAh"
+    },
+    {
+      "id": "samsung_galaxy_s23_plus",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23+",
+      "capacity": 4700,
+      "capacity_unit": "mAh",
+      "source": "https://gsmserver.com/en/battery-eb-bs916aby-compatible-with-samsung-s916-galaxy-s23-plus-li-ion-3-88-v-4700-mah-original-prc/",
+      "notes": "4700 mAh, 3.88 V, approximately 18.24 Wh",
+      "nominal_voltage": 3.88
+    },
+    {
+      "id": "samsung_galaxy_s24_plus",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24+",
+      "capacity": 4900,
+      "capacity_unit": "mAh",
+      "source": "https://www.devicespecifications.com/en/model-battery/9f145b2a",
+      "notes": "4900 mAh"
+    },
+    {
+      "id": "meta_quest_3",
+      "manufacturer": "Meta",
+      "model": "Quest 3",
+      "capacity": 19.44,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/News/85024/meta-quest-3-teardown-and-the-future-of-repairability",
+      "notes": "5060 mAh, 3.85 V, 19.44 Wh"
+    },
+    {
+      "id": "valve_steam_deck_oled",
+      "manufacturer": "Valve",
+      "model": "Steam Deck OLED",
+      "capacity": 50,
+      "capacity_unit": "Wh",
+      "source": "https://www.steamdeck.com/en/tech/oled",
+      "notes": "50 Wh rechargeable lithium-ion battery"
+    },
+    {
+      "id": "panasonic_eneloop_pro_aa_bk_3hcde",
+      "manufacturer": "Panasonic",
+      "model": "eneloop pro AA BK-3HCDE",
+      "capacity": 2500,
+      "capacity_unit": "mAh",
+      "source": "https://www.panasonic.com/global/energy/products/eneloop/en/lineup/eneloop-pro.html",
+      "notes": "Rechargeable NiMH AA cell, typical 2500 mAh, minimum 2450 mAh, 1.2 V",
+      "nominal_voltage": 1.2
+    },
+    {
+      "id": "panasonic_eneloop_pro_aaa_bk_4hcde",
+      "manufacturer": "Panasonic",
+      "model": "eneloop pro AAA BK-4HCDE",
+      "capacity": 950,
+      "capacity_unit": "mAh",
+      "source": "https://www.panasonic.com/global/energy/products/eneloop/en/lineup/eneloop-pro.html",
+      "notes": "Rechargeable NiMH AAA cell, typical 950 mAh, minimum 930 mAh, 1.2 V",
+      "nominal_voltage": 1.2
+    },
+    {
+      "id": "energizer_cr2450",
+      "manufacturer": "Energizer",
+      "model": "CR2450 lithium coin cell",
+      "capacity": 620,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2450.pdf",
+      "notes": "Primary lithium coin cell, 620 mAh, 3.0 V. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_123_cr123a",
+      "manufacturer": "Energizer",
+      "model": "123 / CR123A lithium",
+      "capacity": 1500,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/123.pdf",
+      "notes": "Primary Li-MnO2 CR123A cell, typical 1500 mAh to 2.0 V at 100 ohms and 21 °C. Common in security, motion and alarm sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_cr2",
+      "manufacturer": "Energizer",
+      "model": "CR2 lithium",
+      "capacity": 800,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2_eu.pdf",
+      "notes": "Primary Li-MnO2 CR2 cell, typical 800 mAh to 2.0 V at 100 ohms and 21 °C. Used by compact motion, contact and security sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "saft_ls14250",
+      "manufacturer": "Saft",
+      "model": "LS 14250 1/2 AA",
+      "capacity": 1200,
+      "capacity_unit": "mAh",
+      "source": "https://saft4u.saft.com/en/download_file/133c84de-f6e9-46b6-a412-fc4ed453fb5c/English",
+      "notes": "Primary Li-SOCl2 1/2 AA cell, 1.2 Ah and 4.32 Wh. Intended for long-life IoT, connected sensors, alarms and security devices. Not rechargeable.",
+      "nominal_voltage": 3.6
+    },
+    {
+      "id": "saft_ls14500",
+      "manufacturer": "Saft",
+      "model": "LS 14500 AA-size lithium",
+      "capacity": 2600,
+      "capacity_unit": "mAh",
+      "source": "https://saft4u.saft.com/en/download_file/738dfd7b-3131-4e31-8924-401cd9a36bbc/English",
+      "notes": "Primary Li-SOCl2 AA-size cell, 2.6 Ah and 9.36 Wh. Designed for long-life IoT, connected sensors, alarms and metering. Not interchangeable with 1.5 V AA.",
+      "nominal_voltage": 3.6
+    },
+    {
+      "id": "panasonic_cr1220",
+      "manufacturer": "Panasonic",
+      "model": "CR1220 lithium coin cell",
+      "capacity": 35,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/na/business/products/lithium/coin-cr-standard/models/CR1220",
+      "notes": "Primary Li-MnO2 coin cell, nominal 35 mAh. Suitable for compact low-power transmitters and sensors that specify CR1220. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "panasonic_cr1632",
+      "manufacturer": "Panasonic",
+      "model": "CR1632 lithium coin cell",
+      "capacity": 140,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/na/business/products/lithium/coin-cr-standard/models/CR1632",
+      "notes": "Primary Li-MnO2 coin cell, nominal 140 mAh. Used by compact transmitters, tags and sensors that specify CR1632. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_cr2016",
+      "manufacturer": "Energizer",
+      "model": "CR2016 lithium coin cell",
+      "capacity": 100,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2016.pdf",
+      "notes": "Primary Li-MnO2 coin cell, typical 100 mAh to 2.0 V at 30 kohms and 21 °C. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_cr2025",
+      "manufacturer": "Energizer",
+      "model": "CR2025 lithium coin cell",
+      "capacity": 170,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2025.pdf",
+      "notes": "Primary Li-MnO2 coin cell, typical 170 mAh to 2.0 V at 15 kohms and 21 °C. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "panasonic_cr2477",
+      "manufacturer": "Panasonic",
+      "model": "CR2477 lithium coin cell",
+      "capacity": 1000,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/eu/business/products/lithium/coin-cr-standard/models/CR2477",
+      "notes": "Primary Li-MnO2 coin cell, nominal 1000 mAh. Used by larger long-life room and environmental sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_a23",
+      "manufacturer": "Energizer",
+      "model": "A23 / 23A alkaline",
+      "capacity": 55,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/a23.pdf",
+      "notes": "Primary miniature alkaline A23 battery, typical 55 mAh to 6.0 V at 20 kohms and 21 °C. Used in wireless controls and some sensor accessories.",
+      "nominal_voltage": 12.0
+    },
+    {
+      "id": "energizer_a76_lr44",
+      "manufacturer": "Energizer",
+      "model": "A76 / LR44 alkaline button cell",
+      "capacity": 175,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/a76z.pdf",
+      "notes": "Primary alkaline LR44 button cell, typical 175 mAh to 0.9 V at 6.8 kohms and 21 °C. Found in small displays, probes and sensor accessories.",
+      "nominal_voltage": 1.5
     }
   ]
 }
