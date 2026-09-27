@@ -9,7 +9,7 @@ from custom_components.battery_consumption.sensor import BatteryConsumptionSenso
 def _tracker(minimum_change: float = 0) -> BatteryConsumptionSensor:
     return BatteryConsumptionSensor(
         "test", "Test battery", "sensor.test_battery", None, 2, 50, "kWh",
-        minimum_change, 15, "entry-id"
+        minimum_change, 15, "entry-id", "Pixel 9"
     )
 
 
@@ -52,3 +52,11 @@ def test_power_unit_and_equivalent_cycles() -> None:
     tracker._cumulative_discharge = 125
     assert tracker.power_unit == "kW"
     assert tracker.equivalent_full_cycles == 1.25
+
+
+def test_namespaced_suggested_object_ids() -> None:
+    tracker = _tracker()
+    assert tracker._attr_suggested_object_id == (
+        "battery_consumption_pixel_9_battery_level"
+    )
+    assert tracker.device_info["name"] == "Battery Consumption Pixel 9"

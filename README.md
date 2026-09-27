@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.5.0-blue" alt="Version 2.5.0">
+  <img src="https://img.shields.io/badge/version-2.6.0-blue" alt="Version 2.6.0">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -66,10 +66,26 @@ Battery Consumption turns an existing percentage entity, or one of its attribute
 
 Each source entity and source attribute combination can be configured once.
 
+### Naming standard
+
+The tracker name is combined with the integration namespace and entity purpose. For a tracker named `Pixel 9`, new entities use these initial entity IDs:
+
+```text
+sensor.battery_consumption_pixel_9_battery_level
+sensor.battery_consumption_pixel_9_battery_activity
+sensor.battery_consumption_pixel_9_battery_power
+sensor.battery_consumption_pixel_9_equivalent_full_cycles
+```
+
+The virtual device is displayed as `Battery Consumption Pixel 9`. Entity names inside the device remain natural and translated: **Battery level**, **Battery activity**, **Battery power**, and **Equivalent full cycles**.
+
+Entity IDs already registered by Home Assistant are not forcibly renamed. The namespaced format applies to new trackers and newly created optional entities. Stable unique IDs remain based on the config-entry ID, so changing the tracker name does not replace existing entities.
+
 ### Available options
 
 | Option | Purpose | Default |
 | --- | --- | --- |
+| Tracker name | Short device name used in displayed names and namespaced entity IDs | Required |
 | Source entity | Entity that provides the battery percentage | Required |
 | Source attribute | Optional attribute containing the percentage | Entity state |
 | Precision | Decimal places shown for calculated values | `2` |

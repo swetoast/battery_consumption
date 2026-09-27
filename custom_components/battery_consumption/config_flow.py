@@ -10,6 +10,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
 from homeassistant.data_entry_flow import ConfigFlowResult
 from homeassistant.helpers import config_validation as cv, selector
+from homeassistant.util import slugify
 
 from .const import (
     CONF_BATTERY_CAPACITY,
@@ -19,6 +20,7 @@ from .const import (
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
+    CONF_TRACKER_NAME,
     DEFAULT_CREATE_ACTIVITY_SENSOR,
     DEFAULT_CREATE_CYCLE_SENSOR,
     DEFAULT_CREATE_POWER_SENSOR,
@@ -30,9 +32,10 @@ from .const import (
 
 
 def _identity_schema() -> vol.Schema:
-    """Build the schema for fields that identify the monitored value."""
+    """Build the schema for fields that identify the tracker."""
     return vol.Schema(
         {
+            vol.Required(CONF_TRACKER_NAME): vol.All(cv.string, vol.Length(min=1)),
             vol.Required(CONF_SOURCE): selector.EntitySelector(),
             vol.Optional(CONF_ATTRIBUTE): cv.string,
         }
@@ -62,8 +65,11 @@ def _options_schema() -> vol.Schema:
             ): cv.boolean,
             vol.Required(
                 CONF_CREATE_CYCLE_SENSOR,
-    CONF_CREATE_POWER_SENSOR,
                 default=DEFAULT_CREATE_CYCLE_SENSOR,
+            ): cv.boolean,
+            vol.Required(
+                CONF_CREATE_POWER_SENSOR,
+                default=DEFAULT_CREATE_POWER_SENSOR,
             ): cv.boolean,
         }
     )
@@ -96,29 +102,55 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Create a Battery Consumption sensor."""
+        """Create a Battery Consumption tracker."""
         if user_input is not None:
             data = _clean_input(user_input)
+            wanted_slug = slugify(data[CONF_TRACKER_NAME])
+            if any(
+                slugify(entry.data.get(CONF_TRACKER_NAME, entry.title))
+                == wanted_slug
+                for entry in self._async_current_entries()
+            ):
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=self.add_suggested_values_to_schema(
+                        _user_schema(), data
+                    ),
+                    errors={"base": "name_already_configured"},
+                )
             source, attribute = _source_key(data)
             await self.async_set_unique_id(f"{source}:{attribute}")
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=source, data=data)
+            return self.async_create_entry(
+                title=data[CONF_TRACKER_NAME], data=data
+            )
 
         return self.async_show_form(step_id="user", data_schema=_user_schema())
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Change the monitored source without changing entity identity."""
+        """Change tracker name or monitored source without replacing entities."""
         entry = self._get_reconfigure_entry()
 
         if user_input is not None:
             identity = _clean_input(user_input)
             wanted_key = _source_key(identity)
+            wanted_slug = slugify(identity[CONF_TRACKER_NAME])
             for other_entry in self._async_current_entries():
                 if other_entry.entry_id == entry.entry_id:
                     continue
                 other_data = {**other_entry.data, **other_entry.options}
+                if slugify(
+                    other_entry.data.get(CONF_TRACKER_NAME, other_entry.title)
+                ) == wanted_slug:
+                    return self.async_show_form(
+                        step_id="reconfigure",
+                        data_schema=self.add_suggested_values_to_schema(
+                            _identity_schema(), identity
+                        ),
+                        errors={"base": "name_already_configured"},
+                    )
                 if _source_key(other_data) == wanted_key:
                     return self.async_show_form(
                         step_id="reconfigure",
@@ -129,15 +161,19 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
 
             data = dict(entry.data)
-            data.pop(CONF_SOURCE, None)
-            data.pop(CONF_ATTRIBUTE, None)
+            for key in (CONF_TRACKER_NAME, CONF_SOURCE, CONF_ATTRIBUTE):
+                data.pop(key, None)
             data.update(identity)
+            self.hass.config_entries.async_update_entry(
+                entry, title=identity[CONF_TRACKER_NAME]
+            )
             return self.async_update_reload_and_abort(
                 entry,
                 data_updates=data,
             )
 
         current = {
+            CONF_TRACKER_NAME: entry.data.get(CONF_TRACKER_NAME, entry.title),
             CONF_SOURCE: entry.data[CONF_SOURCE],
             CONF_ATTRIBUTE: entry.data.get(CONF_ATTRIBUTE, ""),
         }
@@ -162,7 +198,7 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Manage calculation options without changing sensor identity."""
+        """Manage calculation options without changing tracker identity."""
         if user_input is not None:
             return self.async_create_entry(data=_clean_input(user_input))
 

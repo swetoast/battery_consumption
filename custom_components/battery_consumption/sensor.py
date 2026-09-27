@@ -21,6 +21,7 @@ from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.util import slugify
 
 from .const import (
     CONF_BATTERY_CAPACITY,
@@ -31,6 +32,7 @@ from .const import (
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
+    CONF_TRACKER_NAME,
     DATA_BATTERY_CONSUMPTION,
     DEFAULT_CREATE_ACTIVITY_SENSOR,
     DEFAULT_CREATE_CYCLE_SENSOR,
@@ -119,13 +121,8 @@ async def async_setup_entry(
         conf.get(CONF_MINIMUM_CHANGE, DEFAULT_MINIMUM_CHANGE),
         conf.get(CONF_SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT),
         entry.entry_id,
+        conf.get(CONF_TRACKER_NAME) or entry.title,
     )
-    source_state = hass.states.get(conf[CONF_SOURCE])
-    if source_state is not None:
-        tracker._attr_device_info["name"] = source_state.name
-    else:
-        tracker._attr_device_info["name"] = conf[CONF_SOURCE]
-
     entities: list[SensorEntity] = [tracker]
     if conf.get(CONF_CREATE_ACTIVITY_SENSOR, DEFAULT_CREATE_ACTIVITY_SENSOR):
         entities.append(BatteryActivitySensor(tracker, entry.entry_id))
@@ -178,6 +175,7 @@ async def async_setup_platform(
                 conf.get(CONF_MINIMUM_CHANGE, DEFAULT_MINIMUM_CHANGE),
                 conf.get(CONF_SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT),
                 None,
+                None,
             )
         ]
     )
@@ -201,6 +199,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         minimum_change: float,
         session_timeout: int,
         entry_id: str | None,
+        tracker_name: str | None,
     ) -> None:
         self._attr_unique_id = unique_id
         self._attr_name = name
@@ -212,15 +211,20 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._minimum_change = float(minimum_change)
         self._session_timeout = int(session_timeout)
         self._entry_id = entry_id
+        self._tracker_name = tracker_name
+        self._tracker_slug = slugify(tracker_name) if tracker_name else None
         self._attr_has_entity_name = entry_id is not None
-        if entry_id is not None:
+        if entry_id is not None and tracker_name is not None:
             self._attr_translation_key = "battery_level"
+            self._attr_suggested_object_id = (
+                f"{DOMAIN}_{self._tracker_slug}_battery_level"
+            )
             self._attr_device_info = {
                 "identifiers": {(DOMAIN, entry_id)},
-                "name": name.removeprefix(f"{DEFAULT_NAME}_").replace("_", " ").title(),
+                "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.5.0",
+                "sw_version": "2.6.0",
             }
 
         self._state: float | None = None
@@ -539,6 +543,9 @@ class BatteryActivitySensor(SensorEntity):
     def __init__(self, tracker: BatteryConsumptionSensor, entry_id: str) -> None:
         self._tracker = tracker
         self._attr_unique_id = f"{entry_id}_activity"
+        self._attr_suggested_object_id = (
+            f"{DOMAIN}_{tracker._tracker_slug}_battery_activity"
+        )
         self._attr_has_entity_name = True
         self._attr_device_info = tracker.device_info
         tracker.register_dependent(self)
@@ -582,6 +589,9 @@ class BatteryCycleSensor(SensorEntity):
     def __init__(self, tracker: BatteryConsumptionSensor, entry_id: str) -> None:
         self._tracker = tracker
         self._attr_unique_id = f"{entry_id}_equivalent_full_cycles"
+        self._attr_suggested_object_id = (
+            f"{DOMAIN}_{tracker._tracker_slug}_equivalent_full_cycles"
+        )
         self._attr_has_entity_name = True
         self._attr_device_info = tracker.device_info
         tracker.register_dependent(self)
@@ -611,6 +621,9 @@ class BatteryPowerSensor(SensorEntity):
     def __init__(self, tracker: BatteryConsumptionSensor, entry_id: str) -> None:
         self._tracker = tracker
         self._attr_unique_id = f"{entry_id}_power"
+        self._attr_suggested_object_id = (
+            f"{DOMAIN}_{tracker._tracker_slug}_battery_power"
+        )
         self._attr_native_unit_of_measurement = tracker.power_unit
         self._attr_device_info = tracker.device_info
         tracker.register_dependent(self)

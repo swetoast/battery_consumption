@@ -5,6 +5,7 @@
         "title": "Battery Consumption",
         "description": "Create a battery consumption sensor.",
         "data": {
+          "tracker_name": "Tracker name",
           "source": "Source entity",
           "attribute": "Source attribute",
           "precision": "Precision",
@@ -17,6 +18,7 @@
           "create_power_sensor": "Create battery power sensor"
         },
         "data_description": {
+          "tracker_name": "Short device name used in Battery Consumption entity IDs and displayed device names.",
           "source": "Select the entity that provides the battery percentage.",
           "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state.",
           "precision": "Number of decimal places shown for calculated values.",
@@ -33,10 +35,12 @@
         "title": "Reconfigure Battery Consumption",
         "description": "Change the source entity or source attribute. The existing sensor identity and entity registry settings are preserved.",
         "data": {
+          "tracker_name": "Tracker name",
           "source": "Source entity",
           "attribute": "Source attribute"
         },
         "data_description": {
+          "tracker_name": "Short device name used in Battery Consumption entity IDs and displayed device names.",
           "source": "Select the entity that provides the battery percentage.",
           "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state."
         }
@@ -47,7 +51,8 @@
       "reconfigure_successful": "Battery Consumption was reconfigured successfully."
     },
     "error": {
-      "already_configured": "This source and attribute combination is already configured."
+      "already_configured": "This source and attribute combination is already configured.",
+      "name_already_configured": "A tracker with this name already exists"
     }
   },
   "options": {
