@@ -67,3 +67,35 @@ async def test_duplicate_is_rejected(hass: HomeAssistant) -> None:
     )
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+
+def test_profile_schema_omits_manual_capacity_fields() -> None:
+    from custom_components.battery_consumption.config_flow import _options_schema
+
+    profiles = {
+        "google_pixel_8_pro": {
+            "manufacturer": "Google",
+            "model": "Pixel 8 Pro",
+            "capacity": 19.44,
+            "capacity_unit": "Wh",
+            "nominal_voltage": None,
+        }
+    }
+    keys = {str(key) for key in _options_schema(profiles, "google_pixel_8_pro").schema}
+    assert "device_profile" in keys
+    assert "precision" in keys
+    assert "minimum_change" in keys
+    assert "session_timeout" in keys
+    assert "create_activity_sensor" in keys
+    assert "battery_capacity" not in keys
+    assert "unit_of_measurement" not in keys
+    assert "battery_voltage" not in keys
+
+
+def test_manual_schema_includes_manual_capacity_fields() -> None:
+    from custom_components.battery_consumption.config_flow import _options_schema
+
+    keys = {str(key) for key in _options_schema({}, "manual").schema}
+    assert "battery_capacity" in keys
+    assert "unit_of_measurement" in keys
+    assert "battery_voltage" in keys

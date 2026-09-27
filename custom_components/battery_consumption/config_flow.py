@@ -70,25 +70,35 @@ def _profile_selector(
 
 def _options_schema(
     profiles: dict[str, dict[str, Any]],
+    selected_profile: str = DEVICE_PROFILE_MANUAL,
 ) -> vol.Schema:
-    """Build the schema for calculation options."""
-    return vol.Schema(
+    """Build calculation options for profile or manual configuration."""
+    fields: dict[vol.Marker, Any] = {
+        vol.Required(
+            CONF_DEVICE_PROFILE, default=selected_profile
+        ): _profile_selector(profiles),
+        vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(
+            vol.Coerce(int), vol.Range(min=1)
+        ),
+    }
+
+    if selected_profile == DEVICE_PROFILE_MANUAL:
+        fields.update(
+            {
+                vol.Optional(CONF_BATTERY_CAPACITY): vol.All(
+                    vol.Coerce(float), vol.Range(min=0)
+                ),
+                vol.Optional(CONF_UNIT_OF_MEASUREMENT): vol.In(
+                    ["mAh", "Wh", "kWh", "MWh"]
+                ),
+                vol.Optional(CONF_BATTERY_VOLTAGE): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.1)
+                ),
+            }
+        )
+
+    fields.update(
         {
-            vol.Required(
-                CONF_DEVICE_PROFILE, default=DEVICE_PROFILE_MANUAL
-            ): _profile_selector(profiles),
-            vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(
-                vol.Coerce(int), vol.Range(min=1)
-            ),
-            vol.Optional(CONF_BATTERY_CAPACITY): vol.All(
-                vol.Coerce(float), vol.Range(min=0)
-            ),
-            vol.Optional(CONF_UNIT_OF_MEASUREMENT): vol.In(
-                ["mAh", "Wh", "kWh", "MWh"]
-            ),
-            vol.Optional(CONF_BATTERY_VOLTAGE): vol.All(
-                vol.Coerce(float), vol.Range(min=0.1)
-            ),
             vol.Required(
                 CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
             ): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
@@ -109,11 +119,14 @@ def _options_schema(
             ): cv.boolean,
         }
     )
+    return vol.Schema(fields)
 
 
 def _user_schema(profiles: dict[str, dict[str, Any]]) -> vol.Schema:
     """Build the complete schema used when creating an entry."""
-    return _identity_schema().extend(_options_schema(profiles).schema)
+    return _identity_schema().extend(
+        _options_schema(profiles, DEVICE_PROFILE_MANUAL).schema
+    )
 
 
 def _clean_input(user_input: dict[str, Any]) -> dict[str, Any]:
@@ -284,7 +297,11 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
                 return self.async_show_form(
                     step_id="init",
                     data_schema=self.add_suggested_values_to_schema(
-                        _options_schema(profiles), user_input
+                        _options_schema(
+                            profiles,
+                            user_input.get(CONF_DEVICE_PROFILE, DEVICE_PROFILE_MANUAL),
+                        ),
+                        user_input
                     ),
                     errors={"base": error},
                 )
@@ -293,10 +310,11 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
         values = {**self.config_entry.data, **self.config_entry.options}
         selected_profile = values.get(CONF_DEVICE_PROFILE, DEVICE_PROFILE_MANUAL)
         if selected_profile != DEVICE_PROFILE_MANUAL and selected_profile not in profiles:
+            selected_profile = DEVICE_PROFILE_MANUAL
             values[CONF_DEVICE_PROFILE] = DEVICE_PROFILE_MANUAL
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                _options_schema(profiles), values
+                _options_schema(profiles, selected_profile), values
             ),
         )
