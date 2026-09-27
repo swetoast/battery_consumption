@@ -1,4 +1,4 @@
-# battery_consumption
+# Battery Consumption
 
 Battery Consumption is a custom integration for [Home Assistant](https://www.home-assistant.io/) that calculates battery charge, discharge, accumulated changes, energy values, and estimated power from an existing battery-level entity.
 
