@@ -26,7 +26,6 @@ Battery Consumption turns an existing percentage entity, or one of its attribute
 - Calculate equivalent full discharge cycles.
 - Group UI-created entities under one Battery Consumption device.
 - Preserve stable entity identities across reloads and reconfiguration.
-- Continue using the original YAML format when needed.
 
 ## Requirements
 
@@ -65,7 +64,7 @@ Battery Consumption turns an existing percentage entity, or one of its attribute
 4. Select the source entity.
 5. Configure the calculation options and optional entities.
 
-Each source entity and source attribute combination can be configured once. Existing YAML entries are not imported automatically.
+Each source entity and source attribute combination can be configured once.
 
 ### Available options
 
@@ -153,43 +152,6 @@ A later value of `52` confirms a two percentage-point charge from the last accou
 
 The displayed battery level still follows the source. Only the accumulated accounting waits for confirmed movement.
 
-## YAML configuration
-
-The user interface is recommended for new trackers. The original YAML format remains supported for existing installations.
-
-```yaml
-battery_consumption:
-  zoe_battery_consumption:
-    source: sensor.zoe_battery_level
-    attribute: battery_level
-    unique_id: zoe_battery_consumption
-    precision: 2
-    battery_capacity: 52
-    unit_of_measurement: kWh
-    minimum_change: 1
-    session_timeout: 15
-```
-
-### YAML keys
-
-| Key | Required | Description |
-| --- | --- | --- |
-| `source` | Yes | Entity containing the battery percentage |
-| `attribute` | No | Attribute containing the percentage; omit it to use the entity state |
-| `unique_id` | No | Unique ID for the YAML-created sensor |
-| `precision` | No | Number of displayed decimal places |
-| `battery_capacity` | No | Full battery capacity used for energy calculations |
-| `unit_of_measurement` | No | Unit used by the configured capacity and calculated energy values |
-| `minimum_change` | No | Percentage-point threshold for confirmed movement |
-| `session_timeout` | No | Minutes before activity returns to idle |
-
-YAML-created sensors retain the original naming format:
-
-- Without an attribute: `battery_consumption_<source entity>`
-- With an attribute: `battery_consumption_<source entity>_<attribute>`
-
-The optional activity, cycle, and native power entities are available to UI-created config entries.
-
 ## Attribute reference
 
 | Attribute | Availability | Description |
@@ -228,44 +190,6 @@ The action resets:
 
 Configuration, entities, and current battery level are not removed. Resetting totals cannot be undone.
 
-## Example: utility meters
-
-Template sensors can expose accumulated energy attributes as dedicated energy entities:
-
-```yaml
-template:
-  - sensor:
-      - name: Zoe battery total charge
-        state: >-
-          {{ state_attr(
-            'sensor.zoe_battery_level_battery_level',
-            'total_energy_charge'
-          ) }}
-        unit_of_measurement: kWh
-        device_class: energy
-        state_class: total
-
-      - name: Zoe battery total discharge
-        state: >-
-          {{ state_attr(
-            'sensor.zoe_battery_level_battery_level',
-            'total_energy_discharge'
-          ) }}
-        unit_of_measurement: kWh
-        device_class: energy
-        state_class: total
-
-utility_meter:
-  zoe_battery_charge_daily:
-    source: sensor.zoe_battery_total_charge
-    cycle: daily
-  zoe_battery_discharge_daily:
-    source: sensor.zoe_battery_total_discharge
-    cycle: daily
-```
-
-Replace the example entity IDs with the entities created in your Home Assistant installation.
-
 ## Troubleshooting
 
 ### Source entity is unavailable
@@ -288,25 +212,14 @@ Energy values require battery capacity. The native power sensor also requires th
 
 Activity changes only after movement reaches **Minimum meaningful change**. Set the threshold to `0` to confirm every numeric change. Activity returns to idle after the configured session timeout.
 
-### YAML tracker does not appear in the integration UI
-
-YAML entries are supported but are not imported into config entries. Remove the YAML entry before creating an equivalent UI tracker to avoid duplicate accounting.
-
 ## Removal
-
-### UI-created tracker
 
 1. Open **Settings → Devices & services**.
 2. Open **Battery Consumption**.
-3. Open the menu for the config entry.
+3. Open the menu for the tracker.
 4. Select **Delete**.
 
-### YAML-created tracker
-
-1. Remove the tracker from the `battery_consumption:` section in `configuration.yaml`.
-2. Restart Home Assistant.
-
-Remove the custom repository through HACS only when no UI or YAML trackers remain.
+Remove the custom repository through HACS only when no Battery Consumption trackers remain.
 
 ## Development
 
