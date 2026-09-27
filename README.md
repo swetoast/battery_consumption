@@ -61,8 +61,10 @@ Battery Consumption turns an existing percentage entity, or one of its attribute
 1. Open **Settings → Devices & services**.
 2. Select **Add integration**.
 3. Search for **Battery Consumption**.
-4. Select the source entity.
-5. Configure the calculation options and optional entities.
+4. Enter the tracker name and select the battery source.
+5. Choose **Device profile** or **Manual configuration**.
+6. Select the exact profile, or enter the manual battery specification.
+7. Configure tracking behavior and optional entities.
 
 Each source entity and source attribute combination can be configured once.
 
@@ -92,7 +94,7 @@ Entity IDs already registered by Home Assistant are not forcibly renamed. The na
 | Precision | Decimal places shown for calculated values | `2` |
 | Battery capacity | Capacity printed on the battery, such as `5050` | Optional |
 | Capacity unit | `mAh`, `Wh`, `kWh`, or `MWh`; mAh is converted automatically | Optional |
-| Battery nominal voltage | Voltage used for mAh conversion | `3.85 V` |
+| Battery nominal voltage | Required when manual capacity is entered in `mAh` | Required for manual `mAh` |
 | Minimum meaningful change | Percentage-point movement required before accounting confirms a change | `0` |
 | Session timeout | Minutes without confirmed movement before activity becomes idle | `15` |
 | Create battery activity sensor | Adds the charging, discharging, and idle sensor | Disabled |
