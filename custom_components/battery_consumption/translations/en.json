@@ -3,16 +3,34 @@
     "step": {
       "user": {
         "title": "Battery Consumption",
-        "description": "Create a battery consumption sensor.",
+        "description": "Choose the tracker name and battery percentage source.",
         "data": {
           "tracker_name": "Tracker name",
           "source": "Source entity",
-          "attribute": "Source attribute",
+          "attribute": "Source attribute"
+        },
+        "data_description": {
+          "tracker_name": "Short device name used in Battery Consumption entity IDs and displayed device names.",
+          "source": "Select the entity that provides the battery percentage.",
+          "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state."
+        }
+      },
+      "capacity_source": {
+        "title": "Battery capacity source",
+        "description": "Choose whether battery specifications come from a known device profile or are entered manually.",
+        "data": {
+          "configuration_mode": "Capacity configuration"
+        },
+        "data_description": {
+          "configuration_mode": "Device profile shows only the profile list. Manual configuration shows only capacity, unit, and voltage fields."
+        }
+      },
+      "profile": {
+        "title": "Device profile",
+        "description": "Select a known device. Battery capacity, unit, and nominal voltage are filled automatically.",
+        "data": {
           "device_profile": "Device profile",
           "precision": "Precision",
-          "battery_capacity": "Battery capacity",
-          "unit_of_measurement": "Capacity unit",
-          "battery_voltage": "Battery nominal voltage",
           "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
@@ -20,14 +38,34 @@
           "create_power_sensor": "Create battery power sensor"
         },
         "data_description": {
-          "tracker_name": "Short device name used in Battery Consumption entity IDs and displayed device names.",
-          "source": "Select the entity that provides the battery percentage.",
-          "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state.",
-          "device_profile": "Select a known device to fill battery capacity and voltage automatically, or choose Manual configuration.",
+          "device_profile": "Select the exact device or battery profile.",
           "precision": "Number of decimal places shown for calculated values.",
-          "battery_capacity": "Used only with Manual configuration. Enter the capacity printed on the battery, for example 5050 with mAh or 19.5 with Wh.",
-          "unit_of_measurement": "Used only with Manual configuration. Select mAh, Wh, kWh, or MWh.",
-          "battery_voltage": "Used only with Manual configuration when capacity is mAh.",
+          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
+          "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
+        }
+      },
+      "manual": {
+        "title": "Manual battery configuration",
+        "description": "Enter battery specifications manually.",
+        "data": {
+          "battery_capacity": "Battery capacity",
+          "unit_of_measurement": "Capacity unit",
+          "battery_voltage": "Battery nominal voltage",
+          "precision": "Precision",
+          "minimum_change": "Minimum meaningful change",
+          "session_timeout": "Session timeout",
+          "create_activity_sensor": "Create battery activity sensor",
+          "create_cycle_sensor": "Create equivalent full cycles sensor",
+          "create_power_sensor": "Create battery power sensor"
+        },
+        "data_description": {
+          "battery_capacity": "Enter the full capacity printed on the battery, for example 5050 with mAh or 19.5 with Wh.",
+          "unit_of_measurement": "Select mAh, Wh, kWh, or MWh.",
+          "battery_voltage": "Required for power calculations when capacity is entered in mAh.",
+          "precision": "Number of decimal places shown for calculated values.",
           "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
           "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
@@ -62,13 +100,21 @@
   "options": {
     "step": {
       "init": {
-        "title": "Battery Consumption options",
+        "title": "Battery capacity source",
+        "description": "Choose how battery specifications are configured.",
+        "data": {
+          "configuration_mode": "Capacity configuration"
+        },
+        "data_description": {
+          "configuration_mode": "Device profile shows only the profile list. Manual configuration shows only capacity, unit, and voltage fields."
+        }
+      },
+      "profile": {
+        "title": "Device profile",
+        "description": "Select a known device. Battery capacity, unit, and nominal voltage are filled automatically.",
         "data": {
           "device_profile": "Device profile",
           "precision": "Precision",
-          "battery_capacity": "Battery capacity",
-          "unit_of_measurement": "Capacity unit",
-          "battery_voltage": "Battery nominal voltage",
           "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
@@ -76,11 +122,34 @@
           "create_power_sensor": "Create battery power sensor"
         },
         "data_description": {
-          "device_profile": "Select a known device to fill battery capacity and voltage automatically, or choose Manual configuration.",
+          "device_profile": "Select the exact device or battery profile.",
           "precision": "Number of decimal places shown for calculated values.",
-          "battery_capacity": "Used only with Manual configuration. Enter the capacity printed on the battery, for example 5050 with mAh or 19.5 with Wh.",
-          "unit_of_measurement": "Used only with Manual configuration. Select mAh, Wh, kWh, or MWh.",
-          "battery_voltage": "Used only with Manual configuration when capacity is mAh.",
+          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
+          "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
+        }
+      },
+      "manual": {
+        "title": "Manual battery configuration",
+        "description": "Enter battery specifications manually.",
+        "data": {
+          "battery_capacity": "Battery capacity",
+          "unit_of_measurement": "Capacity unit",
+          "battery_voltage": "Battery nominal voltage",
+          "precision": "Precision",
+          "minimum_change": "Minimum meaningful change",
+          "session_timeout": "Session timeout",
+          "create_activity_sensor": "Create battery activity sensor",
+          "create_cycle_sensor": "Create equivalent full cycles sensor",
+          "create_power_sensor": "Create battery power sensor"
+        },
+        "data_description": {
+          "battery_capacity": "Enter the full capacity printed on the battery, for example 5050 with mAh or 19.5 with Wh.",
+          "unit_of_measurement": "Select mAh, Wh, kWh, or MWh.",
+          "battery_voltage": "Required for power calculations when capacity is entered in mAh.",
+          "precision": "Number of decimal places shown for calculated values.",
           "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
           "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
