@@ -2,6 +2,45 @@
   "schema_version": 1,
   "devices": [
     {
+      "id": "ansmann_li_ion_9v_400",
+      "manufacturer": "ANSMANN",
+      "model": "Li-Ion 9V block type 400",
+      "capacity": 3.7,
+      "capacity_unit": "Wh",
+      "source": "https://shop.ansmann.de/en/li-ion-battery-9v-block-typ-400-min-340-mah-1pcs-cardboard-box",
+      "notes": "USB-C rechargeable lithium-ion 9V block, 3.7 Wh"
+    },
+    {
+      "id": "ansmann_maxe_9v_300",
+      "manufacturer": "ANSMANN",
+      "model": "maxE 9V / 6F22 300",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 8.4,
+      "source": "https://shop.ansmann.de/en/e-300-1",
+      "notes": "Rechargeable NiMH 9V block, 300 mAh, 8.4 V, 2.52 Wh by nominal calculation"
+    },
+    {
+      "id": "ansmann_maxe_c_2500",
+      "manufacturer": "ANSMANN",
+      "model": "maxE C / HR14 2500",
+      "capacity": 2500,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://shop.ansmann.de/en/c-2500-2",
+      "notes": "Rechargeable NiMH C cell, 2500 mAh, 1.2 V"
+    },
+    {
+      "id": "ansmann_maxe_d_5000",
+      "manufacturer": "ANSMANN",
+      "model": "maxE D / HR20 5000",
+      "capacity": 5000,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 1.2,
+      "source": "https://shop.ansmann.de/en/d-5000-2",
+      "notes": "Rechargeable NiMH D cell, 5000 mAh, 1.2 V"
+    },
+    {
       "id": "apple_iphone_13",
       "manufacturer": "Apple",
       "model": "iPhone 13",
@@ -83,6 +122,15 @@
       "notes": "3349 mAh, 3.87 V, 12.98 Wh"
     },
     {
+      "id": "apple_iphone_15_plus",
+      "manufacturer": "Apple",
+      "model": "iPhone 15 Plus",
+      "capacity": 16.95,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/iphone-15-plus-battery",
+      "notes": "4383 mAh, 3.86 V, 16.95 Wh"
+    },
+    {
       "id": "apple_iphone_15_pro_max",
       "manufacturer": "Apple",
       "model": "iPhone 15 Pro Max",
@@ -92,117 +140,79 @@
       "notes": "4422 mAh, 3.86 V, 17.1 Wh"
     },
     {
-      "id": "google_pixel_8_pro",
-      "manufacturer": "Google",
-      "model": "Pixel 8 Pro",
-      "capacity": 5050,
+      "id": "apple_watch_original_38mm",
+      "manufacturer": "Apple",
+      "model": "Watch 38 mm (Original / Series 1)",
+      "capacity": 205,
       "capacity_unit": "mAh",
-      "nominal_voltage": 3.85,
-      "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X",
-      "notes": "5050 mAh, 3.85 V, approximately 19.44 Wh"
+      "source": "https://www.ifixit.com/products/apple-watch-38-mm-original-and-series-1-replacement-battery",
+      "notes": "205 mAh, 3.8 V, 0.78 Wh",
+      "nominal_voltage": 3.8
     },
     {
-      "id": "google_pixel_watch_2",
-      "manufacturer": "Google",
-      "model": "Pixel Watch 2",
-      "capacity": 306,
+      "id": "apple_watch_original_42mm",
+      "manufacturer": "Apple",
+      "model": "Watch 42 mm (Original / Series 1)",
+      "capacity": 245,
       "capacity_unit": "mAh",
-      "nominal_voltage": 3.87,
-      "source": "https://www.ebay.com/itm/395783229847",
-      "notes": "306 mAh, 3.87 V, approximately 1.18 Wh"
+      "source": "https://www.ifixit.com/Parts/Apple_Watch/Batteries",
+      "notes": "245 mAh, 3.78 V, approximately 0.93 Wh",
+      "nominal_voltage": 3.78
     },
     {
-      "id": "meta_quest_2",
-      "manufacturer": "Meta",
-      "model": "Quest 2",
-      "capacity": 14,
-      "capacity_unit": "Wh",
-      "source": "https://www.amazon.com/IFRESEM-Internal-Battery-Replacement-Headset/dp/B0CGNT9XRF",
-      "notes": "3640 mAh, 3.85 V, 14 Wh"
-    },
-    {
-      "id": "samsung_galaxy_s23",
-      "manufacturer": "Samsung",
-      "model": "Galaxy S23",
-      "capacity": 15.13,
-      "capacity_unit": "Wh",
-      "source": "https://lcphones.com/en/productos/samsung-galaxy-s23-5g-s911-battery-eb-bs912aby-3900mah-15-13wh-service-pack-22591",
-      "notes": "3900 mAh, 3.88 V, 15.13 Wh"
-    },
-    {
-      "id": "samsung_galaxy_s23_ultra",
-      "manufacturer": "Samsung",
-      "model": "Galaxy S23 Ultra",
-      "capacity": 19.4,
-      "capacity_unit": "Wh",
-      "source": "https://www.mytrendyphone.se/shop/samsung-galaxy-s23-ultra-5g-batteri-eb-bs918aby-5000mah-307277p.html",
-      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
-    },
-    {
-      "id": "samsung_galaxy_s24",
-      "manufacturer": "Samsung",
-      "model": "Galaxy S24",
-      "capacity": 15.52,
-      "capacity_unit": "Wh",
-      "source": "https://cdon.se/produkt/ersattningsbatteri-for-galaxy-s24-li-ion-3-88v-4000mah-vit-svart-6e49a07147b156d5/",
-      "notes": "4000 mAh, 3.88 V, 15.52 Wh"
-    },
-    {
-      "id": "samsung_galaxy_s24_ultra",
-      "manufacturer": "Samsung",
-      "model": "Galaxy S24 Ultra",
-      "capacity": 19.4,
-      "capacity_unit": "Wh",
-      "source": "https://www.raytech.co.nz/original-s24ultra-battery-skuM0020020119",
-      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
-    },
-    {
-      "id": "valve_steam_deck_lcd",
-      "manufacturer": "Valve",
-      "model": "Steam Deck LCD",
-      "capacity": 40,
-      "capacity_unit": "Wh",
-      "source": "https://www.ifixit.com/products/steam-deck-battery",
-      "notes": "5200 mAh, 7.7 V, 40 Wh"
-    },
-    {
-      "id": "ansmann_maxe_c_2500",
-      "manufacturer": "ANSMANN",
-      "model": "maxE C / HR14 2500",
-      "capacity": 2500,
+      "id": "apple_watch_se_2_40mm",
+      "manufacturer": "Apple",
+      "model": "Watch SE (2nd generation) 40 mm",
+      "capacity": 245,
       "capacity_unit": "mAh",
-      "nominal_voltage": 1.2,
-      "source": "https://shop.ansmann.de/en/c-2500-2",
-      "notes": "Rechargeable NiMH C cell, 2500 mAh, 1.2 V"
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "245 mAh"
     },
     {
-      "id": "ansmann_maxe_d_5000",
-      "manufacturer": "ANSMANN",
-      "model": "maxE D / HR20 5000",
-      "capacity": 5000,
+      "id": "apple_watch_se_2_44mm",
+      "manufacturer": "Apple",
+      "model": "Watch SE (2nd generation) 44 mm",
+      "capacity": 296,
       "capacity_unit": "mAh",
-      "nominal_voltage": 1.2,
-      "source": "https://shop.ansmann.de/en/d-5000-2",
-      "notes": "Rechargeable NiMH D cell, 5000 mAh, 1.2 V"
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "296 mAh"
     },
     {
-      "id": "ansmann_maxe_9v_300",
-      "manufacturer": "ANSMANN",
-      "model": "maxE 9V / 6F22 300",
-      "capacity": 300,
+      "id": "apple_watch_series_8_41mm",
+      "manufacturer": "Apple",
+      "model": "Watch Series 8 41 mm",
+      "capacity": 282,
       "capacity_unit": "mAh",
-      "nominal_voltage": 8.4,
-      "source": "https://shop.ansmann.de/en/e-300-1",
-      "notes": "Rechargeable NiMH 9V block, 300 mAh, 8.4 V, 2.52 Wh by nominal calculation"
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "282 mAh"
     },
     {
-      "id": "ansmann_li_ion_9v_400",
-      "manufacturer": "ANSMANN",
-      "model": "Li-Ion 9V block type 400",
-      "capacity": 3.7,
+      "id": "apple_watch_series_8_45mm",
+      "manufacturer": "Apple",
+      "model": "Watch Series 8 45 mm",
+      "capacity": 308,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "308 mAh"
+    },
+    {
+      "id": "apple_watch_ultra",
+      "manufacturer": "Apple",
+      "model": "Watch Ultra",
+      "capacity": 542,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/battery_capacities_for_new_apple_watch_models_surface_-news-55766.php",
+      "notes": "542 mAh"
+    },
+    {
+      "id": "august_wifi_smart_lock_gen4",
+      "manufacturer": "August",
+      "model": "Wi-Fi Smart Lock (4th generation)",
+      "capacity": 9,
       "capacity_unit": "Wh",
-      "source": "https://shop.ansmann.de/en/li-ion-battery-9v-block-typ-400-min-340-mah-1pcs-cardboard-box",
-      "notes": "USB-C rechargeable lithium-ion 9V block, 3.7 Wh"
+      "source": "https://data.energizer.com/pdfs/123.pdf",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/august/",
+      "notes": "August specifies two non-rechargeable 3 V CR123/CR123A lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total for two cells."
     },
     {
       "id": "duracell_rechargeable_aa_2500",
@@ -225,6 +235,66 @@
       "notes": "Rechargeable NiMH AAA cell, 850 mAh, 1.2 V"
     },
     {
+      "id": "energizer_123_cr123a",
+      "manufacturer": "Energizer",
+      "model": "123 / CR123A lithium",
+      "capacity": 1500,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/123.pdf",
+      "notes": "Primary Li-MnO2 CR123A cell, typical 1500 mAh to 2.0 V at 100 ohms and 21 °C. Common in security, motion and alarm sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_a23",
+      "manufacturer": "Energizer",
+      "model": "A23 / 23A alkaline",
+      "capacity": 55,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/a23.pdf",
+      "notes": "Primary miniature alkaline A23 battery, typical 55 mAh to 6.0 V at 20 kohms and 21 °C. Used in wireless controls and some sensor accessories.",
+      "nominal_voltage": 12.0
+    },
+    {
+      "id": "energizer_a76_lr44",
+      "manufacturer": "Energizer",
+      "model": "A76 / LR44 alkaline button cell",
+      "capacity": 175,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/a76z.pdf",
+      "notes": "Primary alkaline LR44 button cell, typical 175 mAh to 0.9 V at 6.8 kohms and 21 °C. Found in small displays, probes and sensor accessories.",
+      "nominal_voltage": 1.5
+    },
+    {
+      "id": "energizer_cr2",
+      "manufacturer": "Energizer",
+      "model": "CR2 lithium",
+      "capacity": 800,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2_eu.pdf",
+      "notes": "Primary Li-MnO2 CR2 cell, typical 800 mAh to 2.0 V at 100 ohms and 21 °C. Used by compact motion, contact and security sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_cr2016",
+      "manufacturer": "Energizer",
+      "model": "CR2016 lithium coin cell",
+      "capacity": 100,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2016.pdf",
+      "notes": "Primary Li-MnO2 coin cell, typical 100 mAh to 2.0 V at 30 kohms and 21 °C. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "energizer_cr2025",
+      "manufacturer": "Energizer",
+      "model": "CR2025 lithium coin cell",
+      "capacity": 170,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2025.pdf",
+      "notes": "Primary Li-MnO2 coin cell, typical 170 mAh to 2.0 V at 15 kohms and 21 °C. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
       "id": "energizer_cr2032",
       "manufacturer": "Energizer",
       "model": "CR2032 lithium coin cell",
@@ -233,6 +303,238 @@
       "nominal_voltage": 3.0,
       "source": "http://www.cr2032.co/cms/prodimages/energizer_cr2032_datasheet.pdf",
       "notes": "Primary lithium coin cell. Typical 240 mAh at the datasheet test load; actual delivered capacity depends on load and cutoff voltage. Not rechargeable."
+    },
+    {
+      "id": "energizer_cr2450",
+      "manufacturer": "Energizer",
+      "model": "CR2450 lithium coin cell",
+      "capacity": 620,
+      "capacity_unit": "mAh",
+      "source": "https://data.energizer.com/pdfs/cr2450.pdf",
+      "notes": "Primary lithium coin cell, 620 mAh, 3.0 V. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "fitbit_sense_2",
+      "manufacturer": "Fitbit",
+      "model": "Sense 2",
+      "capacity": 162,
+      "capacity_unit": "mAh",
+      "source": "https://www.ebay.com/itm/326171734316",
+      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+    },
+    {
+      "id": "fitbit_versa_4",
+      "manufacturer": "Fitbit",
+      "model": "Versa 4",
+      "capacity": 162,
+      "capacity_unit": "mAh",
+      "source": "https://www.ebay.com/itm/326171734316",
+      "notes": "162 mAh replacement battery listing; rechargeable lithium-polymer battery"
+    },
+    {
+      "id": "google_pixel_8",
+      "manufacturer": "Google",
+      "model": "Pixel 8",
+      "capacity": 4575,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/google_pixel_8-12546.php",
+      "notes": "4575 mAh"
+    },
+    {
+      "id": "google_pixel_8_pro",
+      "manufacturer": "Google",
+      "model": "Pixel 8 Pro",
+      "capacity": 5050,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.85,
+      "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X",
+      "notes": "5050 mAh, 3.85 V, approximately 19.44 Wh"
+    },
+    {
+      "id": "google_pixel_watch",
+      "manufacturer": "Google",
+      "model": "Pixel Watch",
+      "capacity": 294,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "294 mAh typical capacity"
+    },
+    {
+      "id": "google_pixel_watch_2",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 2",
+      "capacity": 306,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.87,
+      "source": "https://www.ebay.com/itm/395783229847",
+      "notes": "306 mAh, 3.87 V, approximately 1.18 Wh"
+    },
+    {
+      "id": "google_pixel_watch_3_41mm",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 3 41 mm",
+      "capacity": 307,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "307 mAh typical capacity"
+    },
+    {
+      "id": "google_pixel_watch_3_45mm",
+      "manufacturer": "Google",
+      "model": "Pixel Watch 3 45 mm",
+      "capacity": 420,
+      "capacity_unit": "mAh",
+      "source": "https://support.google.com/googlepixelwatch/answer/12651869?hl=en",
+      "notes": "420 mAh typical capacity"
+    },
+    {
+      "id": "irobot_braava_jet_m6",
+      "manufacturer": "iRobot",
+      "model": "Braava jet m6",
+      "capacity": 28.08,
+      "capacity_unit": "Wh",
+      "source": "https://www.batteriesplus.com/product-details/hhd/battery/cameron-sino-technology/hhd10679",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "M611020 / ABL-C Li-ion battery specification: 2600 mAh, 10.8 V, 28.08 Wh."
+    },
+    {
+      "id": "irobot_roomba_combo_10_max",
+      "manufacturer": "iRobot",
+      "model": "Roomba Combo 10 Max",
+      "capacity": 64.224,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
+    },
+    {
+      "id": "irobot_roomba_combo_j7",
+      "manufacturer": "iRobot",
+      "model": "Roomba Combo j7+",
+      "capacity": 64.224,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
+    },
+    {
+      "id": "irobot_roomba_combo_j8",
+      "manufacturer": "iRobot",
+      "model": "Roomba Combo j8+",
+      "capacity": 64.224,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
+    },
+    {
+      "id": "irobot_roomba_combo_j9",
+      "manufacturer": "iRobot",
+      "model": "Roomba Combo j9 / j9+",
+      "capacity": 64.224,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 4460 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-F battery voltage: 64.224 Wh."
+    },
+    {
+      "id": "irobot_roomba_i4",
+      "manufacturer": "iRobot",
+      "model": "Roomba i4 / i4+",
+      "capacity": 31.824,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
+    },
+    {
+      "id": "irobot_roomba_i8",
+      "manufacturer": "iRobot",
+      "model": "Roomba i8 / i8+",
+      "capacity": 31.824,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
+    },
+    {
+      "id": "irobot_roomba_j6",
+      "manufacturer": "iRobot",
+      "model": "Roomba j6 / j6+",
+      "capacity": 31.824,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
+    },
+    {
+      "id": "irobot_roomba_j7",
+      "manufacturer": "iRobot",
+      "model": "Roomba j7 / j7+",
+      "capacity": 31.824,
+      "capacity_unit": "Wh",
+      "source": "https://homesupport.irobot.com/s/article/21019",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "Official iRobot compatibility specifies a 2210 mAh Li-ion battery. Energy is calculated using the documented 14.4 V ABL-D2 battery voltage: 31.824 Wh."
+    },
+    {
+      "id": "irobot_roomba_s9",
+      "manufacturer": "iRobot",
+      "model": "Roomba s9 / s9+",
+      "capacity": 48,
+      "capacity_unit": "Wh",
+      "source": "https://www.laptopbatteryexpress.com/Roomba-S9-Battery-p/cr-ablb.htm",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/roomba/",
+      "notes": "ABL-B Li-ion battery specification: 3300 mAh, 14.4 V, 48 Wh."
+    },
+    {
+      "id": "meta_quest_2",
+      "manufacturer": "Meta",
+      "model": "Quest 2",
+      "capacity": 14,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/IFRESEM-Internal-Battery-Replacement-Headset/dp/B0CGNT9XRF",
+      "notes": "3640 mAh, 3.85 V, 14 Wh"
+    },
+    {
+      "id": "meta_quest_3",
+      "manufacturer": "Meta",
+      "model": "Quest 3",
+      "capacity": 19.44,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/News/85024/meta-quest-3-teardown-and-the-future-of-repairability",
+      "notes": "5060 mAh, 3.85 V, 19.44 Wh"
+    },
+    {
+      "id": "panasonic_cr1220",
+      "manufacturer": "Panasonic",
+      "model": "CR1220 lithium coin cell",
+      "capacity": 35,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/na/business/products/lithium/coin-cr-standard/models/CR1220",
+      "notes": "Primary Li-MnO2 coin cell, nominal 35 mAh. Suitable for compact low-power transmitters and sensors that specify CR1220. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "panasonic_cr1632",
+      "manufacturer": "Panasonic",
+      "model": "CR1632 lithium coin cell",
+      "capacity": 140,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/na/business/products/lithium/coin-cr-standard/models/CR1632",
+      "notes": "Primary Li-MnO2 coin cell, nominal 140 mAh. Used by compact transmitters, tags and sensors that specify CR1632. Not rechargeable.",
+      "nominal_voltage": 3.0
+    },
+    {
+      "id": "panasonic_cr2477",
+      "manufacturer": "Panasonic",
+      "model": "CR2477 lithium coin cell",
+      "capacity": 1000,
+      "capacity_unit": "mAh",
+      "source": "https://energy.panasonic.com/eu/business/products/lithium/coin-cr-standard/models/CR2477",
+      "notes": "Primary Li-MnO2 coin cell, nominal 1000 mAh. Used by larger long-life room and environmental sensors. Not rechargeable.",
+      "nominal_voltage": 3.0
     },
     {
       "id": "panasonic_eneloop_aa_bk_3mcc",
@@ -255,6 +557,327 @@
       "notes": "Rechargeable NiMH AAA cell, typical 800 mAh, minimum 750 mAh, 1.2 V"
     },
     {
+      "id": "panasonic_eneloop_pro_aa_bk_3hcde",
+      "manufacturer": "Panasonic",
+      "model": "eneloop pro AA BK-3HCDE",
+      "capacity": 2500,
+      "capacity_unit": "mAh",
+      "source": "https://www.panasonic.com/global/energy/products/eneloop/en/lineup/eneloop-pro.html",
+      "notes": "Rechargeable NiMH AA cell, typical 2500 mAh, minimum 2450 mAh, 1.2 V",
+      "nominal_voltage": 1.2
+    },
+    {
+      "id": "panasonic_eneloop_pro_aaa_bk_4hcde",
+      "manufacturer": "Panasonic",
+      "model": "eneloop pro AAA BK-4HCDE",
+      "capacity": 950,
+      "capacity_unit": "mAh",
+      "source": "https://www.panasonic.com/global/energy/products/eneloop/en/lineup/eneloop-pro.html",
+      "notes": "Rechargeable NiMH AAA cell, typical 950 mAh, minimum 930 mAh, 1.2 V",
+      "nominal_voltage": 1.2
+    },
+    {
+      "id": "ring_peephole_cam",
+      "manufacturer": "Ring",
+      "model": "Peephole Cam",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
+    },
+    {
+      "id": "ring_spotlight_cam_battery",
+      "manufacturer": "Ring",
+      "model": "Spotlight Cam Battery",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses one Ring Quick Release Battery Pack V4: 6040 mAh, 3.65 V, 22 Wh. Configure one profile per installed pack."
+    },
+    {
+      "id": "ring_stick_up_cam_battery",
+      "manufacturer": "Ring",
+      "model": "Stick Up Cam Battery (2nd / 3rd generation)",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
+    },
+    {
+      "id": "ring_video_doorbell_2",
+      "manufacturer": "Ring",
+      "model": "Video Doorbell 2",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
+    },
+    {
+      "id": "ring_video_doorbell_3",
+      "manufacturer": "Ring",
+      "model": "Video Doorbell 3 / 3 Plus",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
+    },
+    {
+      "id": "ring_video_doorbell_4",
+      "manufacturer": "Ring",
+      "model": "Video Doorbell 4",
+      "capacity": 22,
+      "capacity_unit": "Wh",
+      "source": "https://www.amazon.com/clp/B0C9JGD2LK",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/ring/",
+      "notes": "Uses the Ring Quick Release Battery Pack V4 specification: 6040 mAh, 3.65 V, 22 Wh."
+    },
+    {
+      "id": "saft_ls14250",
+      "manufacturer": "Saft",
+      "model": "LS 14250 1/2 AA",
+      "capacity": 1200,
+      "capacity_unit": "mAh",
+      "source": "https://saft4u.saft.com/en/download_file/133c84de-f6e9-46b6-a412-fc4ed453fb5c/English",
+      "notes": "Primary Li-SOCl2 1/2 AA cell, 1.2 Ah and 4.32 Wh. Intended for long-life IoT, connected sensors, alarms and security devices. Not rechargeable.",
+      "nominal_voltage": 3.6
+    },
+    {
+      "id": "saft_ls14500",
+      "manufacturer": "Saft",
+      "model": "LS 14500 AA-size lithium",
+      "capacity": 2600,
+      "capacity_unit": "mAh",
+      "source": "https://saft4u.saft.com/en/download_file/738dfd7b-3131-4e31-8924-401cd9a36bbc/English",
+      "notes": "Primary Li-SOCl2 AA-size cell, 2.6 Ah and 9.36 Wh. Designed for long-life IoT, connected sensors, alarms and metering. Not interchangeable with 1.5 V AA.",
+      "nominal_voltage": 3.6
+    },
+    {
+      "id": "samsung_galaxy_s23",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23",
+      "capacity": 15.13,
+      "capacity_unit": "Wh",
+      "source": "https://lcphones.com/en/productos/samsung-galaxy-s23-5g-s911-battery-eb-bs912aby-3900mah-15-13wh-service-pack-22591",
+      "notes": "3900 mAh, 3.88 V, 15.13 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s23_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23 Ultra",
+      "capacity": 19.4,
+      "capacity_unit": "Wh",
+      "source": "https://www.mytrendyphone.se/shop/samsung-galaxy-s23-ultra-5g-batteri-eb-bs918aby-5000mah-307277p.html",
+      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s23_plus",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S23+",
+      "capacity": 4700,
+      "capacity_unit": "mAh",
+      "source": "https://gsmserver.com/en/battery-eb-bs916aby-compatible-with-samsung-s916-galaxy-s23-plus-li-ion-3-88-v-4700-mah-original-prc/",
+      "notes": "4700 mAh, 3.88 V, approximately 18.24 Wh",
+      "nominal_voltage": 3.88
+    },
+    {
+      "id": "samsung_galaxy_s24",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24",
+      "capacity": 15.52,
+      "capacity_unit": "Wh",
+      "source": "https://cdon.se/produkt/ersattningsbatteri-for-galaxy-s24-li-ion-3-88v-4000mah-vit-svart-6e49a07147b156d5/",
+      "notes": "4000 mAh, 3.88 V, 15.52 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s24_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24 Ultra",
+      "capacity": 19.4,
+      "capacity_unit": "Wh",
+      "source": "https://www.raytech.co.nz/original-s24ultra-battery-skuM0020020119",
+      "notes": "5000 mAh, 3.88 V, 19.4 Wh"
+    },
+    {
+      "id": "samsung_galaxy_s24_plus",
+      "manufacturer": "Samsung",
+      "model": "Galaxy S24+",
+      "capacity": 4900,
+      "capacity_unit": "mAh",
+      "source": "https://www.devicespecifications.com/en/model-battery/9f145b2a",
+      "notes": "4900 mAh"
+    },
+    {
+      "id": "samsung_galaxy_watch_ultra",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch Ultra",
+      "capacity": 590,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch-ultra/specs/",
+      "notes": "590 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch4_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch4 40 mm",
+      "capacity": 247,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
+      "notes": "247 mAh"
+    },
+    {
+      "id": "samsung_galaxy_watch4_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch4 44 mm",
+      "capacity": 361,
+      "capacity_unit": "mAh",
+      "source": "https://www.gsmarena.com/samsung_galaxy_watch4-11045.php",
+      "notes": "361 mAh"
+    },
+    {
+      "id": "samsung_galaxy_watch5_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 40 mm",
+      "capacity": 284,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
+      "notes": "284 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch5_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 44 mm",
+      "capacity": 410,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5/specs/",
+      "notes": "410 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch5_pro_45mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch5 Pro 45 mm",
+      "capacity": 590,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch5-pro/specs/",
+      "notes": "590 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 40 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 44 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_classic_43mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 Classic 43 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch6_classic_47mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch6 Classic 47 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch6-classic/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch7_40mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch7 40 mm",
+      "capacity": 300,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
+      "notes": "300 mAh typical capacity"
+    },
+    {
+      "id": "samsung_galaxy_watch7_44mm",
+      "manufacturer": "Samsung",
+      "model": "Galaxy Watch7 44 mm",
+      "capacity": 425,
+      "capacity_unit": "mAh",
+      "source": "https://www.samsung.com/global/galaxy/galaxy-watch7/specs/",
+      "notes": "425 mAh typical capacity"
+    },
+    {
+      "id": "switchbot_bot",
+      "manufacturer": "SwitchBot",
+      "model": "Bot",
+      "capacity": 2.4,
+      "capacity_unit": "Wh",
+      "source": "https://data.energizer.com/pdfs/cr2_eu.pdf",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
+      "notes": "SwitchBot specifies one CR2 lithium cell. Using the Energizer CR2 typical 800 mAh, 3 V specification gives 2.4 Wh."
+    },
+    {
+      "id": "switchbot_keypad",
+      "manufacturer": "SwitchBot",
+      "model": "Keypad / Keypad Touch",
+      "capacity": 9,
+      "capacity_unit": "Wh",
+      "source": "https://data.energizer.com/pdfs/123.pdf",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
+      "notes": "SwitchBot specifies two CR123A 3 V lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total."
+    },
+    {
+      "id": "switchbot_lock",
+      "manufacturer": "SwitchBot",
+      "model": "Lock",
+      "capacity": 9,
+      "capacity_unit": "Wh",
+      "source": "https://data.energizer.com/pdfs/123.pdf",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
+      "notes": "SwitchBot specifies two CR123A 3 V lithium cells. Using the Energizer 123 typical 1500 mAh specification gives 9 Wh total."
+    },
+    {
+      "id": "switchbot_remote",
+      "manufacturer": "SwitchBot",
+      "model": "Remote",
+      "capacity": 1.86,
+      "capacity_unit": "Wh",
+      "source": "https://data.energizer.com/pdfs/cr2450.pdf",
+      "home_assistant_source": "https://www.home-assistant.io/integrations/switchbot/",
+      "notes": "SwitchBot specifies one CR2450 lithium coin cell. Using the Energizer CR2450 typical 620 mAh, 3 V specification gives 1.86 Wh."
+    },
+    {
+      "id": "valve_steam_deck_lcd",
+      "manufacturer": "Valve",
+      "model": "Steam Deck LCD",
+      "capacity": 40,
+      "capacity_unit": "Wh",
+      "source": "https://www.ifixit.com/products/steam-deck-battery",
+      "notes": "5200 mAh, 7.7 V, 40 Wh"
+    },
+    {
+      "id": "valve_steam_deck_oled",
+      "manufacturer": "Valve",
+      "model": "Steam Deck OLED",
+      "capacity": 50,
+      "capacity_unit": "Wh",
+      "source": "https://www.steamdeck.com/en/tech/oled",
+      "notes": "50 Wh rechargeable lithium-ion battery"
+    },
+    {
       "id": "varta_recharge_accu_power_9v_200",
       "manufacturer": "VARTA",
       "model": "Recharge Accu Power 9V 200",
@@ -263,252 +886,6 @@
       "nominal_voltage": 8.4,
       "source": "https://www.varta-ag.com/se/konsument/produkt-kategorier/accus/recharge-accu-power-9v-200-mah",
       "notes": "Rechargeable NiMH 9V block, 200 mAh, 8.4 V"
-    },
-    {
-      "id": "roborock_s5",
-      "manufacturer": "Roborock",
-      "model": "S5",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s5_max",
-      "manufacturer": "Roborock",
-      "model": "S5 Max",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s6",
-      "manufacturer": "Roborock",
-      "model": "S6",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s6_pure",
-      "manufacturer": "Roborock",
-      "model": "S6 Pure",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s6_maxv",
-      "manufacturer": "Roborock",
-      "model": "S6 MaxV",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s7",
-      "manufacturer": "Roborock",
-      "model": "S7",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s7_maxv",
-      "manufacturer": "Roborock",
-      "model": "S7 MaxV",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh. Dock bundle variants use the same robot battery."
-    },
-    {
-      "id": "roborock_s8",
-      "manufacturer": "Roborock",
-      "model": "S8",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s8_pro_ultra",
-      "manufacturer": "Roborock",
-      "model": "S8 Pro Ultra",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_s8_maxv_ultra",
-      "manufacturer": "Roborock",
-      "model": "S8 MaxV Ultra",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_q5",
-      "manufacturer": "Roborock",
-      "model": "Q5",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_q5_pro",
-      "manufacturer": "Roborock",
-      "model": "Q5 Pro",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; dock bundle variants use the same robot battery."
-    },
-    {
-      "id": "roborock_q7",
-      "manufacturer": "Roborock",
-      "model": "Q7",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_q7_max",
-      "manufacturer": "Roborock",
-      "model": "Q7 Max",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://global.roborock.com/pages/roborock-q7-max",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh. Dock bundle variants use the same robot battery."
-    },
-    {
-      "id": "roborock_q8_max",
-      "manufacturer": "Roborock",
-      "model": "Q8 Max",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; dock bundle variants use the same robot battery."
-    },
-    {
-      "id": "roborock_qrevo",
-      "manufacturer": "Roborock",
-      "model": "Qrevo",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.roborockindia.com/product-page/roborock-14-4v-li-ion-battery-replacement-for-s5-s6-s7-s8-series-5200mah",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh."
-    },
-    {
-      "id": "roborock_qrevo_s",
-      "manufacturer": "Roborock",
-      "model": "Qrevo S",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_qrevo_pro",
-      "manufacturer": "Roborock",
-      "model": "Qrevo Pro",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_qrevo_maxv",
-      "manufacturer": "Roborock",
-      "model": "Qrevo MaxV",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_qrevo_master",
-      "manufacturer": "Roborock",
-      "model": "Qrevo Master",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_qrevo_slim",
-      "manufacturer": "Roborock",
-      "model": "Qrevo Slim",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 14.4,
-      "source": "https://www.amazon.com/5200mAh-Replacement-Battery-Compatible-Roborock/dp/B0H61VFZBB",
-      "notes": "Rechargeable lithium-ion robot-vacuum battery, 5200 mAh at 14.4 V, approximately 74.88 Wh; capacity and compatibility documented by the replacement-battery listing."
-    },
-    {
-      "id": "roborock_xiaowa_e3",
-      "manufacturer": "Roborock",
-      "model": "Xiaowa E3",
-      "capacity": 5200,
-      "capacity_unit": "mAh",
-      "source": "https://global.roborock.com/pages/roborock-xiaowa-e3",
-      "notes": "Rechargeable robot-vacuum battery, 5200 mAh as specified by Roborock."
-    },
-    {
-      "id": "roborock_saros_z70",
-      "manufacturer": "Roborock",
-      "model": "Saros Z70",
-      "capacity": 6400,
-      "capacity_unit": "mAh",
-      "source": "https://global.roborock.com/pages/compare-robot-vacuums",
-      "notes": "Rechargeable robot-vacuum battery, 6400 mAh as listed in Roborock's model comparison."
-    },
-    {
-      "id": "roborock_saros_20",
-      "manufacturer": "Roborock",
-      "model": "Saros 20",
-      "capacity": 6400,
-      "capacity_unit": "mAh",
-      "source": "https://global.roborock.com/pages/compare-robot-vacuums",
-      "notes": "Rechargeable robot-vacuum battery, 6400 mAh as listed in Roborock's model comparison."
-    },
-    {
-      "id": "roborock_saros_20_flow",
-      "manufacturer": "Roborock",
-      "model": "Saros 20 Flow",
-      "capacity": 6400,
-      "capacity_unit": "mAh",
-      "source": "https://global.roborock.com/pages/compare-robot-vacuums",
-      "notes": "Rechargeable robot-vacuum battery, 6400 mAh as listed in Roborock's model comparison."
     }
   ]
 }
