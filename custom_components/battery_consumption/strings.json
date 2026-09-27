@@ -13,7 +13,20 @@
           "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
-          "create_cycle_sensor": "Create equivalent full cycles sensor"
+          "create_cycle_sensor": "Create equivalent full cycles sensor",
+          "create_power_sensor": "Create battery power sensor"
+        },
+        "data_description": {
+          "source": "Select the entity that provides the battery percentage.",
+          "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state.",
+          "precision": "Number of decimal places shown for calculated values.",
+          "battery_capacity": "Optional full battery capacity used for energy and power calculations.",
+          "unit_of_measurement": "Capacity unit. Use Wh, kWh, or MWh to enable the native power sensor.",
+          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
+          "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
         }
       },
       "reconfigure": {
@@ -22,6 +35,10 @@
         "data": {
           "source": "Source entity",
           "attribute": "Source attribute"
+        },
+        "data_description": {
+          "source": "Select the entity that provides the battery percentage.",
+          "attribute": "Optional attribute containing the battery percentage. Leave empty to use the entity state."
         }
       }
     },
@@ -44,7 +61,18 @@
           "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
-          "create_cycle_sensor": "Create equivalent full cycles sensor"
+          "create_cycle_sensor": "Create equivalent full cycles sensor",
+          "create_power_sensor": "Create battery power sensor"
+        },
+        "data_description": {
+          "precision": "Number of decimal places shown for calculated values.",
+          "battery_capacity": "Optional full battery capacity used for energy and power calculations.",
+          "unit_of_measurement": "Capacity unit. Use Wh, kWh, or MWh to enable the native power sensor.",
+          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
+          "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
         }
       }
     }
@@ -61,7 +89,20 @@
       },
       "equivalent_full_cycles": {
         "name": "Equivalent full cycles"
+      },
+      "battery_level": {
+        "name": "Battery level"
+      },
+      "battery_power": {
+        "name": "Battery power"
       }
+    }
+  },
+  "services": {
+    "reset_totals": {
+      "name": "Reset totals",
+      "description": "Reset accumulated charge, discharge, equivalent full cycles, and the current activity session for the selected Battery Consumption entity.",
+      "fields": {}
     }
   }
 }

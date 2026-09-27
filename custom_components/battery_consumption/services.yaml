@@ -1,0 +1,7 @@
+reset_totals:
+  name: Reset totals
+  description: Reset accumulated charge, discharge, equivalent full cycles, and the current activity session.
+  target:
+    entity:
+      integration: battery_consumption
+      domain: sensor

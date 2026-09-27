@@ -9,17 +9,19 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
 from homeassistant.data_entry_flow import ConfigFlowResult
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, selector
 
 from .const import (
     CONF_BATTERY_CAPACITY,
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
+    CONF_CREATE_POWER_SENSOR,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
     DEFAULT_CREATE_ACTIVITY_SENSOR,
     DEFAULT_CREATE_CYCLE_SENSOR,
+    DEFAULT_CREATE_POWER_SENSOR,
     DEFAULT_MINIMUM_CHANGE,
     DEFAULT_PRECISION,
     DEFAULT_SESSION_TIMEOUT,
@@ -31,7 +33,7 @@ def _identity_schema() -> vol.Schema:
     """Build the schema for fields that identify the monitored value."""
     return vol.Schema(
         {
-            vol.Required(CONF_SOURCE): cv.entity_id,
+            vol.Required(CONF_SOURCE): selector.EntitySelector(),
             vol.Optional(CONF_ATTRIBUTE): cv.string,
         }
     )
@@ -60,6 +62,7 @@ def _options_schema() -> vol.Schema:
             ): cv.boolean,
             vol.Required(
                 CONF_CREATE_CYCLE_SENSOR,
+    CONF_CREATE_POWER_SENSOR,
                 default=DEFAULT_CREATE_CYCLE_SENSOR,
             ): cv.boolean,
         }

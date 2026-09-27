@@ -1,91 +1,161 @@
-# battery_consumption
-
-Battery Consumption is a custom integration for [Home Assistant](https://www.home-assistant.io/) that calculates battery charge, discharge, accumulated changes, energy values, and estimated power from an existing battery-level entity.
-
-![GitHub release](https://img.shields.io/github/release/swetoast/battery_consumption)
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
+# Battery Consumption
 
 <p align="center">
-  <img src="https://github.com/home-assistant/brands/blob/master/custom_integrations/battery_consumption/icon%402x.png" alt="Battery Consumption icon" width="400">
+  <img src="https://github.com/home-assistant/brands/blob/master/custom_integrations/battery_consumption/icon%402x.png" alt="Battery Consumption icon" width="220">
 </p>
 
-The integration keeps the battery level as the sensor state and updates whenever its source entity changes. It provides attributes for:
+<p align="center">
+  Track battery movement, accumulated charge and discharge, energy, activity sessions, equivalent full cycles, and estimated power in Home Assistant.
+</p>
 
-- Current battery variation
-- Charge and discharge percentages
-- Accumulated charge and discharge percentages
-- Battery capacity and current energy level when capacity is configured
-- Charge, discharge, and accumulated energy values when capacity is configured
-- Estimated instantaneous power when capacity and a valid update interval are available
+<p align="center">
+  <img src="https://img.shields.io/badge/version-2.5.0-blue" alt="Version 2.5.0">
+  <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
+  <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+</p>
 
-This fork targets Home Assistant 2025.12.2 and supports both user-interface configuration and the existing YAML configuration format.
+Battery Consumption turns an existing percentage entity, or one of its attributes, into a detailed battery tracker. The integration updates when the source changes and keeps its accumulated values across Home Assistant restarts.
 
-## Configuration
+## Highlights
 
-### User interface
+- Configure and manage trackers from the Home Assistant user interface.
+- Track charge, discharge, accumulated movement, energy, and signed power.
+- Filter small source fluctuations with an optional meaningful-change threshold.
+- Track charging, discharging, and idle sessions.
+- Calculate equivalent full discharge cycles.
+- Group UI-created entities under one Battery Consumption device.
+- Preserve stable entity identities across reloads and reconfiguration.
+- Continue using the original YAML format when needed.
 
-1. Open **Settings → Devices & services**.
-2. Select **Add integration**.
-3. Search for **Battery Consumption**.
-4. Configure the source entity and the required calculation settings.
+## Requirements
 
-The following fields are available:
-
-- **Source entity**: Entity containing the battery level to monitor.
-- **Source attribute**: Optional attribute containing the battery level. Leave this empty to use the source entity state.
-- **Precision**: Number of decimal places used for calculated values. The default is `2`.
-- **Battery capacity**: Optional full battery capacity used to calculate energy and power values.
-- **Capacity unit**: Optional unit associated with the configured battery capacity, such as `Wh` or `kWh`.
-- **Minimum meaningful change**: Optional noise threshold in percentage points. The default `0` preserves the original behavior.
-- **Session timeout**: Minutes without confirmed movement before activity returns to `idle`. The default is `15`.
-- **Create battery activity sensor**: Adds an optional `charging`, `discharging`, or `idle` sensor. Disabled by default.
-- **Create equivalent full cycles sensor**: Adds an optional accumulated discharge-cycle sensor. Disabled by default.
-
-After setup, use **Configure** to change calculation options such as precision, battery capacity, and capacity unit. Use **Reconfigure** to change the source entity or source attribute. Both operations reload the existing config entry, while the sensor keeps the same stable unique ID and Home Assistant entity-registry identity.
-
-Each source entity and source attribute combination can be configured once through the user interface. Existing YAML configurations are not imported automatically and continue to run as YAML configurations.
+- Home Assistant `2025.12.2` or newer
+- A source entity or attribute that reports a numeric battery level from `0` through `100`
+- Battery capacity and a supported capacity unit only when energy or power calculations are required
 
 ## Installation
 
-Install the integration through HACS as a custom repository or install it manually.
-
-### [HACS](https://hacs.xyz/) (Home Assistant Community Store)
-
-This fork is installed as a custom HACS repository unless it has separately been accepted into the HACS default repository list.
+### HACS custom repository
 
 1. Open HACS in Home Assistant.
 2. Open the menu and select **Custom repositories**.
 3. Add `https://github.com/swetoast/battery_consumption`.
 4. Select **Integration** as the repository category.
-5. Select **Battery Consumption** and install it.
+5. Install **Battery Consumption**.
 6. Restart Home Assistant.
-7. Add the integration from **Settings → Devices & services → Add integration**.
+7. Open **Settings → Devices & services → Add integration**.
+8. Search for **Battery Consumption**.
 
-### Manual
+### Manual installation
 
-<details>
-<summary>Manual procedure</summary>
-
-1. Download the `battery_consumption` folder from the latest release of this repository.
-2. Copy it to `<config>/custom_components/battery_consumption` in your Home Assistant configuration directory.
+1. Clone or download the source repository.
+2. Copy `custom_components/battery_consumption` into `<config>/custom_components/battery_consumption`.
 3. Restart Home Assistant.
-4. Add the integration from **Settings → Devices & services → Add integration**.
+4. Open **Settings → Devices & services → Add integration**.
+5. Search for **Battery Consumption**.
 
-</details>
+## Configuration
 
-## Breaking change
+### Add a tracker
 
-Version 2.2.0 added config-entry setup, a config flow, and an options flow for Home Assistant 2025.12.2. Existing YAML configuration remains supported and keeps its existing sensor calculations and attributes.
+1. Open **Settings → Devices & services**.
+2. Select **Add integration**.
+3. Search for **Battery Consumption**.
+4. Select the source entity.
+5. Configure the calculation options and optional entities.
 
-YAML configurations are not automatically migrated into the user interface. To move an existing YAML sensor to the user interface, first record its settings, remove that YAML entry, restart Home Assistant, and then add the equivalent entry from **Settings → Devices & services**. Avoid running an equivalent YAML and UI entry at the same time because both would monitor the same source independently.
+Each source entity and source attribute combination can be configured once. Existing YAML entries are not imported automatically.
 
-Version 2.2.1 updated repository ownership, links, and Home Assistant metadata for the `swetoast/battery_consumption` fork. Version 2.2.2 completed the documentation update without changing sensor behavior. Version 2.3.0 adds full config-entry lifecycle handling: create and delete through Home Assistant, dedicated reconfiguration for source fields, calculation options, duplicate-source protection, automatic reloads, and a stable entity unique ID based on the config-entry ID.
+### Available options
 
-This project is a fork of the original Battery Consumption project by `jugla`. The included MIT License permits use, copying, modification, merging, publication, distribution, sublicensing, and sale, provided that the original copyright notice and permission notice remain included. The original `Copyright (c) 2021 jugla` notice has therefore been retained in `LICENSE`.
+| Option | Purpose | Default |
+| --- | --- | --- |
+| Source entity | Entity that provides the battery percentage | Required |
+| Source attribute | Optional attribute containing the percentage | Entity state |
+| Precision | Decimal places shown for calculated values | `2` |
+| Battery capacity | Full battery capacity used for energy and power calculations | Optional |
+| Capacity unit | Capacity unit such as `Wh`, `kWh`, or `MWh` | Optional |
+| Minimum meaningful change | Percentage-point movement required before accounting confirms a change | `0` |
+| Session timeout | Minutes without confirmed movement before activity becomes idle | `15` |
+| Create battery activity sensor | Adds the charging, discharging, and idle sensor | Disabled |
+| Create equivalent full cycles sensor | Adds the derived cycle-count sensor | Disabled |
+| Create battery power sensor | Adds a native signed power sensor | Disabled |
 
-## Using the component
+Use **Configure** to change calculation options. Use **Reconfigure** to change the source entity or source attribute. Reconfiguration keeps the existing Home Assistant entity identity while starting accounting from the new source.
 
-The user interface is the recommended configuration method for new installations. The original YAML format remains available for existing installations.
+## Entities
+
+UI-created entities are grouped under one Battery Consumption device.
+
+### Battery level
+
+The primary sensor shows the current source percentage and uses the Home Assistant battery device class. It is always created.
+
+Its attributes include:
+
+- Previous monitored value
+- Current variation
+- Current charge and discharge
+- Accumulated charge and discharge
+- Current and previous update times
+- Time between confirmed updates
+- Capacity and energy values when capacity is configured
+- Signed estimated power when a valid interval is available
+
+### Battery activity
+
+Optional regular sensor with these states:
+
+- `charging`
+- `discharging`
+- `idle`
+
+The icon changes with the current activity. Session attributes include the start time, starting level, confirmed change, and session energy when capacity is configured.
+
+### Equivalent full cycles
+
+Optional diagnostic sensor calculated from accumulated discharge:
+
+```text
+equivalent full cycles = total accumulated discharge percentage / 100
+```
+
+Five separate 20% discharges therefore equal one equivalent full cycle. This is an accounting metric based on observed battery movement, not a battery-health estimate or the hardware battery-management system's internal cycle count.
+
+### Battery power
+
+Optional power sensor created when battery capacity uses one of these supported units:
+
+| Capacity unit | Power unit |
+| --- | --- |
+| `Wh` | `W` |
+| `kWh` | `kW` |
+| `MWh` | `MW` |
+
+Power is calculated across the latest confirmed battery movement interval:
+
+- Positive values indicate charging.
+- Negative values indicate discharging.
+- The sensor remains unavailable until a confirmed movement has a valid positive time interval.
+
+## Noise-resistant accounting
+
+Set **Minimum meaningful change** above `0` to reduce false totals caused by a noisy battery source.
+
+With a threshold of `2`, this sequence is not recorded as charge or discharge:
+
+```text
+50 → 51 → 50 → 51
+```
+
+A later value of `52` confirms a two percentage-point charge from the last accounted level of `50`.
+
+The displayed battery level still follows the source. Only the accumulated accounting waits for confirmed movement.
+
+## YAML configuration
+
+The user interface is recommended for new trackers. The original YAML format remains supported for existing installations.
 
 ```yaml
 battery_consumption:
@@ -96,56 +166,71 @@ battery_consumption:
     precision: 2
     battery_capacity: 52
     unit_of_measurement: kWh
+    minimum_change: 1
+    session_timeout: 15
 ```
 
-Configuration keys:
+### YAML keys
 
-- `source`: Required source entity containing the battery level.
-- `attribute`: Optional source attribute containing the battery level. If omitted, the entity state is used.
-- `unique_id`: Optional unique ID for YAML-created sensors.
-- `precision`: Optional number of decimal places. The default is `2`.
-- `battery_capacity`: Optional full battery capacity. Energy and power attributes are only calculated when this is configured.
-- `unit_of_measurement`: Optional unit used for the configured battery capacity and calculated energy attributes.
+| Key | Required | Description |
+| --- | --- | --- |
+| `source` | Yes | Entity containing the battery percentage |
+| `attribute` | No | Attribute containing the percentage; omit it to use the entity state |
+| `unique_id` | No | Unique ID for the YAML-created sensor |
+| `precision` | No | Number of displayed decimal places |
+| `battery_capacity` | No | Full battery capacity used for energy calculations |
+| `unit_of_measurement` | No | Unit used by the configured capacity and calculated energy values |
+| `minimum_change` | No | Percentage-point threshold for confirmed movement |
+| `session_timeout` | No | Minutes before activity returns to idle |
 
-The created sensor name retains the existing format:
+YAML-created sensors retain the original naming format:
 
-- Without a source attribute: `battery_consumption_<source entity>`
-- With a source attribute: `battery_consumption_<source entity>_<attribute>`
+- Without an attribute: `battery_consumption_<source entity>`
+- With an attribute: `battery_consumption_<source entity>_<attribute>`
 
-## Sensor and attribute
+The optional activity, cycle, and native power entities are available to UI-created config entries.
 
-The sensor state is the current monitored battery value rounded to the configured precision.
+## Attribute reference
 
-The integration exposes the following attributes:
+| Attribute | Availability | Description |
+| --- | --- | --- |
+| `source` | Always | Monitored source entity |
+| `source_attribute` | When configured | Monitored source attribute |
+| `previous_value` | Always | Previous source value |
+| `last_updated` | Always | Time of the current source update |
+| `previous_last_updated` | Always | Time of the previous source update |
+| `delta_last_updated_in_minutes` | Always | Minutes between confirmed values |
+| `variation` | Always | Confirmed difference between current and accounted values |
+| `battery_charge` | Always | Positive confirmed movement, otherwise `0` |
+| `battery_discharge` | Always | Absolute negative confirmed movement, otherwise `0` |
+| `total_charge` | Always | Accumulated positive movement |
+| `total_discharge` | Always | Accumulated negative movement |
+| `capacity_unit` | With capacity | Configured battery-capacity unit |
+| `capacity` | With capacity | Configured full battery capacity |
+| `energy_level` | With capacity | Energy represented by the current battery level |
+| `energy_variation` | With capacity | Energy represented by the confirmed change |
+| `energy_charge` | With capacity | Energy represented by confirmed charging |
+| `energy_discharge` | With capacity | Energy represented by confirmed discharging |
+| `total_energy_charge` | With capacity | Energy represented by accumulated charging |
+| `total_energy_discharge` | With capacity | Energy represented by accumulated discharging |
+| `instant_power` | With capacity and valid interval | Signed estimated power over the latest confirmed interval |
 
-| Attribute | Availability | Unit | Description |
-| --- | --- | --- | --- |
-| `source` | Always | None | Source entity monitored by the integration |
-| `source_attribute` | When configured | None | Source attribute monitored instead of the entity state |
-| `previous_value` | Always | Source value unit | Previously recorded battery value |
-| `last_updated` | Always | Timestamp | Update time of the current monitored value |
-| `previous_last_updated` | Always | Timestamp | Update time of the previous monitored value |
-| `delta_last_updated_in_minutes` | Always | Minutes | Time between the current and previous value |
-| `variation` | Always | `%` | Difference between the current and previous battery values |
-| `battery_charge` | Always | `%` | Positive battery variation; otherwise `0` |
-| `battery_discharge` | Always | `%` | Absolute value of a negative battery variation; otherwise `0` |
-| `total_charge` | Always | `%` | Accumulated positive battery variations |
-| `total_discharge` | Always | `%` | Accumulated absolute negative battery variations |
-| `capacity_unit` | With battery capacity | Configured capacity unit | Unit configured for battery capacity |
-| `capacity` | With battery capacity | Configured capacity unit | Configured full battery capacity |
-| `energy_level` | With battery capacity | Configured capacity unit | Energy represented by the current battery level |
-| `energy_variation` | With battery capacity | Configured capacity unit | Energy represented by the current battery variation |
-| `energy_charge` | With battery capacity | Configured capacity unit | Energy represented by the current charge variation |
-| `energy_discharge` | With battery capacity | Configured capacity unit | Energy represented by the current discharge variation |
-| `total_energy_charge` | With battery capacity | Configured capacity unit | Energy represented by accumulated charge variations |
-| `total_energy_discharge` | With battery capacity | Configured capacity unit | Energy represented by accumulated discharge variations |
-| `instant_power` | With battery capacity and valid update interval | Capacity unit per hour | Estimated power calculated from energy variation and elapsed time |
+## Reset accumulated totals
 
-Accumulated values are restored from the previous Home Assistant state after a restart.
+Use **Developer tools → Actions** and run **Battery Consumption: Reset totals** against any entity belonging to the tracker.
 
-## Typical use
+The action resets:
 
-Template sensors can expose the accumulated energy attributes as dedicated energy entities for use with utility meters.
+- Accumulated charge
+- Accumulated discharge
+- Equivalent full cycles
+- Current activity session
+
+Configuration, entities, and current battery level are not removed. Resetting totals cannot be undone.
+
+## Example: utility meters
+
+Template sensors can expose accumulated energy attributes as dedicated energy entities:
 
 ```yaml
 template:
@@ -153,7 +238,7 @@ template:
       - name: Zoe battery total charge
         state: >-
           {{ state_attr(
-            'sensor.battery_consumption_sensor_zoe_battery_level',
+            'sensor.zoe_battery_level_battery_level',
             'total_energy_charge'
           ) }}
         unit_of_measurement: kWh
@@ -163,7 +248,7 @@ template:
       - name: Zoe battery total discharge
         state: >-
           {{ state_attr(
-            'sensor.battery_consumption_sensor_zoe_battery_level',
+            'sensor.zoe_battery_level_battery_level',
             'total_energy_discharge'
           ) }}
         unit_of_measurement: kWh
@@ -171,86 +256,70 @@ template:
         state_class: total
 
 utility_meter:
-  zoe_battery_total_charge_daily:
+  zoe_battery_charge_daily:
     source: sensor.zoe_battery_total_charge
     cycle: daily
-  zoe_battery_total_charge_weekly:
-    source: sensor.zoe_battery_total_charge
-    cycle: weekly
-  zoe_battery_total_charge_monthly:
-    source: sensor.zoe_battery_total_charge
-    cycle: monthly
-  zoe_battery_total_discharge_daily:
+  zoe_battery_discharge_daily:
     source: sensor.zoe_battery_total_discharge
     cycle: daily
-  zoe_battery_total_discharge_weekly:
-    source: sensor.zoe_battery_total_discharge
-    cycle: weekly
-  zoe_battery_total_discharge_monthly:
-    source: sensor.zoe_battery_total_discharge
-    cycle: monthly
-```
-
-A template sensor can also expose the current battery variation for statistics and graph cards.
-
-```yaml
-template:
-  - sensor:
-      - name: Zoe battery variation
-        state: >-
-          {{ state_attr(
-            'sensor.battery_consumption_sensor_zoe_battery_level',
-            'variation'
-          ) }}
-        unit_of_measurement: "%"
-        device_class: battery
-        state_class: measurement
 ```
 
 Replace the example entity IDs with the entities created in your Home Assistant installation.
 
-## Noise-resistant tracking and battery sessions
+## Troubleshooting
 
-Version 2.4.0 adds optional noise-resistant accounting and two optional entities. Version 2.4.1 polishes their Home Assistant presentation with appropriate entity categories and dynamic battery icons. All new features are disabled by default, so upgrading retains the existing behavior until they are enabled from **Configure**.
+### Source entity is unavailable
 
+The Battery Consumption entities follow source availability. When the source returns, its first valid value establishes a fresh accounting baseline. Movement during the unavailable period is not counted as one large event.
 
-### Home Assistant entity presentation
+### Source value is rejected
 
-- The main Battery Consumption percentage is a regular sensor with the battery device class. Home Assistant can therefore display its battery icon according to the current percentage.
-- Battery activity is a regular operational sensor because `charging`, `discharging`, and `idle` are useful in dashboards and automations. Its icon changes between charging, discharging, and idle states.
-- Equivalent full cycles is categorized as a diagnostic sensor because it is a derived long-term battery usage metric rather than a current operating state.
-- Precision, battery capacity, capacity unit, minimum meaningful change, session timeout, and optional sensor creation remain integration configuration options. They are not entities, so they are not assigned the `config` entity category.
+The source must provide a numeric value from `0` through `100`. Unknown, unavailable, nonnumeric, negative, and above-100 values are excluded from accounting.
 
-### Minimum meaningful change
+### Source attribute produces no value
 
-`Minimum meaningful change` controls how far the battery level must move from the last accounted level before the integration records charge or discharge. A value of `0` preserves the original behavior and records every numeric change.
+Confirm that the attribute exists and contains a numeric percentage. Leave **Source attribute** empty when the entity state already contains the percentage.
 
-With a threshold of `2`, changes such as `50 → 51 → 50 → 51` are treated as unconfirmed movement. A later value of `52` confirms a 2 percentage-point charge from the last accounted level of `50`. This prevents small source fluctuations from inflating accumulated charge and discharge totals.
+### Energy or power is missing
 
-### Battery activity sensor
+Energy values require battery capacity. The native power sensor also requires the capacity unit to be exactly `Wh`, `kWh`, or `MWh`.
 
-When enabled, the activity sensor reports one of these states:
+### Activity remains idle
 
-- `charging`
-- `discharging`
-- `idle`
+Activity changes only after movement reaches **Minimum meaningful change**. Set the threshold to `0` to confirm every numeric change. Activity returns to idle after the configured session timeout.
 
-A confirmed change starts or continues a session in the relevant direction. A change in direction starts a new session. The configured session timeout changes the activity to `idle` after no confirmed movement has occurred for that number of minutes.
+### YAML tracker does not appear in the integration UI
 
-The activity sensor includes the session start time, session starting level, confirmed session change, and session energy when battery capacity is configured.
+YAML entries are supported but are not imported into config entries. Remove the YAML entry before creating an equivalent UI tracker to avoid duplicate accounting.
 
-### Equivalent full cycles sensor
+## Removal
 
-When enabled, the equivalent full cycles sensor calculates:
+### UI-created tracker
 
-```text
-total accumulated discharge percentage / 100
-```
+1. Open **Settings → Devices & services**.
+2. Open **Battery Consumption**.
+3. Open the menu for the config entry.
+4. Select **Delete**.
 
-For example, five separate 20% discharges equal one equivalent full cycle. This is an accounting measure based on observed battery-level movement. It is not a battery-health estimate and does not claim to represent the hardware battery-management system's internal cycle count.
+### YAML-created tracker
 
-### Data validation and continuity
+1. Remove the tracker from the `battery_consumption:` section in `configuration.yaml`.
+2. Restart Home Assistant.
 
-Battery source values outside `0` to `100`, non-numeric values, and unavailable source states are rejected instead of being included in the calculations. The Battery Consumption entities follow source availability.
+Remove the custom repository through HACS only when no UI or YAML trackers remain.
 
-Changing calculation options preserves accumulated totals. Reconfiguring the source entity or source attribute keeps the Home Assistant entity identity but starts accounting from the new source without restoring totals that belonged to the previous source.
+## Development
+
+The repository includes:
+
+- Pytest regression tests for calculations and config-flow behavior
+- Ruff configuration
+- HACS validation
+- Hassfest validation
+- A consolidated GitHub Actions workflow
+
+## License
+
+Battery Consumption is distributed under the MIT License.
+
+This repository is a fork of the original [Battery Consumption project by `jugla`](https://github.com/jugla/battery_consumption). The original copyright and permission notice remain in [`LICENSE`](LICENSE).
