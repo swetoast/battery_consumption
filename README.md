@@ -17,6 +17,15 @@
 
 Battery Consumption turns an existing percentage entity, or one of its attributes, into a detailed battery tracker. The integration updates when the source changes and keeps its accumulated values across Home Assistant restarts.
 
+## Optional Companion App battery inputs
+
+For phones and watches running the Home Assistant Companion App, a tracker can use optional supporting entities from the same Home Assistant device: is charging, battery state, charger type, measured battery power, battery temperature, battery health, hardware battery cycle count, and remaining charge time.
+
+The setup flow suggests matching enabled entities from the same device. Every field remains optional, so ordinary battery-powered smart devices continue to work without Companion App sensors.
+
+The battery-level source remains the only input used by the original variation, charge, discharge, energy, timestamp, total, and restore calculations. Companion inputs only improve optional activity, power, cycle context, and telemetry outputs.
+
+
 ## Highlights
 
 - Configure and manage trackers from the Home Assistant user interface.

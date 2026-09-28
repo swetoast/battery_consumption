@@ -30,6 +30,14 @@ from .const import (
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
     CONF_CREATE_POWER_SENSOR,
+    CONF_COMPANION_IS_CHARGING,
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_CHARGER_TYPE,
+    CONF_COMPANION_BATTERY_POWER,
+    CONF_COMPANION_BATTERY_TEMPERATURE,
+    CONF_COMPANION_BATTERY_HEALTH,
+    CONF_COMPANION_BATTERY_CYCLE_COUNT,
+    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_DEVICE_PROFILE,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
@@ -116,6 +124,14 @@ _CALCULATION_KEYS = {
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
     CONF_CREATE_POWER_SENSOR,
+    CONF_COMPANION_IS_CHARGING,
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_CHARGER_TYPE,
+    CONF_COMPANION_BATTERY_POWER,
+    CONF_COMPANION_BATTERY_TEMPERATURE,
+    CONF_COMPANION_BATTERY_HEALTH,
+    CONF_COMPANION_BATTERY_CYCLE_COUNT,
+    CONF_COMPANION_REMAINING_CHARGE_TIME,
 }
 
 
@@ -149,6 +165,12 @@ async def async_setup_entry(
         entry.entry_id,
         conf.get(CONF_TRACKER_NAME) or entry.title,
         conf.get(CONF_BATTERY_VOLTAGE),
+        {key: conf.get(key) for key in (
+            CONF_COMPANION_IS_CHARGING, CONF_COMPANION_BATTERY_STATE,
+            CONF_COMPANION_CHARGER_TYPE, CONF_COMPANION_BATTERY_POWER,
+            CONF_COMPANION_BATTERY_TEMPERATURE, CONF_COMPANION_BATTERY_HEALTH,
+            CONF_COMPANION_BATTERY_CYCLE_COUNT, CONF_COMPANION_REMAINING_CHARGE_TIME,
+        ) if conf.get(key)},
     )
     entities: list[SensorEntity] = [tracker]
     if conf.get(CONF_CREATE_ACTIVITY_SENSOR, DEFAULT_CREATE_ACTIVITY_SENSOR):
@@ -156,7 +178,7 @@ async def async_setup_entry(
     if conf.get(CONF_CREATE_CYCLE_SENSOR, DEFAULT_CREATE_CYCLE_SENSOR):
         entities.append(BatteryCycleSensor(tracker, entry.entry_id))
     if conf.get(CONF_CREATE_POWER_SENSOR, DEFAULT_CREATE_POWER_SENSOR):
-        if tracker.power_unit is not None and tracker._battery_capacity is not None:
+        if tracker.power_unit is not None:
             entities.append(BatteryPowerSensor(tracker, entry.entry_id))
         else:
             _LOGGER.warning(
@@ -216,7 +238,8 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
 
     def __init__(self, unique_id, name, source, attribute, precision,
                  battery_capacity, unit_of_measurement, minimum_change,
-                 session_timeout, entry_id, tracker_name, battery_voltage=None):
+                 session_timeout, entry_id, tracker_name, battery_voltage=None,
+                 companion_entities=None):
         self._attr_unique_id = unique_id
         self._source_entity_id = source
         self._source_attribute = attribute
@@ -248,7 +271,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.9.2",
+                "sw_version": "2.10.0",
             }
         else:
             self._attr_name = name
@@ -269,6 +292,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._session_start_level = None
         self._session_change = 0.0
         self._dependents = []
+        self._companion_entities = companion_entities or {}
 
     def register_dependent(self, entity):
         self._dependents.append(entity)
@@ -296,6 +320,12 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self.async_on_remove(async_track_state_change_event(
             self.hass, [self._source_entity_id], self._async_source_state_changed
         ))
+        if self._companion_entities:
+            self.async_on_remove(async_track_state_change_event(
+                self.hass, list(self._companion_entities.values()),
+                self._async_companion_state_changed
+            ))
+        self._derive_optional_state()
 
     @property
     def state(self):
@@ -352,7 +382,10 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
 
     @property
     def power_unit(self):
-        return {"Wh": "W", "kWh": "kW", "MWh": "MW"}.get(self._unit_of_measurement)
+        unit = {"Wh": "W", "kWh": "kW", "MWh": "MW"}.get(self._unit_of_measurement)
+        if unit is None and CONF_COMPANION_BATTERY_POWER in self._companion_entities:
+            return "W"
+        return unit
 
     async def async_reset_totals(self):
         self._cumulative_charge = 0.0
@@ -418,23 +451,98 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._compute_induced_data()
         self._compute_cumulative_data()
 
+    def _companion_state(self, key):
+        entity_id = self._companion_entities.get(key)
+        if not entity_id or self.hass is None:
+            return None
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            return None
+        return state
+
+    @property
+    def companion_attributes(self):
+        attrs = {}
+        names = {
+            CONF_COMPANION_IS_CHARGING: "is_charging",
+            CONF_COMPANION_BATTERY_STATE: "battery_state",
+            CONF_COMPANION_CHARGER_TYPE: "charger_type",
+            CONF_COMPANION_BATTERY_TEMPERATURE: "battery_temperature",
+            CONF_COMPANION_BATTERY_HEALTH: "battery_health",
+            CONF_COMPANION_REMAINING_CHARGE_TIME: "remaining_charge_time",
+        }
+        for key, name in names.items():
+            state = self._companion_state(key)
+            if state is not None:
+                attrs[name] = state.state
+                if state.attributes.get("unit_of_measurement"):
+                    attrs[f"{name}_unit"] = state.attributes["unit_of_measurement"]
+        return attrs
+
+    @property
+    def hardware_cycle_count(self):
+        state = self._companion_state(CONF_COMPANION_BATTERY_CYCLE_COUNT)
+        if state is None:
+            return None
+        try:
+            return float(state.state)
+        except (TypeError, ValueError):
+            return None
+
+    @property
+    def output_power(self):
+        state = self._companion_state(CONF_COMPANION_BATTERY_POWER)
+        if state is None:
+            return self._instant_power, "estimated", None
+        try:
+            value = float(state.state)
+        except (TypeError, ValueError):
+            return self._instant_power, "estimated", None
+        source_unit = state.attributes.get("unit_of_measurement", "W")
+        target = self.power_unit or "W"
+        watts = value * {"W": 1, "kW": 1000, "MW": 1000000}.get(source_unit, 1)
+        converted = watts / {"W": 1, "kW": 1000, "MW": 1000000}.get(target, 1)
+        return round(converted, self._precision), "measured", state.entity_id
+
     @callback
-    def _derive_optional_state(self):
-        """Update observers only after original accounting has finished."""
-        if self._delta > 0:
+    def _derive_optional_state(self, account_delta=False):
+        charging = self._companion_state(CONF_COMPANION_IS_CHARGING)
+        battery_state = self._companion_state(CONF_COMPANION_BATTERY_STATE)
+        state_text = battery_state.state.lower().replace("_", " ") if battery_state else ""
+        if charging is not None:
+            if charging.state == "on":
+                activity = ACTIVITY_CHARGING
+            elif state_text == "full":
+                activity = ACTIVITY_IDLE
+            else:
+                activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
+        elif state_text == "charging":
+            activity = ACTIVITY_CHARGING
+        elif state_text == "full":
+            activity = ACTIVITY_IDLE
+        elif state_text in ("discharging", "not charging"):
+            activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
+        elif self._delta > 0:
             activity = ACTIVITY_CHARGING
         elif self._delta < 0:
             activity = ACTIVITY_DISCHARGING
         else:
-            self._activity = ACTIVITY_IDLE
+            activity = ACTIVITY_IDLE
+        if activity == ACTIVITY_IDLE:
+            self._activity = activity
             return
         if activity != self._activity:
             self._session_started = self._last_updated
             self._session_start_level = self._previous_state
-            self._session_change = self._delta
-        else:
+            self._session_change = self._delta if account_delta else 0.0
+        elif account_delta and self._delta:
             self._session_change += self._delta
         self._activity = activity
+
+    @callback
+    def _async_companion_state_changed(self, _event):
+        self._derive_optional_state()
+        self._write_dependents()
 
     @callback
     def _async_source_state_changed(self, event):
@@ -456,7 +564,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 _LOGGER.warning("%s state is not numerical", self._source_entity_id)
         if value is not None:
             self._compute_new_state_and_attribute(value, new_state.last_updated)
-            self._derive_optional_state()
+            self._derive_optional_state(account_delta=True)
             self.async_write_ha_state()
             self._write_dependents()
 
@@ -504,7 +612,7 @@ class BatteryActivitySensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return self._tracker.session_attributes
+        return {**self._tracker.session_attributes, **self._tracker.companion_attributes}
 
 
 class BatteryCycleSensor(SensorEntity):
@@ -535,6 +643,16 @@ class BatteryCycleSensor(SensorEntity):
     def native_value(self) -> float:
         return self._tracker.equivalent_full_cycles
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        value = self._tracker.hardware_cycle_count
+        if value is None:
+            return {}
+        return {
+            "hardware_cycle_count": value,
+            "hardware_cycle_count_source": self._tracker._companion_entities.get(CONF_COMPANION_BATTERY_CYCLE_COUNT),
+        }
+
 
 class BatteryPowerSensor(SensorEntity):
     """Represent confirmed average battery power over the last interval."""
@@ -561,7 +679,15 @@ class BatteryPowerSensor(SensorEntity):
 
     @property
     def native_value(self) -> float:
-        return self._tracker._instant_power
+        return self._tracker.output_power[0]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        _, source_type, source_entity = self._tracker.output_power
+        attrs = {"source_type": source_type}
+        if source_entity:
+            attrs["source_entity"] = source_entity
+        return attrs
 
     @property
     def icon(self) -> str:

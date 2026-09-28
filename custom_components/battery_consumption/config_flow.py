@@ -9,7 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
-from homeassistant.helpers import config_validation as cv, selector
+from homeassistant.helpers import config_validation as cv, entity_registry as er, selector
 from homeassistant.util import slugify
 
 from .const import (
@@ -18,6 +18,14 @@ from .const import (
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
     CONF_CREATE_POWER_SENSOR,
+    CONF_COMPANION_IS_CHARGING,
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_CHARGER_TYPE,
+    CONF_COMPANION_BATTERY_POWER,
+    CONF_COMPANION_BATTERY_TEMPERATURE,
+    CONF_COMPANION_BATTERY_HEALTH,
+    CONF_COMPANION_BATTERY_CYCLE_COUNT,
+    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_DEVICE_PROFILE,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
@@ -106,30 +114,25 @@ def _manual_schema() -> vol.Schema:
 
 
 def _tracking_schema() -> vol.Schema:
-    """Build tracking and optional entity schema shared by both modes."""
+    """Build optional Companion inputs and tracking output settings."""
+    sensor = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor"))
+    binary = selector.EntitySelector(selector.EntitySelectorConfig(domain="binary_sensor"))
     return vol.Schema(
         {
-            vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(
-                vol.Coerce(int), vol.Range(min=0)
-            ),
-            vol.Required(
-                CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE
-            ): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
-            vol.Required(
-                CONF_SESSION_TIMEOUT, default=DEFAULT_SESSION_TIMEOUT
-            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
-            vol.Required(
-                CONF_CREATE_ACTIVITY_SENSOR,
-                default=DEFAULT_CREATE_ACTIVITY_SENSOR,
-            ): cv.boolean,
-            vol.Required(
-                CONF_CREATE_CYCLE_SENSOR,
-                default=DEFAULT_CREATE_CYCLE_SENSOR,
-            ): cv.boolean,
-            vol.Required(
-                CONF_CREATE_POWER_SENSOR,
-                default=DEFAULT_CREATE_POWER_SENSOR,
-            ): cv.boolean,
+            vol.Optional(CONF_COMPANION_IS_CHARGING): binary,
+            vol.Optional(CONF_COMPANION_BATTERY_STATE): sensor,
+            vol.Optional(CONF_COMPANION_CHARGER_TYPE): sensor,
+            vol.Optional(CONF_COMPANION_BATTERY_POWER): sensor,
+            vol.Optional(CONF_COMPANION_BATTERY_TEMPERATURE): sensor,
+            vol.Optional(CONF_COMPANION_BATTERY_HEALTH): sensor,
+            vol.Optional(CONF_COMPANION_BATTERY_CYCLE_COUNT): sensor,
+            vol.Optional(CONF_COMPANION_REMAINING_CHARGE_TIME): sensor,
+            vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(vol.Coerce(int), vol.Range(min=0)),
+            vol.Required(CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
+            vol.Required(CONF_SESSION_TIMEOUT, default=DEFAULT_SESSION_TIMEOUT): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
+            vol.Required(CONF_CREATE_ACTIVITY_SENSOR, default=DEFAULT_CREATE_ACTIVITY_SENSOR): cv.boolean,
+            vol.Required(CONF_CREATE_CYCLE_SENSOR, default=DEFAULT_CREATE_CYCLE_SENSOR): cv.boolean,
+            vol.Required(CONF_CREATE_POWER_SENSOR, default=DEFAULT_CREATE_POWER_SENSOR): cv.boolean,
         }
     )
 
@@ -142,6 +145,14 @@ def _clean_input(user_input: dict[str, Any]) -> dict[str, Any]:
         CONF_BATTERY_CAPACITY,
         CONF_UNIT_OF_MEASUREMENT,
         CONF_BATTERY_VOLTAGE,
+        CONF_COMPANION_IS_CHARGING,
+        CONF_COMPANION_BATTERY_STATE,
+        CONF_COMPANION_CHARGER_TYPE,
+        CONF_COMPANION_BATTERY_POWER,
+        CONF_COMPANION_BATTERY_TEMPERATURE,
+        CONF_COMPANION_BATTERY_HEALTH,
+        CONF_COMPANION_BATTERY_CYCLE_COUNT,
+        CONF_COMPANION_REMAINING_CHARGE_TIME,
     ):
         if cleaned.get(key) in (None, ""):
             cleaned.pop(key, None)
@@ -186,6 +197,35 @@ def _capacity_error(data: dict[str, Any]) -> str | None:
     if unit == "mAh" and data.get(CONF_BATTERY_VOLTAGE) is None:
         return "voltage_required"
     return None
+
+
+_COMPANION_SUFFIXES = {
+    CONF_COMPANION_IS_CHARGING: "_is_charging",
+    CONF_COMPANION_BATTERY_STATE: "_battery_state",
+    CONF_COMPANION_CHARGER_TYPE: "_charger_type",
+    CONF_COMPANION_BATTERY_POWER: "_battery_power",
+    CONF_COMPANION_BATTERY_TEMPERATURE: "_battery_temperature",
+    CONF_COMPANION_BATTERY_HEALTH: "_battery_health",
+    CONF_COMPANION_BATTERY_CYCLE_COUNT: "_battery_cycle_count",
+    CONF_COMPANION_REMAINING_CHARGE_TIME: "_remaining_charge_time",
+ }
+
+def _companion_suggestions(hass, source_entity_id: str | None) -> dict[str, str]:
+    """Suggest optional battery entities registered to the source device."""
+    if not source_entity_id:
+        return {}
+    registry = er.async_get(hass)
+    source = registry.async_get(source_entity_id)
+    if source is None or source.device_id is None:
+        return {}
+    found = {}
+    for entry in er.async_entries_for_device(registry, source.device_id):
+        if entry.disabled_by is not None:
+            continue
+        for key, suffix in _COMPANION_SUFFIXES.items():
+            if entry.entity_id.endswith(suffix):
+                found.setdefault(key, entry.entity_id)
+    return found
 
 
 def _source_key(data: dict[str, Any]) -> tuple[str, str]:
@@ -287,7 +327,8 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._profiles = await async_load_device_profiles(self.hass)
             data = _apply_device_profile(self._data, self._profiles)
             return self.async_create_entry(title=data[CONF_TRACKER_NAME], data=data)
-        return self.async_show_form(step_id="tracking", data_schema=_tracking_schema())
+        suggestions = _companion_suggestions(self.hass, self._data.get(CONF_SOURCE))
+        return self.async_show_form(step_id="tracking", data_schema=self.add_suggested_values_to_schema(_tracking_schema(), suggestions))
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
@@ -449,6 +490,14 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
                 CONF_CREATE_ACTIVITY_SENSOR,
                 CONF_CREATE_CYCLE_SENSOR,
                 CONF_CREATE_POWER_SENSOR,
+    CONF_COMPANION_IS_CHARGING,
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_CHARGER_TYPE,
+    CONF_COMPANION_BATTERY_POWER,
+    CONF_COMPANION_BATTERY_TEMPERATURE,
+    CONF_COMPANION_BATTERY_HEALTH,
+    CONF_COMPANION_BATTERY_CYCLE_COUNT,
+    CONF_COMPANION_REMAINING_CHARGE_TIME,
             )
             if key in current
         }
@@ -470,9 +519,10 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             elif data.get(CONF_UNIT_OF_MEASUREMENT) != "mAh":
                 data[CONF_BATTERY_VOLTAGE] = None
             return self.async_create_entry(data=data)
+        discovered = _companion_suggestions(self.hass, current.get(CONF_SOURCE))
+        for key, entity_id in discovered.items():
+            suggested.setdefault(key, entity_id)
         return self.async_show_form(
             step_id="tracking",
-            data_schema=self.add_suggested_values_to_schema(
-                _tracking_schema(), suggested
-            ),
+            data_schema=self.add_suggested_values_to_schema(_tracking_schema(), suggested),
         )

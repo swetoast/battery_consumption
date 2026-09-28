@@ -58,7 +58,15 @@
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
           "create_cycle_sensor": "Create equivalent full cycles sensor",
-          "create_power_sensor": "Create battery power sensor"
+          "create_power_sensor": "Create battery power sensor",
+          "companion_is_charging": "Is charging sensor (optional)",
+          "companion_battery_state": "Battery state sensor (optional)",
+          "companion_charger_type": "Charger type sensor (optional)",
+          "companion_battery_power": "Measured battery power sensor (optional)",
+          "companion_battery_temperature": "Battery temperature sensor (optional)",
+          "companion_battery_health": "Battery health sensor (optional)",
+          "companion_battery_cycle_count": "Hardware battery cycle count sensor (optional)",
+          "companion_remaining_charge_time": "Remaining charge time sensor (optional)"
         },
         "data_description": {
           "precision": "Number of decimal places shown for calculated values.",
@@ -66,7 +74,15 @@
           "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
-          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
+          "companion_is_charging": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_state": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_charger_type": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_power": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_temperature": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_health": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_cycle_count": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_remaining_charge_time": "Optional Companion App input. Leave empty for devices that do not provide it."
         }
       },
       "reconfigure": {
@@ -140,7 +156,15 @@
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
           "create_cycle_sensor": "Create equivalent full cycles sensor",
-          "create_power_sensor": "Create battery power sensor"
+          "create_power_sensor": "Create battery power sensor",
+          "companion_is_charging": "Is charging sensor (optional)",
+          "companion_battery_state": "Battery state sensor (optional)",
+          "companion_charger_type": "Charger type sensor (optional)",
+          "companion_battery_power": "Measured battery power sensor (optional)",
+          "companion_battery_temperature": "Battery temperature sensor (optional)",
+          "companion_battery_health": "Battery health sensor (optional)",
+          "companion_battery_cycle_count": "Hardware battery cycle count sensor (optional)",
+          "companion_remaining_charge_time": "Remaining charge time sensor (optional)"
         },
         "data_description": {
           "precision": "Number of decimal places shown for calculated values.",
@@ -148,7 +172,15 @@
           "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
-          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time."
+          "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
+          "companion_is_charging": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_state": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_charger_type": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_power": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_temperature": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_health": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_battery_cycle_count": "Optional Companion App input. Leave empty for devices that do not provide it.",
+          "companion_remaining_charge_time": "Optional Companion App input. Leave empty for devices that do not provide it."
         }
       }
     },
