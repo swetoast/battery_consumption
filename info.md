@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="Battery Consumption logo" width="420">
+</p>
+
 # battery_consumption
 ## Description
 
@@ -8,7 +12,7 @@ Battery Consumption is a custom integration for [Home Assistant](https://www.hom
 
 The integration keeps the battery level as the sensor state and updates whenever its source entity changes. It can expose current variation, charge and discharge percentages, accumulated values, energy values, and estimated instantaneous power.
 
-This fork targets Home Assistant 2025.12.2. Version 2.5.0 adds device grouping, native naming, improved selectors, safe recovery and restoration, an optional native power sensor, a reset action, tests, and modern validation workflows. Version 2.4.0 adds optional noise filtering, battery activity sessions, and equivalent full-cycle tracking. Version 2.4.1 adds polished entity categories and dynamic icons. The new entities and filtering are disabled by default.
+Version 2.10.2 gives every optional sensor one clear value and only the attributes needed to explain that value, and includes the new project icon. This fork targets Home Assistant 2025.12.2. Version 2.5.0 adds device grouping, native naming, improved selectors, safe recovery and restoration, an optional native power sensor, a reset action, tests, and modern validation workflows. Version 2.4.0 adds optional noise filtering, battery activity sessions, and equivalent full-cycle tracking. Version 2.4.1 adds polished entity categories and dynamic icons. The new entities and filtering are disabled by default.
 
 ## Configuration
 

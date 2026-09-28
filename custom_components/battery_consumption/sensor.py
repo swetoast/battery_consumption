@@ -271,7 +271,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.10.0",
+                "sw_version": "2.10.2",
             }
         else:
             self._attr_name = name
@@ -288,6 +288,8 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
 
         # Observer-only state for optional entities.
         self._activity = ACTIVITY_IDLE
+        self._activity_source_type = "battery_level"
+        self._activity_source_entity = self._source_entity_id
         self._session_started = None
         self._session_start_level = None
         self._session_change = 0.0
@@ -406,7 +408,6 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         }
         if self._battery_capacity is not None:
             attrs[ATTR_SESSION_ENERGY] = self._session_change * self._battery_capacity / 100
-            attrs[ATTR_CAPACITY_UNIT] = self._unit_of_measurement
         return attrs
 
     @property
@@ -461,11 +462,10 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         return state
 
     @property
-    def companion_attributes(self):
+    def companion_telemetry_attributes(self):
+        """Return optional telemetry owned by the activity sensor."""
         attrs = {}
         names = {
-            CONF_COMPANION_IS_CHARGING: "is_charging",
-            CONF_COMPANION_BATTERY_STATE: "battery_state",
             CONF_COMPANION_CHARGER_TYPE: "charger_type",
             CONF_COMPANION_BATTERY_TEMPERATURE: "battery_temperature",
             CONF_COMPANION_BATTERY_HEALTH: "battery_health",
@@ -475,8 +475,9 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
             state = self._companion_state(key)
             if state is not None:
                 attrs[name] = state.state
-                if state.attributes.get("unit_of_measurement"):
-                    attrs[f"{name}_unit"] = state.attributes["unit_of_measurement"]
+                unit = state.attributes.get("unit_of_measurement")
+                if unit:
+                    attrs[f"{name}_unit"] = unit
         return attrs
 
     @property
@@ -510,24 +511,38 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         battery_state = self._companion_state(CONF_COMPANION_BATTERY_STATE)
         state_text = battery_state.state.lower().replace("_", " ") if battery_state else ""
         if charging is not None:
+            self._activity_source_type = "is_charging"
+            self._activity_source_entity = charging.entity_id
             if charging.state == "on":
                 activity = ACTIVITY_CHARGING
             elif state_text == "full":
                 activity = ACTIVITY_IDLE
             else:
                 activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
-        elif state_text == "charging":
-            activity = ACTIVITY_CHARGING
-        elif state_text == "full":
-            activity = ACTIVITY_IDLE
-        elif state_text in ("discharging", "not charging"):
-            activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
-        elif self._delta > 0:
-            activity = ACTIVITY_CHARGING
-        elif self._delta < 0:
-            activity = ACTIVITY_DISCHARGING
+        elif battery_state is not None:
+            self._activity_source_type = "battery_state"
+            self._activity_source_entity = battery_state.entity_id
+            if state_text == "charging":
+                activity = ACTIVITY_CHARGING
+            elif state_text == "full":
+                activity = ACTIVITY_IDLE
+            elif state_text in ("discharging", "not charging"):
+                activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
+            elif self._delta > 0:
+                activity = ACTIVITY_CHARGING
+            elif self._delta < 0:
+                activity = ACTIVITY_DISCHARGING
+            else:
+                activity = ACTIVITY_IDLE
         else:
-            activity = ACTIVITY_IDLE
+            self._activity_source_type = "battery_level"
+            self._activity_source_entity = self._source_entity_id
+            if self._delta > 0:
+                activity = ACTIVITY_CHARGING
+            elif self._delta < 0:
+                activity = ACTIVITY_DISCHARGING
+            else:
+                activity = ACTIVITY_IDLE
         if activity == ACTIVITY_IDLE:
             self._activity = activity
             return
@@ -612,7 +627,13 @@ class BatteryActivitySensor(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return {**self._tracker.session_attributes, **self._tracker.companion_attributes}
+        return {
+            "value_meaning": "Current battery activity",
+            "activity_source_type": self._tracker._activity_source_type,
+            "activity_source_entity": self._tracker._activity_source_entity,
+            **self._tracker.session_attributes,
+            **self._tracker.companion_telemetry_attributes,
+        }
 
 
 class BatteryCycleSensor(SensorEntity):
@@ -646,12 +667,16 @@ class BatteryCycleSensor(SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         value = self._tracker.hardware_cycle_count
-        if value is None:
-            return {}
-        return {
-            "hardware_cycle_count": value,
-            "hardware_cycle_count_source": self._tracker._companion_entities.get(CONF_COMPANION_BATTERY_CYCLE_COUNT),
+        attrs = {
+            "value_meaning": "Equivalent full discharge cycles",
+            "calculation": "total_discharge / 100",
         }
+        if value is not None:
+            attrs["hardware_cycle_count"] = value
+            attrs["hardware_cycle_count_source"] = self._tracker._companion_entities.get(
+                CONF_COMPANION_BATTERY_CYCLE_COUNT
+            )
+        return attrs
 
 
 class BatteryPowerSensor(SensorEntity):
@@ -684,7 +709,10 @@ class BatteryPowerSensor(SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         _, source_type, source_entity = self._tracker.output_power
-        attrs = {"source_type": source_type}
+        attrs = {
+            "value_meaning": "Battery power over the latest interval",
+            "source_type": source_type,
+        }
         if source_entity:
             attrs["source_entity"] = source_entity
         return attrs

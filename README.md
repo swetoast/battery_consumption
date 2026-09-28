@@ -1,7 +1,7 @@
 # Battery Consumption
 
 <p align="center">
-  <img src="https://github.com/home-assistant/brands/blob/master/custom_integrations/battery_consumption/icon%402x.png" alt="Battery Consumption icon" width="220">
+  <img src="logo.png" alt="Battery Consumption icon" width="220">
 </p>
 
 <p align="center">
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.9.1-blue" alt="Version 2.9.1">
+  <img src="https://img.shields.io/badge/version-2.10.2-blue" alt="Version 2.10.2">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -24,6 +24,16 @@ For phones and watches running the Home Assistant Companion App, a tracker can u
 The setup flow suggests matching enabled entities from the same device. Every field remains optional, so ordinary battery-powered smart devices continue to work without Companion App sensors.
 
 The battery-level source remains the only input used by the original variation, charge, discharge, energy, timestamp, total, and restore calculations. Companion inputs only improve optional activity, power, cycle context, and telemetry outputs.
+
+
+### Optional sensor attribute ownership
+
+Each optional entity has one primary value and only the attributes needed to explain that value:
+
+- Battery activity owns session context and optional Companion telemetry.
+- Battery power owns measured or estimated source provenance.
+- Equivalent full cycles owns its calculation and optional hardware cycle comparison.
+- The main battery-level sensor retains the original accounting attributes unchanged.
 
 
 ## Highlights
