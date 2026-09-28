@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/swetoast/battery_consumption/blob/main/custom_components/battery_consumption/device_profiles.schema.json",
+  "title": "Battery Consumption device profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "devices"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "catalog_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "manufacturer",
+        "model",
+        "capacity",
+        "capacity_unit",
+        "source",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$",
+          "minLength": 1
+        },
+        "manufacturer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capacity": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "capacity_unit": {
+          "enum": [
+            "mAh",
+            "Wh",
+            "kWh",
+            "MWh"
+          ]
+        },
+        "nominal_voltage": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https?://"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "model_aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "model_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "hardware_versions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "capacity_unit": {
+                "const": "mAh"
+              }
+            },
+            "required": [
+              "capacity_unit"
+            ]
+          },
+          "then": {
+            "required": [
+              "nominal_voltage"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

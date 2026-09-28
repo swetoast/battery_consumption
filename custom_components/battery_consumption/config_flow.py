@@ -9,7 +9,12 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
-from homeassistant.helpers import config_validation as cv, entity_registry as er, selector
+from homeassistant.helpers import (
+    config_validation as cv,
+    device_registry as dr,
+    entity_registry as er,
+    selector,
+)
 from homeassistant.util import slugify
 
 from .const import (
@@ -40,7 +45,11 @@ from .const import (
     DEVICE_PROFILE_MANUAL,
     DOMAIN,
 )
-from .device_profiles import async_load_device_profiles
+from .device_profiles import (
+    async_load_device_profiles,
+    profile_selector_options,
+    suggest_device_profile,
+)
 
 CONF_CONFIGURATION_MODE = "configuration_mode"
 MODE_PROFILE = "profile"
@@ -76,18 +85,59 @@ def _mode_schema(default: str = DEVICE_PROFILE_MANUAL) -> vol.Schema:
 
 def _profile_selector(profiles: dict[str, dict[str, Any]]) -> selector.SelectSelector:
     """Build a searchable device profile selector."""
-    options = [
-        {
-            "value": profile_id,
-            "label": f"{profile['manufacturer']} · {profile['model']}",
-        }
-        for profile_id, profile in profiles.items()
-    ]
+    options = profile_selector_options(profiles)
     return selector.SelectSelector(
         selector.SelectSelectorConfig(
             options=options,
             mode=selector.SelectSelectorMode.DROPDOWN,
         )
+    )
+
+
+def _source_device_placeholders(
+    hass, source_entity_id: str | None
+) -> dict[str, str]:
+    """Return user-facing device context for config-flow descriptions."""
+    unknown = {
+        "device_name": "No registered device",
+        "manufacturer": "Unknown manufacturer",
+        "model": "Unknown model",
+    }
+    if not source_entity_id:
+        return unknown
+    entity_entry = er.async_get(hass).async_get(source_entity_id)
+    if entity_entry is None or entity_entry.device_id is None:
+        return unknown
+    device_entry = dr.async_get(hass).async_get(entity_entry.device_id)
+    if device_entry is None:
+        return unknown
+    return {
+        "device_name": device_entry.name_by_user
+        or device_entry.name
+        or "Registered device",
+        "manufacturer": device_entry.manufacturer or "Unknown manufacturer",
+        "model": device_entry.model or "Unknown model",
+    }
+
+
+def _suggested_profile_for_source(
+    hass, source_entity_id: str | None, profiles: dict[str, dict[str, Any]]
+) -> str | None:
+    """Suggest a profile from the Home Assistant device owning the source."""
+    if not source_entity_id:
+        return None
+    entity_entry = er.async_get(hass).async_get(source_entity_id)
+    if entity_entry is None or entity_entry.device_id is None:
+        return None
+    device_entry = dr.async_get(hass).async_get(entity_entry.device_id)
+    if device_entry is None:
+        return None
+    return suggest_device_profile(
+        profiles,
+        device_entry.manufacturer,
+        device_entry.model,
+        getattr(device_entry, "model_id", None),
+        device_entry.hw_version,
     )
 
 
@@ -208,7 +258,8 @@ _COMPANION_SUFFIXES = {
     CONF_COMPANION_BATTERY_HEALTH: "_battery_health",
     CONF_COMPANION_BATTERY_CYCLE_COUNT: "_battery_cycle_count",
     CONF_COMPANION_REMAINING_CHARGE_TIME: "_remaining_charge_time",
- }
+}
+_COMPANION_KEYS = tuple(_COMPANION_SUFFIXES)
 
 def _companion_suggestions(hass, source_entity_id: str | None) -> dict[str, str]:
     """Suggest optional battery entities registered to the source device."""
@@ -226,6 +277,31 @@ def _companion_suggestions(hass, source_entity_id: str | None) -> dict[str, str]
             if entry.entity_id.endswith(suffix):
                 found.setdefault(key, entry.entity_id)
     return found
+
+
+def _companion_device_mismatches(
+    hass, source_entity_id: str | None, data: dict[str, Any]
+) -> list[str]:
+    """Return configured companion entities registered to another device."""
+    if not source_entity_id:
+        return []
+    registry = er.async_get(hass)
+    source = registry.async_get(source_entity_id)
+    if source is None or source.device_id is None:
+        return []
+    mismatches = []
+    for key in _COMPANION_KEYS:
+        companion_entity_id = data.get(key)
+        if not companion_entity_id:
+            continue
+        companion = registry.async_get(companion_entity_id)
+        if (
+            companion is not None
+            and companion.device_id is not None
+            and companion.device_id != source.device_id
+        ):
+            mismatches.append(companion_entity_id)
+    return mismatches
 
 
 def _source_key(data: dict[str, Any]) -> tuple[str, str]:
@@ -295,8 +371,20 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._data.update(user_input)
             return await self.async_step_tracking()
+        suggested_profile = _suggested_profile_for_source(
+            self.hass, self._data.get(CONF_SOURCE), self._profiles
+        )
+        suggested = (
+            {CONF_DEVICE_PROFILE: suggested_profile} if suggested_profile else {}
+        )
         return self.async_show_form(
-            step_id="profile", data_schema=_profile_schema(self._profiles)
+            step_id="profile",
+            data_schema=self.add_suggested_values_to_schema(
+                _profile_schema(self._profiles), suggested
+            ),
+            description_placeholders=_source_device_placeholders(
+                self.hass, self._data.get(CONF_SOURCE)
+            ),
         )
 
     async def async_step_manual(
@@ -322,13 +410,32 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Collect shared tracking and optional entity settings."""
         if user_input is not None:
-            self._data.update(user_input)
+            cleaned = _clean_input(user_input)
+            if _companion_device_mismatches(
+                self.hass, self._data.get(CONF_SOURCE), cleaned
+            ):
+                return self.async_show_form(
+                    step_id="tracking",
+                    data_schema=self.add_suggested_values_to_schema(
+                        _tracking_schema(), user_input
+                    ),
+                    errors={"base": "companion_device_mismatch"},
+                )
+            self._data.update(cleaned)
             if not self._profiles:
                 self._profiles = await async_load_device_profiles(self.hass)
             data = _apply_device_profile(self._data, self._profiles)
             return self.async_create_entry(title=data[CONF_TRACKER_NAME], data=data)
         suggestions = _companion_suggestions(self.hass, self._data.get(CONF_SOURCE))
-        return self.async_show_form(step_id="tracking", data_schema=self.add_suggested_values_to_schema(_tracking_schema(), suggestions))
+        return self.async_show_form(
+            step_id="tracking",
+            data_schema=self.add_suggested_values_to_schema(
+                _tracking_schema(), suggestions
+            ),
+            description_placeholders=_source_device_placeholders(
+                self.hass, self._data.get(CONF_SOURCE)
+            ),
+        )
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
@@ -428,10 +535,17 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
         self._profiles = await async_load_device_profiles(self.hass)
         current = self._current()
         current_profile = current.get(CONF_DEVICE_PROFILE)
+        suggested_profile = _suggested_profile_for_source(
+            self.hass, current.get(CONF_SOURCE), self._profiles
+        )
         suggested = (
             {CONF_DEVICE_PROFILE: current_profile}
             if current_profile in self._profiles
-            else {}
+            else (
+                {CONF_DEVICE_PROFILE: suggested_profile}
+                if suggested_profile
+                else {}
+            )
         )
         if user_input is not None:
             self._data.update(user_input)
@@ -440,6 +554,9 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             step_id="profile",
             data_schema=self.add_suggested_values_to_schema(
                 _profile_schema(self._profiles), suggested
+            ),
+            description_placeholders=_source_device_placeholders(
+                self.hass, current.get(CONF_SOURCE)
             ),
         )
 
@@ -502,7 +619,18 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             if key in current
         }
         if user_input is not None:
-            self._data.update(user_input)
+            cleaned = _clean_input(user_input)
+            if _companion_device_mismatches(
+                self.hass, current.get(CONF_SOURCE), cleaned
+            ):
+                return self.async_show_form(
+                    step_id="tracking",
+                    data_schema=self.add_suggested_values_to_schema(
+                        _tracking_schema(), user_input
+                    ),
+                    errors={"base": "companion_device_mismatch"},
+                )
+            self._data.update(cleaned)
             if not self._profiles:
                 self._profiles = await async_load_device_profiles(self.hass)
             data = _apply_device_profile(self._data, self._profiles)
@@ -524,5 +652,10 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             suggested.setdefault(key, entity_id)
         return self.async_show_form(
             step_id="tracking",
-            data_schema=self.add_suggested_values_to_schema(_tracking_schema(), suggested),
+            data_schema=self.add_suggested_values_to_schema(
+                _tracking_schema(), suggested
+            ),
+            description_placeholders=_source_device_placeholders(
+                self.hass, current.get(CONF_SOURCE)
+            ),
         )

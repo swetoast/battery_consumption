@@ -27,12 +27,12 @@
       },
       "profile": {
         "title": "Device profile",
-        "description": "Select the exact device model.",
+        "description": "Detected device: {device_name}. Manufacturer: {manufacturer}. Model: {model}. Select the matching profile only when the device identity is correct; otherwise use manual configuration.",
         "data": {
           "device_profile": "Device profile"
         },
         "data_description": {
-          "device_profile": "The selected profile supplies the battery capacity, unit, and nominal voltage."
+          "device_profile": "Provides verified capacity and voltage values. The suggestion is never applied until selected and submitted."
         }
       },
       "manual": {
@@ -51,7 +51,7 @@
       },
       "tracking": {
         "title": "Tracking options",
-        "description": "Choose calculation precision, activity behavior, and optional sensors.",
+        "description": "Configure outputs and optional supporting inputs for {device_name} ({manufacturer} {model}). All Companion fields are optional and must belong to this same Home Assistant device.",
         "data": {
           "precision": "Precision",
           "minimum_change": "Minimum meaningful change",
@@ -75,14 +75,14 @@
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
           "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
-          "companion_is_charging": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_state": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_charger_type": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_power": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_temperature": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_health": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_cycle_count": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_remaining_charge_time": "Optional Companion App input. Leave empty for devices that do not provide it."
+          "companion_is_charging": "Activity input. Highest-priority charging evidence from the same device.",
+          "companion_battery_state": "Activity input. Charging, discharging, full, or not-charging context from the same device.",
+          "companion_charger_type": "Telemetry input. Charger type is shown with battery activity and never changes accounting.",
+          "companion_battery_power": "Power input. Uses measured battery power when available; otherwise the original estimate remains.",
+          "companion_battery_temperature": "Telemetry input. Temperature is reported as context and never changes battery calculations.",
+          "companion_battery_health": "Telemetry input. Battery health is reported as provided and never changes configured capacity.",
+          "companion_battery_cycle_count": "Cycle context. Hardware cycle count is compared with, but never replaces, equivalent full cycles.",
+          "companion_remaining_charge_time": "Charging context. The source value is shown when available and is never estimated by this integration."
         }
       },
       "reconfigure": {
@@ -104,7 +104,8 @@
       "already_configured": "This battery source and attribute are already configured.",
       "name_already_configured": "A tracker with this name already exists.",
       "unit_required": "Select a capacity unit when battery capacity is entered.",
-      "voltage_required": "Nominal voltage is required when battery capacity is entered in mAh."
+      "voltage_required": "Nominal voltage is required when battery capacity is entered in mAh.",
+      "companion_device_mismatch": "Every selected Companion App entity must belong to the same Home Assistant device as the battery-level source."
     },
     "abort": {
       "already_configured": "This source is already configured.",
@@ -125,12 +126,12 @@
       },
       "profile": {
         "title": "Device profile",
-        "description": "Select the exact device model.",
+        "description": "Detected device: {device_name}. Manufacturer: {manufacturer}. Model: {model}. Select the matching profile only when the device identity is correct; otherwise use manual configuration.",
         "data": {
           "device_profile": "Device profile"
         },
         "data_description": {
-          "device_profile": "The selected profile supplies the battery capacity, unit, and nominal voltage."
+          "device_profile": "Provides verified capacity and voltage values. The suggestion is never applied until selected and submitted."
         }
       },
       "manual": {
@@ -149,7 +150,7 @@
       },
       "tracking": {
         "title": "Tracking options",
-        "description": "Choose calculation precision, activity behavior, and optional sensors.",
+        "description": "Configure outputs and optional supporting inputs for {device_name} ({manufacturer} {model}). All Companion fields are optional and must belong to this same Home Assistant device.",
         "data": {
           "precision": "Precision",
           "minimum_change": "Minimum meaningful change",
@@ -173,20 +174,21 @@
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
           "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
-          "companion_is_charging": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_state": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_charger_type": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_power": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_temperature": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_health": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_battery_cycle_count": "Optional Companion App input. Leave empty for devices that do not provide it.",
-          "companion_remaining_charge_time": "Optional Companion App input. Leave empty for devices that do not provide it."
+          "companion_is_charging": "Activity input. Highest-priority charging evidence from the same device.",
+          "companion_battery_state": "Activity input. Charging, discharging, full, or not-charging context from the same device.",
+          "companion_charger_type": "Telemetry input. Charger type is shown with battery activity and never changes accounting.",
+          "companion_battery_power": "Power input. Uses measured battery power when available; otherwise the original estimate remains.",
+          "companion_battery_temperature": "Telemetry input. Temperature is reported as context and never changes battery calculations.",
+          "companion_battery_health": "Telemetry input. Battery health is reported as provided and never changes configured capacity.",
+          "companion_battery_cycle_count": "Cycle context. Hardware cycle count is compared with, but never replaces, equivalent full cycles.",
+          "companion_remaining_charge_time": "Charging context. The source value is shown when available and is never estimated by this integration."
         }
       }
     },
     "error": {
       "unit_required": "Select a capacity unit when battery capacity is entered.",
-      "voltage_required": "Nominal voltage is required when battery capacity is entered in mAh."
+      "voltage_required": "Nominal voltage is required when battery capacity is entered in mAh.",
+      "companion_device_mismatch": "Every selected Companion App entity must belong to the same Home Assistant device as the battery-level source."
     }
   },
   "entity": {
@@ -215,6 +217,32 @@
       "name": "Reset totals",
       "description": "Reset accumulated charge, discharge, equivalent full cycles, and the current activity session for the selected Battery Consumption entity.",
       "fields": {}
+    }
+  },
+  "issues": {
+    "profile_missing": {
+      "title": "Battery profile is no longer available",
+      "description": "The tracker {tracker_name} uses the profile {profile_id}, but that profile is not available. Reconfigure the integration and select an available profile or manual capacity configuration."
+    },
+    "companion_device_mismatch": {
+      "title": "Companion entities belong to another device",
+      "description": "The tracker {tracker_name} has {count} supporting entity or entities registered to a different Home Assistant device. Reconfigure the integration and select supporting entities from the same device as the battery-level source."
+    },
+    "source_missing": {
+      "title": "Battery-level source no longer exists",
+      "description": "The battery-level source configured for {tracker_name} no longer exists in Home Assistant. Reconfigure the integration and select an available battery-level source."
+    },
+    "source_attribute_missing": {
+      "title": "Configured battery attribute is missing",
+      "description": "The source for {tracker_name} is available but no longer provides the configured attribute {attribute}. Reconfigure the integration and select an available attribute or use the entity state directly."
+    },
+    "companion_entity_missing": {
+      "title": "Optional Companion entity no longer exists",
+      "description": "The tracker {tracker_name} has {count} configured supporting entity or entities that no longer exist. Reconfigure the integration and select available supporting entities or leave those optional fields empty."
+    },
+    "user_profile_catalog_invalid": {
+      "title": "Custom battery profile catalog is invalid",
+      "description": "The custom profile catalog used by {tracker_name} contains invalid data or {rejected_count} rejected entries. Correct battery_consumption_device_profiles.json and reload the integration. Valid bundled profiles remain available."
     }
   }
 }

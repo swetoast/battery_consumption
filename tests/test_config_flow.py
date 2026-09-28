@@ -3,9 +3,19 @@
 from homeassistant import config_entries
 from homeassistant.const import CONF_SOURCE
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.battery_consumption.const import DOMAIN
+from custom_components.battery_consumption.config_flow import (
+    _companion_device_mismatches,
+    _companion_suggestions,
+    _source_device_placeholders,
+)
+from custom_components.battery_consumption.const import (
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_IS_CHARGING,
+    DOMAIN,
+)
 
 IDENTITY = {"tracker_name": "Pixel 9", CONF_SOURCE: "sensor.phone_battery"}
 TRACKING = {
@@ -226,3 +236,87 @@ async def test_zero_precision_is_allowed(hass: HomeAssistant) -> None:
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"]["precision"] == 0
+
+
+def _registered_entity(hass, unique_id, object_id, device_id):
+    return er.async_get(hass).async_get_or_create(
+        domain="sensor",
+        platform="test",
+        unique_id=unique_id,
+        suggested_object_id=object_id,
+        device_id=device_id,
+    )
+
+
+def test_companion_suggestions_are_limited_to_source_device(hass: HomeAssistant) -> None:
+    devices = dr.async_get(hass)
+    source_device = devices.async_get_or_create(
+        config_entry_id="source_config",
+        identifiers={("test", "source_device")},
+    )
+    other_device = devices.async_get_or_create(
+        config_entry_id="other_config",
+        identifiers={("test", "other_device")},
+    )
+    source = _registered_entity(hass, "source", "phone_battery", source_device.id)
+    charging = _registered_entity(
+        hass, "charging", "phone_is_charging", source_device.id
+    )
+    _registered_entity(hass, "other", "watch_battery_state", other_device.id)
+
+    suggestions = _companion_suggestions(hass, source.entity_id)
+
+    assert suggestions == {CONF_COMPANION_IS_CHARGING: charging.entity_id}
+
+
+def test_companion_device_mismatch_detects_only_other_devices(
+    hass: HomeAssistant,
+) -> None:
+    devices = dr.async_get(hass)
+    source_device = devices.async_get_or_create(
+        config_entry_id="source_config",
+        identifiers={("test", "source_device")},
+    )
+    other_device = devices.async_get_or_create(
+        config_entry_id="other_config",
+        identifiers={("test", "other_device")},
+    )
+    source = _registered_entity(hass, "source", "phone_battery", source_device.id)
+    same = _registered_entity(hass, "same", "phone_battery_state", source_device.id)
+    other = _registered_entity(hass, "other", "watch_battery_state", other_device.id)
+
+    assert _companion_device_mismatches(
+        hass,
+        source.entity_id,
+        {CONF_COMPANION_BATTERY_STATE: same.entity_id},
+    ) == []
+    assert _companion_device_mismatches(
+        hass,
+        source.entity_id,
+        {CONF_COMPANION_BATTERY_STATE: other.entity_id},
+    ) == [other.entity_id]
+
+
+def test_source_device_placeholders_show_registered_device(hass: HomeAssistant) -> None:
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id="source_config",
+        identifiers={("test", "device")},
+        name="Pixel phone",
+        manufacturer="Google",
+        model="Pixel 8 Pro",
+    )
+    source = _registered_entity(hass, "source_context", "phone_battery", device.id)
+
+    assert _source_device_placeholders(hass, source.entity_id) == {
+        "device_name": "Pixel phone",
+        "manufacturer": "Google",
+        "model": "Pixel 8 Pro",
+    }
+
+
+def test_source_device_placeholders_have_safe_fallback(hass: HomeAssistant) -> None:
+    assert _source_device_placeholders(hass, "sensor.not_registered") == {
+        "device_name": "No registered device",
+        "manufacturer": "Unknown manufacturer",
+        "model": "Unknown model",
+    }
