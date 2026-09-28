@@ -43,3 +43,57 @@ def test_modern_main_entity_naming_is_not_combined_with_legacy_name():
     assert item._attr_translation_key == "battery_level"
     assert item._attr_suggested_object_id == "battery_consumption_pixel_pro_8_battery_level"
     assert not hasattr(item, "_attr_name")
+
+
+def test_initial_source_sample_is_available_without_accounting():
+    item = tracker()
+    source = Mock()
+    source.state = "100"
+    source.attributes = {}
+    source.last_updated = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    item.hass = Mock()
+    item.hass.states.get.return_value = source
+
+    item._initialize_from_current_source()
+
+    assert item.state == 100
+    assert item._previous_state is None
+    assert item._delta == 0
+    assert item._cumulative_charge == 0
+    assert item._cumulative_discharge == 0
+    assert item._instant_power == 0
+
+
+def test_initial_source_attribute_is_available_without_accounting():
+    item = BatteryConsumptionSensor("id", "Battery", "sensor.device", "level", 2,
+        20, "Wh", 0, 15, "id", "Device")
+    source = Mock()
+    source.state = "online"
+    source.attributes = {"level": 73}
+    source.last_updated = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    item.hass = Mock()
+    item.hass.states.get.return_value = source
+
+    item._initialize_from_current_source()
+
+    assert item.state == 73
+    assert item._cumulative_charge == 0
+    assert item._cumulative_discharge == 0
+
+
+def test_unusable_restored_level_falls_back_to_current_source():
+    item = tracker()
+    item._state = None
+    source = Mock()
+    source.state = "42"
+    source.attributes = {}
+    source.last_updated = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    item.hass = Mock()
+    item.hass.states.get.return_value = source
+
+    if item._state is None:
+        item._initialize_from_current_source()
+
+    assert item.state == 42
+    assert item._cumulative_charge == 0
+    assert item._cumulative_discharge == 0

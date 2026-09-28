@@ -271,7 +271,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.10.3",
+                "sw_version": "2.10.5",
             }
         else:
             self._attr_name = name
@@ -327,6 +327,8 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 self.hass, list(self._companion_entities.values()),
                 self._async_companion_state_changed
             ))
+        if self._state is None:
+            self._initialize_from_current_source()
         self._derive_optional_state()
 
     @property
@@ -559,19 +561,41 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._derive_optional_state()
         self._write_dependents()
 
+    def _source_value(self, source_state):
+        """Return a numeric value from the configured source or attribute."""
+        if source_state is None:
+            return None
+        try:
+            if self._source_attribute:
+                return float(source_state.attributes.get(self._source_attribute))
+            if source_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+                return None
+            return float(source_state.state)
+        except (ValueError, TypeError):
+            return None
+
+    def _initialize_from_current_source(self):
+        """Make a new tracker available immediately without creating usage totals."""
+        source_state = self.hass.states.get(self._source_entity_id)
+        value = self._source_value(source_state)
+        if value is None:
+            return
+        self._state = round(value, self._precision)
+        self._last_updated = source_state.last_updated
+        self._previous_state = None
+        self._previous_last_updated = None
+        self._delta = 0
+        self._delta_last_updated = 0.0
+        self._instant_power = 0.0
+
     @callback
     def _async_source_state_changed(self, event):
         """Original source validation and update behavior."""
         new_state = event.data.get("new_state")
         if new_state is None:
             return
-        value = None
-        try:
-            if self._source_attribute:
-                value = float(new_state.attributes.get(self._source_attribute))
-            else:
-                value = None if new_state.state == STATE_UNKNOWN else float(new_state.state)
-        except (ValueError, TypeError):
+        value = self._source_value(new_state)
+        if value is None and new_state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
             if self._source_attribute:
                 _LOGGER.warning("%s attribute %s is not numerical",
                                 self._source_entity_id, self._source_attribute)

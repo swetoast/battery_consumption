@@ -8,6 +8,6 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/swetoast/battery_consumption/issues",
   "requirements": [],
-  "version": "2.10.3",
+  "version": "2.10.5",
   "config_flow": true
 }

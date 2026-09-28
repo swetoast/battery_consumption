@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.10.3-blue" alt="Version 2.10.3">
+  <img src="https://img.shields.io/badge/version-2.10.5-blue" alt="Version 2.10.5">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -36,9 +36,17 @@ Each optional entity has one primary value and only the attributes needed to exp
 - The main battery-level sensor retains the original accounting attributes unchanged.
 
 
-## Version 2.10.3
+## Version 2.10.5
 
 Fixes the bundled Roborock profiles so they pass profile validation and appear in the Home Assistant device-profile selector. The fix adds the required 14.4 V nominal battery-pack voltage to every bundled Roborock profile, including the S8 Pro Ultra.
+
+## Version 2.10.5
+
+New trackers now read the current source state when added to Home Assistant, so Battery level is available immediately even when the source remains unchanged. The initial sample establishes the displayed level without adding charge, discharge, energy, cycle, or power totals. Restored trackers keep the existing restore path unchanged.
+
+## Version 2.10.5
+
+A tracker now initializes from the source entity whenever no usable restored battery level exists. This covers every valid initial numeric level, including trackers whose previous restored state was unavailable or unknown. The initial reading remains a baseline only and does not create charge, discharge, energy, power, or cycle totals.
 
 ## Highlights
 
