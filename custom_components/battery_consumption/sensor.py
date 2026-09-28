@@ -19,7 +19,7 @@ from homeassistant.const import (
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.event import async_call_later, async_track_state_change_event
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import slugify
 
@@ -209,28 +209,15 @@ async def async_setup_platform(
 
 
 class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
-    """Track battery changes and accumulated charge and discharge."""
+    """Track battery changes using the original calculation path."""
 
     _attr_should_poll = False
     _attr_device_class = SensorDeviceClass.BATTERY
 
-    def __init__(
-        self,
-        unique_id: str | None,
-        name: str,
-        source: str,
-        attribute: str | None,
-        precision: int,
-        battery_capacity: float | None,
-        unit_of_measurement: str | None,
-        minimum_change: float,
-        session_timeout: int,
-        entry_id: str | None,
-        tracker_name: str | None,
-        battery_voltage: float | None = None,
-    ) -> None:
+    def __init__(self, unique_id, name, source, attribute, precision,
+                 battery_capacity, unit_of_measurement, minimum_change,
+                 session_timeout, entry_id, tracker_name, battery_voltage=None):
         self._attr_unique_id = unique_id
-        self._attr_name = name
         self._source_entity_id = source
         self._source_attribute = attribute
         self._precision = precision
@@ -245,326 +232,236 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         else:
             self._battery_capacity = battery_capacity
             self._unit_of_measurement = unit_of_measurement
+
+        # Kept for configuration compatibility. Neither value changes accounting.
         self._minimum_change = float(minimum_change)
         self._session_timeout = int(session_timeout)
         self._entry_id = entry_id
         self._tracker_name = tracker_name
         self._tracker_slug = slugify(tracker_name) if tracker_name else None
-        self._attr_has_entity_name = entry_id is not None
         if entry_id is not None and tracker_name is not None:
+            self._attr_has_entity_name = True
             self._attr_translation_key = "battery_level"
-            self._attr_suggested_object_id = (
-                f"{DOMAIN}_{self._tracker_slug}_battery_level"
-            )
+            self._attr_suggested_object_id = f"{DOMAIN}_{self._tracker_slug}_battery_level"
             self._attr_device_info = {
                 "identifiers": {(DOMAIN, entry_id)},
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.9.0",
+                "sw_version": "2.9.2",
             }
+        else:
+            self._attr_name = name
 
-        self._state: float | None = None
-        self._last_updated: datetime | None = None
-        self._previous_state: float | None = None
-        self._previous_last_updated: datetime | None = None
-        self._accounted_state: float | None = None
-        self._accounted_last_updated: datetime | None = None
+        # Original state and accounting variables.
+        self._state = None
+        self._last_updated = None
+        self._previous_state = None
+        self._previous_last_updated = None
         self._delta = 0.0
         self._delta_last_updated = 0.0
         self._cumulative_charge = 0.0
         self._cumulative_discharge = 0.0
-        self._source_available = True
 
-        self._activity = ACTIVITY_IDLE
-        self._session_started: datetime | None = None
-        self._session_start_level: float | None = None
-        self._session_change = 0.0
-        self._cancel_idle: Callable[[], None] | None = None
-        self._dependents: list[SensorEntity] = []
-
-    def register_dependent(self, entity: SensorEntity) -> None:
-        """Register an entity which mirrors tracker state."""
-        self._dependents.append(entity)
-
-    async def async_added_to_hass(self) -> None:
-        """Restore state and subscribe to source changes."""
-        await super().async_added_to_hass()
-        restored = await self.async_get_last_state()
-        if restored and (
-            restored.attributes.get(ATTR_SOURCE) == self._source_entity_id
-            and restored.attributes.get(ATTR_SOURCE_ATTRIBUTE)
-            == self._source_attribute
-        ):
-            self._state = _optional_float(restored.state)
-            self._last_updated = restored.last_updated
-            self._previous_state = _optional_float(
-                restored.attributes.get(ATTR_PREVIOUS_MONITORED_VALUE)
-            )
-            self._previous_last_updated = _restored_datetime(
-                restored.attributes.get(ATTR_PREVIOUS_LAST_UPDATED)
-            )
-            self._accounted_state = self._state
-            self._accounted_last_updated = self._last_updated
-            self._cumulative_charge = _optional_float(
-                restored.attributes.get(ATTR_TOTAL_CHARGE)
-            ) or 0.0
-            self._cumulative_discharge = _optional_float(
-                restored.attributes.get(ATTR_TOTAL_DISCHARGE)
-            ) or 0.0
-            restored_activity = restored.attributes.get(ATTR_ACTIVITY, ACTIVITY_IDLE)
-            restored_started = _restored_datetime(
-                restored.attributes.get(ATTR_SESSION_STARTED)
-            )
-            if (
-                restored_activity in (ACTIVITY_CHARGING, ACTIVITY_DISCHARGING)
-                and restored_started is not None
-                and (datetime.now(restored_started.tzinfo) - restored_started).total_seconds()
-                < self._session_timeout * 60
-            ):
-                self._activity = restored_activity
-                self._session_started = restored_started
-                self._session_start_level = _optional_float(
-                    restored.attributes.get(ATTR_SESSION_START_LEVEL)
-                )
-                self._session_change = _optional_float(
-                    restored.attributes.get(ATTR_SESSION_CHANGE)
-                ) or 0.0
-                remaining = self._session_timeout * 60 - (
-                    datetime.now(restored_started.tzinfo) - restored_started
-                ).total_seconds()
-                self._cancel_idle = async_call_later(
-                    self.hass, remaining, self._async_mark_idle
-                )
-
-        self.async_on_remove(
-            async_track_state_change_event(
-                self.hass,
-                [self._source_entity_id],
-                self._async_source_state_changed,
-            )
-        )
-
-    @property
-    def available(self) -> bool:
-        return self._source_available
-
-    @property
-    def state(self) -> float | None:
-        return None if self._state is None else round(self._state, self._precision)
-
-    @property
-    def unit_of_measurement(self) -> str:
-        return "%"
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        def r(value: float) -> float:
-            return round(value, self._precision)
-
-        attrs: dict[str, Any] = {
-            ATTR_SOURCE: self._source_entity_id,
-            ATTR_PREVIOUS_MONITORED_VALUE: None if self._previous_state is None else r(self._previous_state),
-            ATTR_LAST_UPDATED: self._last_updated,
-            ATTR_PREVIOUS_LAST_UPDATED: self._previous_last_updated,
-            ATTR_DELTA_LAST_UPDATED: self._delta_last_updated / 60,
-            ATTR_CURRENT_VARIATION: r(self._delta),
-            ATTR_CURRENT_CHARGE: r(max(self._delta, 0)),
-            ATTR_CURRENT_DISCHARGE: r(max(-self._delta, 0)),
-            ATTR_TOTAL_CHARGE: r(self._cumulative_charge),
-            ATTR_TOTAL_DISCHARGE: r(self._cumulative_discharge),
-            ATTR_ACTIVITY: self._activity,
-            ATTR_SESSION_STARTED: self._session_started,
-            ATTR_SESSION_START_LEVEL: self._session_start_level,
-            ATTR_SESSION_CHANGE: r(self._session_change),
-        }
-        if self._source_attribute:
-            attrs[ATTR_SOURCE_ATTRIBUTE] = self._source_attribute
-        if self._minimum_change > 0:
-            attrs[ATTR_MINIMUM_CHANGE] = self._minimum_change
-        if self._battery_capacity is not None:
-            variation_energy = self._delta * self._battery_capacity / 100
-            attrs.update(
-                {
-                    ATTR_CAPACITY_UNIT: self._unit_of_measurement,
-                    ATTR_CAPACITY: self._battery_capacity,
-                    ATTR_ENERGY_LEVEL: (
-                        None
-                        if self._state is None
-                        else r(self._state * self._battery_capacity / 100)
-                    ),
-                    ATTR_CURRENT_VARIATION_ENERGY: r(variation_energy),
-                    ATTR_CURRENT_CHARGE_ENERGY: r(max(variation_energy, 0)),
-                    ATTR_CURRENT_DISCHARGE_ENERGY: r(max(-variation_energy, 0)),
-                    ATTR_TOTAL_CHARGE_ENERGY: (
-                        r(self._cumulative_charge * self._battery_capacity / 100)
-                    ),
-                    ATTR_TOTAL_DISCHARGE_ENERGY: (
-                        r(self._cumulative_discharge * self._battery_capacity / 100)
-                    ),
-                    ATTR_CURRENT_POWER: self._instant_power,
-                }
-            )
-        return attrs
-
-    @property
-    def _instant_power(self) -> float | None:
-        if self._battery_capacity is None or self._delta_last_updated <= 0:
-            return None
-        return round(
-            (self._delta * self._battery_capacity / 100)
-            / (self._delta_last_updated / 3600),
-            2,
-        )
-
-    @property
-    def power_unit(self) -> str | None:
-        return {"Wh": "W", "kWh": "kW", "MWh": "MW"}.get(
-            self._unit_of_measurement
-        )
-
-    async def async_reset_totals(self) -> None:
-        """Reset accumulated charge, discharge, cycles, and session state."""
-        self._cumulative_charge = 0.0
-        self._cumulative_discharge = 0.0
+        # Observer-only state for optional entities.
         self._activity = ACTIVITY_IDLE
         self._session_started = None
         self._session_start_level = None
         self._session_change = 0.0
-        if self._cancel_idle is not None:
-            self._cancel_idle()
-            self._cancel_idle = None
+        self._dependents = []
+
+    def register_dependent(self, entity):
+        self._dependents.append(entity)
+
+    async def async_added_to_hass(self):
+        """Restore state in the same order as the original component."""
+        await super().async_added_to_hass()
+        state_recorded = await self.async_get_last_state()
+        if state_recorded:
+            self._state = _optional_float(state_recorded.state)
+            self._last_updated = state_recorded.last_updated
+            self._previous_state = _optional_value(
+                state_recorded.attributes.get(ATTR_PREVIOUS_MONITORED_VALUE)
+            )
+            self._previous_last_updated = _restored_datetime(
+                state_recorded.attributes.get(ATTR_PREVIOUS_LAST_UPDATED)
+            )
+            self._compute_induced_data()
+            self._cumulative_charge = _optional_float(
+                state_recorded.attributes.get(ATTR_TOTAL_CHARGE)
+            ) or 0.0
+            self._cumulative_discharge = _optional_float(
+                state_recorded.attributes.get(ATTR_TOTAL_DISCHARGE)
+            ) or 0.0
+        self.async_on_remove(async_track_state_change_event(
+            self.hass, [self._source_entity_id], self._async_source_state_changed
+        ))
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        return "%"
+
+    @property
+    def extra_state_attributes(self):
+        """Return the original attributes with original values and meanings."""
+        ret = {ATTR_SOURCE: self._source_entity_id}
+        if self._source_attribute:
+            ret[ATTR_SOURCE_ATTRIBUTE] = self._source_attribute
+        ret[ATTR_PREVIOUS_MONITORED_VALUE] = self._previous_state
+        ret[ATTR_LAST_UPDATED] = self._last_updated
+        ret[ATTR_PREVIOUS_LAST_UPDATED] = self._previous_last_updated
+        ret[ATTR_DELTA_LAST_UPDATED] = self._delta_last_updated / 60
+        ret[ATTR_CURRENT_VARIATION] = self._delta
+        if self._delta < 0:
+            ret[ATTR_CURRENT_CHARGE] = 0
+            ret[ATTR_CURRENT_DISCHARGE] = -self._delta
+        else:
+            ret[ATTR_CURRENT_CHARGE] = self._delta
+            ret[ATTR_CURRENT_DISCHARGE] = 0
+        ret[ATTR_TOTAL_CHARGE] = self._cumulative_charge
+        ret[ATTR_TOTAL_DISCHARGE] = self._cumulative_discharge
+        if self._battery_capacity is not None:
+            ret[ATTR_CAPACITY_UNIT] = self._unit_of_measurement
+            ret[ATTR_CAPACITY] = self._battery_capacity
+            ret[ATTR_ENERGY_LEVEL] = self._state * self._battery_capacity / 100
+            ret[ATTR_CURRENT_VARIATION_ENERGY] = self._delta * self._battery_capacity / 100
+            if self._delta < 0:
+                ret[ATTR_CURRENT_CHARGE_ENERGY] = 0
+                ret[ATTR_CURRENT_DISCHARGE_ENERGY] = -self._delta * self._battery_capacity / 100
+            else:
+                ret[ATTR_CURRENT_CHARGE_ENERGY] = self._delta * self._battery_capacity / 100
+                ret[ATTR_CURRENT_DISCHARGE_ENERGY] = 0
+            ret[ATTR_TOTAL_CHARGE_ENERGY] = self._cumulative_charge * self._battery_capacity / 100
+            ret[ATTR_TOTAL_DISCHARGE_ENERGY] = self._cumulative_discharge * self._battery_capacity / 100
+            ret[ATTR_CURRENT_POWER] = self._instant_power
+        return ret
+
+    @property
+    def _instant_power(self):
+        """Use the original power formula and original zero fallback."""
+        if self._battery_capacity is None or self._delta_last_updated == 0:
+            return 0.0
+        return round(
+            (self._delta * self._battery_capacity / 100)
+            / (self._delta_last_updated / 3600), 2
+        )
+
+    @property
+    def power_unit(self):
+        return {"Wh": "W", "kWh": "kW", "MWh": "MW"}.get(self._unit_of_measurement)
+
+    async def async_reset_totals(self):
+        self._cumulative_charge = 0.0
+        self._cumulative_discharge = 0.0
         self.async_write_ha_state()
         self._write_dependents()
 
     @property
-    def activity(self) -> str:
+    def activity(self):
         return self._activity
 
     @property
-    def session_attributes(self) -> dict[str, Any]:
-        attrs: dict[str, Any] = {
+    def session_attributes(self):
+        attrs = {
             ATTR_SESSION_STARTED: self._session_started,
             ATTR_SESSION_START_LEVEL: self._session_start_level,
             ATTR_SESSION_CHANGE: self._session_change,
         }
         if self._battery_capacity is not None:
-            attrs[ATTR_SESSION_ENERGY] = (
-                self._session_change * self._battery_capacity / 100
-            )
+            attrs[ATTR_SESSION_ENERGY] = self._session_change * self._battery_capacity / 100
             attrs[ATTR_CAPACITY_UNIT] = self._unit_of_measurement
         return attrs
 
     @property
-    def equivalent_full_cycles(self) -> float:
+    def equivalent_full_cycles(self):
         return round(self._cumulative_discharge / 100, self._precision)
 
-    @callback
-    def _async_source_state_changed(self, event: Event) -> None:
-        new_state = event.data.get("new_state")
-        if new_state is None or new_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
-            self._source_available = False
-            self._accounted_state = None
-            self._accounted_last_updated = None
-            self._activity = ACTIVITY_IDLE
-            if self._cancel_idle is not None:
-                self._cancel_idle()
-                self._cancel_idle = None
-            self.async_write_ha_state()
-            self._write_dependents()
-            return
+    def _compute_induced_data(self):
+        """Original variation and timestamp calculation."""
+        if (self._previous_state is not None and self._state is not None
+                and self._previous_state != STATE_UNKNOWN and self._state != STATE_UNKNOWN):
+            try:
+                self._delta = self._state - self._previous_state
+            except (TypeError, ValueError):
+                self._delta = 0
+                _LOGGER.warning("%s state or %s previous is not numerical",
+                                self._state, self._previous_state)
+            try:
+                self._delta_last_updated = (
+                    self._last_updated - self._previous_last_updated
+                ).total_seconds()
+            except (TypeError, ValueError):
+                self._delta_last_updated = 0.0
+                _LOGGER.warning("%s last_updated or %s previous_last_updated is not numerical",
+                                self._last_updated, self._previous_last_updated)
+        else:
+            self._delta = 0
+            self._delta_last_updated = 0.0
 
-        raw_value = (
-            new_state.attributes.get(self._source_attribute)
-            if self._source_attribute
-            else new_state.state
-        )
-        value = _optional_float(raw_value)
-        if value is None or not 0 <= value <= 100:
-            self._source_available = False
-            self._accounted_state = None
-            self._accounted_last_updated = None
-            self._activity = ACTIVITY_IDLE
-            if self._cancel_idle is not None:
-                self._cancel_idle()
-                self._cancel_idle = None
-            _LOGGER.warning(
-                "%s%s must provide a numerical battery level from 0 to 100",
-                self._source_entity_id,
-                f" attribute {self._source_attribute}" if self._source_attribute else "",
-            )
-            self.async_write_ha_state()
-            self._write_dependents()
-            return
+    def _compute_cumulative_data(self):
+        """Original cumulative accounting with no threshold or filter."""
+        if self._delta < 0:
+            self._cumulative_discharge = self._cumulative_discharge - self._delta
+        else:
+            self._cumulative_charge = self._cumulative_charge + self._delta
 
-        self._source_available = True
+    def _compute_new_state_and_attribute(self, value, last_updated):
+        """Original update sequence."""
         self._previous_state = self._state
         self._previous_last_updated = self._last_updated
-        self._state = value
-        self._last_updated = new_state.last_updated
-
-        if self._accounted_state is None:
-            self._accounted_state = self._state
-            self._accounted_last_updated = self._last_updated
-            self._delta = 0.0
-            self._delta_last_updated = 0.0
-        else:
-            pending_delta = self._state - self._accounted_state
-            threshold = self._minimum_change
-            if pending_delta != 0 and (threshold == 0 or abs(pending_delta) >= threshold):
-                previous_accounted_level = self._accounted_state
-                previous_accounted_time = self._accounted_last_updated
-                self._delta = round(pending_delta, self._precision)
-                self._delta_last_updated = (
-                    (self._last_updated - previous_accounted_time).total_seconds()
-                    if previous_accounted_time is not None
-                    else 0.0
-                )
-                self._accounted_state = self._state
-                self._accounted_last_updated = self._last_updated
-                if self._delta > 0:
-                    self._cumulative_charge += self._delta
-                    activity = ACTIVITY_CHARGING
-                else:
-                    self._cumulative_discharge -= self._delta
-                    activity = ACTIVITY_DISCHARGING
-                self._update_session(activity, previous_accounted_level)
-            else:
-                self._delta = 0.0
-                self._delta_last_updated = 0.0
-
-        self.async_write_ha_state()
-        self._write_dependents()
+        self._state = round(value, self._precision)
+        self._last_updated = last_updated
+        self._compute_induced_data()
+        self._compute_cumulative_data()
 
     @callback
-    def _update_session(
-        self, activity: str, previous_accounted_level: float
-    ) -> None:
+    def _derive_optional_state(self):
+        """Update observers only after original accounting has finished."""
+        if self._delta > 0:
+            activity = ACTIVITY_CHARGING
+        elif self._delta < 0:
+            activity = ACTIVITY_DISCHARGING
+        else:
+            self._activity = ACTIVITY_IDLE
+            return
         if activity != self._activity:
-            self._activity = activity
             self._session_started = self._last_updated
-            self._session_start_level = previous_accounted_level
+            self._session_start_level = self._previous_state
             self._session_change = self._delta
         else:
             self._session_change += self._delta
-
-        if self._cancel_idle is not None:
-            self._cancel_idle()
-        self._cancel_idle = async_call_later(
-            self.hass,
-            self._session_timeout * 60,
-            self._async_mark_idle,
-        )
+        self._activity = activity
 
     @callback
-    def _async_mark_idle(self, _now: datetime) -> None:
-        self._cancel_idle = None
-        self._activity = ACTIVITY_IDLE
-        self.async_write_ha_state()
-        self._write_dependents()
+    def _async_source_state_changed(self, event):
+        """Original source validation and update behavior."""
+        new_state = event.data.get("new_state")
+        if new_state is None:
+            return
+        value = None
+        try:
+            if self._source_attribute:
+                value = float(new_state.attributes.get(self._source_attribute))
+            else:
+                value = None if new_state.state == STATE_UNKNOWN else float(new_state.state)
+        except (ValueError, TypeError):
+            if self._source_attribute:
+                _LOGGER.warning("%s attribute %s is not numerical",
+                                self._source_entity_id, self._source_attribute)
+            else:
+                _LOGGER.warning("%s state is not numerical", self._source_entity_id)
+        if value is not None:
+            self._compute_new_state_and_attribute(value, new_state.last_updated)
+            self._derive_optional_state()
+            self.async_write_ha_state()
+            self._write_dependents()
 
     @callback
-    def _write_dependents(self) -> None:
+    def _write_dependents(self):
         for entity in self._dependents:
             if entity.hass is not None:
                 entity.async_write_ha_state()
@@ -591,10 +488,6 @@ class BatteryActivitySensor(SensorEntity):
     async def async_reset_totals(self) -> None:
         """Reset totals on the shared battery tracker."""
         await self._tracker.async_reset_totals()
-
-    @property
-    def available(self) -> bool:
-        return self._tracker.available
 
     @property
     def state(self) -> str:
@@ -639,10 +532,6 @@ class BatteryCycleSensor(SensorEntity):
         await self._tracker.async_reset_totals()
 
     @property
-    def available(self) -> bool:
-        return self._tracker.available
-
-    @property
     def native_value(self) -> float:
         return self._tracker.equivalent_full_cycles
 
@@ -671,11 +560,7 @@ class BatteryPowerSensor(SensorEntity):
         await self._tracker.async_reset_totals()
 
     @property
-    def available(self) -> bool:
-        return self._tracker.available and self._tracker._instant_power is not None
-
-    @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> float:
         return self._tracker._instant_power
 
     @property
