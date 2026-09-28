@@ -626,7 +626,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://global.roborock.com/pages/roborock-q10-series",
-      "notes": "Official Roborock series specification: 5200 mAh rechargeable battery."
+      "notes": "Official Roborock series specification: 5200 mAh rechargeable battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_q8_max_series",
@@ -635,7 +636,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://global.roborock.com/pages/roborock-q8-max",
-      "notes": "Official Roborock series specification: 5200 mAh rechargeable battery."
+      "notes": "Official Roborock series specification: 5200 mAh rechargeable battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_curv",
@@ -644,7 +646,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://support.roborock.com/hc/en-us/articles/43425572538649-What-are-the-differences-and-similarities-between-Qrevu-Curv-S5X-and-Qrevo-Curv",
-      "notes": "Official Roborock support specification: 6400 mAh battery."
+      "notes": "Official Roborock support specification: 6400 mAh battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_curv_s5x",
@@ -653,7 +656,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://support.roborock.com/hc/en-us/articles/43425572538649-What-are-the-differences-and-similarities-between-Qrevu-Curv-S5X-and-Qrevo-Curv",
-      "notes": "Official Roborock support specification: 5200 mAh battery. Do not apply this profile to the 6400 mAh Qrevo Curv."
+      "notes": "Official Roborock support specification: 5200 mAh battery. Do not apply this profile to the 6400 mAh Qrevo Curv. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_edge",
@@ -662,7 +666,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://digitalnerds.in/products/robotic-vacuum-cleaner/roborock-qrevo-edge",
-      "notes": "Published Qrevo Edge product specification: 6400 mAh battery. Kept separate from Qrevo Edge S5A / 5V1 because those variants were not verified with the same capacity."
+      "notes": "Published Qrevo Edge product specification: 6400 mAh battery. Kept separate from Qrevo Edge S5A / 5V1 because those variants were not verified with the same capacity. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_master",
@@ -671,7 +676,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://goodsscene.net/products/roborock-s8-maxv-ultra-qrevo-slim-qrevo-master-q8-max-q5-pro-q7-original-spare-repair-parts-oem-battery-pack-5200mah",
-      "notes": "Original OEM replacement battery listing identifies Qrevo Master compatibility and 5200 mAh capacity; independently cross-checked against published model specifications."
+      "notes": "Original OEM replacement battery listing identifies Qrevo Master compatibility and 5200 mAh capacity; independently cross-checked against published model specifications. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_maxv",
@@ -680,7 +686,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://goodsscene.net/products/roborock-s8-maxv-ultra-qrevo-slim-qrevo-master-q8-max-q5-pro-q7-original-spare-repair-parts-oem-battery-pack-5200mah",
-      "notes": "Original OEM replacement battery listing identifies Qrevo MaxV compatibility and 5200 mAh capacity; independently cross-checked against published model specifications."
+      "notes": "Original OEM replacement battery listing identifies Qrevo MaxV compatibility and 5200 mAh capacity; independently cross-checked against published model specifications. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_qrevo_slim",
@@ -689,7 +696,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://support.roborock.com/hc/en-us/articles/43407231141273-What-are-the-key-features-of-Saros-10R",
-      "notes": "Official Roborock support comparison identifies the Qrevo Slim battery as 5200 mAh."
+      "notes": "Official Roborock support comparison identifies the Qrevo Slim battery as 5200 mAh. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_s8_max_ultra_series",
@@ -698,7 +706,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://goodsscene.net/products/roborock-s8-maxv-ultra-qrevo-slim-qrevo-master-q8-max-q5-pro-q7-original-spare-repair-parts-oem-battery-pack-5200mah",
-      "notes": "Original OEM replacement battery listing identifies S8 MaxV Ultra compatibility and 5200 mAh capacity; S8 Max Ultra uses the same verified battery family."
+      "notes": "Original OEM replacement battery listing identifies S8 MaxV Ultra compatibility and 5200 mAh capacity; S8 Max Ultra uses the same verified battery family. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_s8_pro_ultra",
@@ -707,7 +716,8 @@
       "capacity": 5200,
       "capacity_unit": "mAh",
       "source": "https://www.instruktionsbok.se/roborock/bruksanvisning-s8-pro-ultra",
-      "notes": "Peter's current robot vacuum. Published product specification: 5200 mAh rechargeable lithium-ion battery."
+      "notes": "Peter's current robot vacuum. Published product specification: 5200 mAh rechargeable lithium-ion battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_saros_10r",
@@ -716,7 +726,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://support.roborock.com/hc/en-us/articles/43407231141273-What-are-the-key-features-of-Saros-10R",
-      "notes": "Official Roborock support specification: 6400 mAh battery."
+      "notes": "Official Roborock support specification: 6400 mAh battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_saros_20",
@@ -725,7 +736,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://global.roborock.com/pages/compare-robot-vacuums",
-      "notes": "Official Roborock comparison specification: 6400 mAh battery."
+      "notes": "Official Roborock comparison specification: 6400 mAh battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_saros_20_flow",
@@ -734,7 +746,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://global.roborock.com/pages/roborock-saros-20-flow",
-      "notes": "Official Roborock product specification: 6400 mAh battery."
+      "notes": "Official Roborock product specification: 6400 mAh battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "roborock_saros_z70",
@@ -743,7 +756,8 @@
       "capacity": 6400,
       "capacity_unit": "mAh",
       "source": "https://global.roborock.com/pages/compare-robot-vacuums",
-      "notes": "Official Roborock comparison specification: 6400 mAh battery."
+      "notes": "Official Roborock comparison specification: 6400 mAh battery. Nominal battery-pack voltage: 14.4 V.",
+      "nominal_voltage": 14.4
     },
     {
       "id": "saft_ls14250",

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.10.2-blue" alt="Version 2.10.2">
+  <img src="https://img.shields.io/badge/version-2.10.3-blue" alt="Version 2.10.3">
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -35,6 +35,10 @@ Each optional entity has one primary value and only the attributes needed to exp
 - Equivalent full cycles owns its calculation and optional hardware cycle comparison.
 - The main battery-level sensor retains the original accounting attributes unchanged.
 
+
+## Version 2.10.3
+
+Fixes the bundled Roborock profiles so they pass profile validation and appear in the Home Assistant device-profile selector. The fix adds the required 14.4 V nominal battery-pack voltage to every bundled Roborock profile, including the S8 Pro Ultra.
 
 ## Highlights
 

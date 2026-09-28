@@ -96,3 +96,18 @@ def test_user_profile_override_logs_warning(tmp_path: Path, caplog) -> None:
 
     load_device_profiles(str(tmp_path))
     assert "User battery profile overrides bundled profile: google_pixel_8_pro" in caplog.text
+
+
+def test_bundled_roborock_profiles_are_valid_and_visible(tmp_path: Path) -> None:
+    profiles = load_device_profiles(str(tmp_path))
+    roborock = [profile for profile in profiles.values() if profile["manufacturer"] == "Roborock"]
+
+    assert len(roborock) == 14
+    assert profiles["roborock_s8_pro_ultra"]["capacity"] == 5200
+    assert profiles["roborock_s8_pro_ultra"]["nominal_voltage"] == 14.4
+    assert all(profile["nominal_voltage"] == 14.4 for profile in roborock)
+
+    labels = [f'{profile["manufacturer"]} · {profile["model"]}' for profile in profiles.values()]
+    assert "Roborock · S8 Pro Ultra" in labels
+    assert labels.index("Ring · Video Doorbell 4") < labels.index("Roborock · S8 Pro Ultra")
+    assert labels.index("Roborock · S8 Pro Ultra") < labels.index("Saft · LS 14250 1/2 AA")
