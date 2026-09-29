@@ -9,7 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/swetoast/battery_consumption/releases"><img src="https://img.shields.io/github/v/release/swetoast/battery_consumption" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2%2B-blue" alt="Home Assistant 2025.12.2 or newer">
   <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange" alt="HACS custom repository"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
