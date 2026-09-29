@@ -39,14 +39,16 @@ jobs:
 
       - name: Install validation tools
         run: |
-          python -m pip install --disable-pip-version-check \
+          python -m pip install \
+            --disable-pip-version-check \
             jsonschema \
             mypy==1.18.2 \
             ruff
 
-      - name: Lint source, tests, and scripts
+      - name: Check for critical Python errors
         run: |
           python -m ruff check \
+            --select E9,F63,F7,F82 \
             custom_components \
             tests \
             scripts
@@ -86,6 +88,7 @@ jobs:
                   component / "device_profiles.schema.json"
               ).read_text(encoding="utf-8")
           )
+
           catalog = json.loads(
               (
                   component / "device_profiles.json"
@@ -102,13 +105,17 @@ jobs:
 
           if not catalog.get("catalog_version"):
               raise SystemExit(
-                  "The catalog version is missing"
+                  "Device-profile catalog version is missing"
               )
 
-          print(
-              "Validated "
-              f"{len(catalog.get('devices', []))} profiles"
-          )
+          devices = catalog.get("devices")
+
+          if not isinstance(devices, list):
+              raise SystemExit(
+                  "Device-profile devices field is not a list"
+              )
+
+          print(f"Validated {len(devices)} device profiles")
           PY
 
       - name: Verify integration metadata
@@ -138,14 +145,14 @@ jobs:
               "version",
           }
 
-          missing = required_manifest_fields.difference(
+          missing_fields = required_manifest_fields.difference(
               manifest
           )
 
-          if missing:
+          if missing_fields:
               raise SystemExit(
                   "Missing manifest fields: "
-                  + ", ".join(sorted(missing))
+                  + ", ".join(sorted(missing_fields))
               )
 
           if manifest["domain"] != "battery_consumption":
@@ -162,13 +169,16 @@ jobs:
               component / "__init__.py",
               component / "config_flow.py",
               component / "const.py",
+              component / "device_profiles.json",
+              component / "device_profiles.schema.json",
+              component / "diagnostics.py",
+              component / "icons.json",
               component / "manifest.json",
+              component / "models.py",
+              component / "repairs.py",
               component / "sensor.py",
               component / "strings.json",
               component / "translations" / "en.json",
-              component / "device_profiles.json",
-              component / "device_profiles.schema.json",
-              component / "icons.json",
           )
 
           missing_files = [
@@ -189,35 +199,118 @@ jobs:
           )
           PY
 
+      - name: Verify documentation structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required_files = (
+              Path("README.md"),
+              Path("CHANGELOG.md"),
+              Path("LICENSE"),
+              Path("docs/ROADMAP.md"),
+          )
+
+          missing_files = [
+              str(path)
+              for path in required_files
+              if not path.is_file()
+          ]
+
+          if missing_files:
+              raise SystemExit(
+                  "Missing documentation files: "
+                  + ", ".join(missing_files)
+              )
+
+          roadmap_files = sorted(
+              path
+              for path in Path(".").rglob("*")
+              if path.is_file()
+              and path.name.casefold() == "roadmap.md"
+          )
+
+          expected_roadmaps = [
+              Path("docs/ROADMAP.md")
+          ]
+
+          if roadmap_files != expected_roadmaps:
+              raise SystemExit(
+                  "The repository must contain exactly one "
+                  "roadmap at docs/ROADMAP.md"
+              )
+
+          readme = Path("README.md").read_text(
+              encoding="utf-8"
+          )
+
+          changelog = Path("CHANGELOG.md").read_text(
+              encoding="utf-8"
+          )
+
+          if "img.shields.io/github/v/release" in readme:
+              raise SystemExit(
+                  "README.md contains a release widget"
+              )
+
+          if "## [Unreleased]" in changelog:
+              raise SystemExit(
+                  "CHANGELOG.md contains an Unreleased section"
+              )
+
+          if "[Unreleased\]:" in changelog:
+              raise SystemExit(
+                  "CHANGELOG.md contains an Unreleased link"
+              )
+
+          print("Documentation structure is valid")
+          PY
+
       - name: Check repository cleanliness
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          unwanted = []
+          ignored_directories = {
+              ".git",
+              ".mypy_cache",
+              ".pytest_cache",
+             ".ruff_cache",
+          }
+
+          unwanted_files = []
 
           for path in Path(".").rglob("*"):
               if not path.is_file():
                   continue
 
+              if any(
+                  part in ignored_directories
+                  for part in path.parts
+              ):
+                  continue
+
               if "__pycache__" in path.parts:
-                  unwanted.append(str(path))
+                  unwanted_files.append(str(path))
                   continue
 
               if path.suffix in {".pyc", ".pyo"}:
-                  unwanted.append(str(path))
+                  unwanted_files.append(str(path))
                   continue
 
               if path.name in {
                   ".DS_Store",
                   "Thumbs.db",
               }:
-                  unwanted.append(str(path))
+                  unwanted_files.append(str(path))
 
-          if unwanted:
+          if unwanted_files:
+              formatted = "\n".join(
+                  sorted(unwanted_files)
+              )
               raise SystemExit(
                   "Unwanted repository files:\n"
-                  + "\n".join(sorted(unwanted))
+                  + formatted
               )
 
           print("Repository contains no unwanted files")
