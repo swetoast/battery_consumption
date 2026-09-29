@@ -1,0 +1,120 @@
+name: Publish release
+
+run-name: Publish ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Determine release channel
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${GITHUB_REF_NAME}"
+
+          if [[ "${tag}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "channel=stable" >> "${GITHUB_OUTPUT}"
+            echo "branch=main" >> "${GITHUB_OUTPUT}"
+            echo "prerelease=false" >> "${GITHUB_OUTPUT}"
+            echo "make_latest=true" >> "${GITHUB_OUTPUT}"
+          elif [[ "${tag}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]]; then
+            echo "channel=beta" >> "${GITHUB_OUTPUT}"
+            echo "branch=beta" >> "${GITHUB_OUTPUT}"
+            echo "prerelease=true" >> "${GITHUB_OUTPUT}"
+            echo "make_latest=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "::error::Unsupported release tag: ${tag}"
+            echo "::error::Stable tags must use 2.23.0"
+            echo "::error::Beta tags must use 2.24.0-beta.1"
+            exit 1
+          fi
+
+          echo "version=${tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify release branch
+        shell: bash
+        env:
+          RELEASE_BRANCH: ${{ steps.release.outputs.branch }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin \
+            "refs/heads/main:refs/remotes/origin/main" \
+            "refs/heads/beta:refs/remotes/origin/beta"
+
+          release_commit="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
+
+          if ! git merge-base \
+            --is-ancestor \
+            "${release_commit}" \
+            "origin/${RELEASE_BRANCH}"; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not belong to ${RELEASE_BRANCH}"
+            exit 1
+          fi
+
+      - name: Verify manifest version
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          manifest_version="$(
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = Path(
+              "custom_components/battery_consumption/manifest.json"
+          )
+          print(json.loads(manifest.read_text(encoding="utf-8"))["version"])
+          PY
+          )"
+
+          if [[ "${manifest_version}" != "${RELEASE_VERSION}" ]]; then
+            echo "::error::Tag ${RELEASE_VERSION} does not match manifest version ${manifest_version}"
+            exit 1
+          fi
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --disable-pip-version-check \
+            jsonschema \
+            mypy==1.18.2 \
+            ruff
+
+      - name: Run release validation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+     
