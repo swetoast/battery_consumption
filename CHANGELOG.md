@@ -4,6 +4,25 @@ All notable changes to Battery Consumption are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.23.0] - 2026-09-29
+
+### Added
+
+- A detailed stronger-typing phase in the project roadmap.
+- Shared typed contracts for configuration, Companion inputs, profiles, activity, power, and profile-loading results.
+- Incremental mypy validation in the repository workflow.
+
+### Changed
+
+- Replaced the optional power sensor's unnamed result tuple with a typed immutable result object.
+- Moved the profile loading report to the shared typed models while preserving its runtime behavior.
+
+### Compatibility
+
+- No entity IDs, unique IDs, stored keys, sensor states, attributes, units, calculations, totals, timestamps, Companion priority, or restore behavior changed.
+
 ## [2.22.0] - 2026-09-29
 
 ### Added
@@ -170,7 +189,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Meaningful-change filtering, battery activity sessions, and equivalent full-cycle tracking.
 
-[Unreleased]: https://github.com/swetoast/battery_consumption/compare/2.22.0...HEAD
+[Unreleased]: https://github.com/swetoast/battery_consumption/compare/2.23.0...HEAD
+[2.23.0]: https://github.com/swetoast/battery_consumption/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/swetoast/battery_consumption/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/swetoast/battery_consumption/compare/2.20.1...2.21.0
 [2.20.1]: https://github.com/swetoast/battery_consumption/compare/2.20.0...2.20.1

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import logging
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
@@ -54,6 +54,12 @@ from .const import (
     DEFAULT_NAME,
     DEFAULT_SESSION_TIMEOUT,
     DOMAIN,
+)
+
+from .models import (
+    BatteryActivity,
+    BatteryPowerResult,
+    PowerUnit,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -274,7 +280,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.22.0",
+                "sw_version": "2.23.0",
             }
         else:
             self._attr_name = name
@@ -390,7 +396,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         )
 
     @property
-    def power_unit(self):
+    def power_unit(self) -> PowerUnit | None:
         unit = {"Wh": "W", "kWh": "kW", "MWh": "MW"}.get(self._unit_of_measurement)
         if unit is None and CONF_COMPANION_BATTERY_POWER in self._companion_entities:
             return "W"
@@ -403,8 +409,8 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._write_dependents()
 
     @property
-    def activity(self):
-        return self._activity
+    def activity(self) -> BatteryActivity:
+        return cast(BatteryActivity, self._activity)
 
     @property
     def session_attributes(self):
@@ -498,19 +504,21 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
             return None
 
     @property
-    def output_power(self):
+    def output_power(self) -> BatteryPowerResult:
         state = self._companion_state(CONF_COMPANION_BATTERY_POWER)
         if state is None:
-            return self._instant_power, "estimated", None
+            return BatteryPowerResult(self._instant_power, "estimated")
         try:
             value = float(state.state)
         except (TypeError, ValueError):
-            return self._instant_power, "estimated", None
+            return BatteryPowerResult(self._instant_power, "estimated")
         source_unit = state.attributes.get("unit_of_measurement", "W")
         target = self.power_unit or "W"
         watts = value * {"W": 1, "kW": 1000, "MW": 1000000}.get(source_unit, 1)
         converted = watts / {"W": 1, "kW": 1000, "MW": 1000000}.get(target, 1)
-        return round(converted, self._precision), "measured", state.entity_id
+        return BatteryPowerResult(
+            round(converted, self._precision), "measured", state.entity_id
+        )
 
     @callback
     def _cancel_activity_idle_timer(self):
@@ -767,11 +775,13 @@ class BatteryPowerSensor(SensorEntity):
 
     @property
     def native_value(self) -> float:
-        return self._tracker.output_power[0]
+        return self._tracker.output_power.value
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        _, source_type, source_entity = self._tracker.output_power
+        power = self._tracker.output_power
+        source_type = power.source_type
+        source_entity = power.source_entity_id
         attrs = {
             "value_meaning": "Battery power over the latest interval",
             "source_type": source_type,

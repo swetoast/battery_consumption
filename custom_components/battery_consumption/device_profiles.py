@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -14,27 +13,13 @@ from homeassistant.util import slugify
 _MATCH_SEPARATORS = " -_./()[]"
 
 from .const import USER_DEVICE_PROFILES_FILE
+from .models import ProfileLoadReport
 
 _LOGGER = logging.getLogger(__name__)
 _SUPPORTED_UNITS = {"mAh", "Wh", "kWh", "MWh"}
 PROFILE_ORIGIN_BUNDLED = "bundled"
 PROFILE_ORIGIN_USER = "user"
 
-
-@dataclass
-class ProfileLoadReport:
-    """Summarize profile loading without exposing profile contents."""
-
-    bundled_loaded: int = 0
-    user_loaded: int = 0
-    user_overrides: list[str] = field(default_factory=list)
-    rejected_user_entries: int = 0
-    user_catalog_error: str | None = None
-
-    @property
-    def has_user_errors(self) -> bool:
-        """Return whether the user catalog requires attention."""
-        return self.user_catalog_error is not None or self.rejected_user_entries > 0
 
 
 def _validated_profile(raw: Any, source_name: str) -> dict[str, Any] | None:
