@@ -19,7 +19,10 @@ from homeassistant.const import (
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.event import (
+    async_call_later,
+    async_track_state_change_event,
+)
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import slugify
 
@@ -271,7 +274,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.20.0",
+                "sw_version": "2.21.0",
             }
         else:
             self._attr_name = name
@@ -293,6 +296,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         self._session_started = None
         self._session_start_level = None
         self._session_change = 0.0
+        self._activity_idle_cancel = None
         self._dependents = []
         self._companion_entities = companion_entities or {}
 
@@ -319,6 +323,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
             self._cumulative_discharge = _optional_float(
                 state_recorded.attributes.get(ATTR_TOTAL_DISCHARGE)
             ) or 0.0
+        self.async_on_remove(self._cancel_activity_idle_timer)
         self.async_on_remove(async_track_state_change_event(
             self.hass, [self._source_entity_id], self._async_source_state_changed
         ))
@@ -508,17 +513,55 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         return round(converted, self._precision), "measured", state.entity_id
 
     @callback
+    def _cancel_activity_idle_timer(self):
+        """Cancel the pending movement-derived idle transition."""
+        if self._activity_idle_cancel is not None:
+            self._activity_idle_cancel()
+            self._activity_idle_cancel = None
+
+    @callback
+    def _schedule_activity_idle(self):
+        """Return movement-derived activity to idle after the session timeout."""
+        self._cancel_activity_idle_timer()
+        if self.hass is None:
+            return
+        self._activity_idle_cancel = async_call_later(
+            self.hass,
+            self._session_timeout * 60,
+            self._async_activity_idle,
+        )
+
+    @callback
+    def _async_activity_idle(self, _now):
+        """End a movement-derived activity session."""
+        self._activity_idle_cancel = None
+        if self._activity == ACTIVITY_IDLE:
+            return
+        self._activity = ACTIVITY_IDLE
+        self._write_dependents()
+
+    @callback
     def _derive_optional_state(self, account_delta=False):
+        """Derive activity without changing the original battery accounting."""
         charging = self._companion_state(CONF_COMPANION_IS_CHARGING)
         battery_state = self._companion_state(CONF_COMPANION_BATTERY_STATE)
-        state_text = battery_state.state.lower().replace("_", " ") if battery_state else ""
-        if charging is not None:
+        state_text = (
+            battery_state.state.lower().replace("_", " ")
+            if battery_state
+            else ""
+        )
+        movement_derived = False
+
+        # An explicit full state is authoritative even if is_charging remains on.
+        if state_text == "full":
+            self._activity_source_type = "battery_state"
+            self._activity_source_entity = battery_state.entity_id
+            activity = ACTIVITY_IDLE
+        elif charging is not None:
             self._activity_source_type = "is_charging"
             self._activity_source_entity = charging.entity_id
             if charging.state == "on":
                 activity = ACTIVITY_CHARGING
-            elif state_text == "full":
-                activity = ACTIVITY_IDLE
             else:
                 activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
         elif battery_state is not None:
@@ -526,25 +569,28 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
             self._activity_source_entity = battery_state.entity_id
             if state_text == "charging":
                 activity = ACTIVITY_CHARGING
-            elif state_text == "full":
-                activity = ACTIVITY_IDLE
             elif state_text in ("discharging", "not charging"):
                 activity = ACTIVITY_DISCHARGING if self._delta < 0 else ACTIVITY_IDLE
             elif self._delta > 0:
                 activity = ACTIVITY_CHARGING
+                movement_derived = True
             elif self._delta < 0:
                 activity = ACTIVITY_DISCHARGING
+                movement_derived = True
             else:
                 activity = ACTIVITY_IDLE
         else:
             self._activity_source_type = "battery_level"
             self._activity_source_entity = self._source_entity_id
+            movement_derived = self._delta != 0
             if self._delta > 0:
                 activity = ACTIVITY_CHARGING
             elif self._delta < 0:
                 activity = ACTIVITY_DISCHARGING
             else:
                 activity = ACTIVITY_IDLE
+
+        self._cancel_activity_idle_timer()
         if activity == ACTIVITY_IDLE:
             self._activity = activity
             return
@@ -555,6 +601,8 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
         elif account_delta and self._delta:
             self._session_change += self._delta
         self._activity = activity
+        if movement_derived:
+            self._schedule_activity_idle()
 
     @callback
     def _async_companion_state_changed(self, _event):

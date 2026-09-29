@@ -1,6 +1,6 @@
 {
   "domain": "battery_consumption",
-  "name": "battery_consumption",
+  "name": "Battery Consumption",
   "codeowners": [
     "@swetoast"
   ],
@@ -8,6 +8,6 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/swetoast/battery_consumption/issues",
   "requirements": [],
-  "version": "2.20.0",
+  "version": "2.21.0",
   "config_flow": true
 }
