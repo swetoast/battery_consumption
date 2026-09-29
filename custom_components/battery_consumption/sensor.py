@@ -274,7 +274,7 @@ class BatteryConsumptionSensor(RestoreEntity, SensorEntity):
                 "name": f"Battery Consumption {tracker_name}",
                 "manufacturer": "Battery Consumption",
                 "model": "Battery Tracker",
-                "sw_version": "2.21.0",
+                "sw_version": "2.22.0",
             }
         else:
             self._attr_name = name
@@ -688,14 +688,6 @@ class BatteryActivitySensor(SensorEntity):
     def state(self) -> str:
         return self._tracker.activity
 
-    @property
-    def icon(self) -> str:
-        """Return an icon matching the current battery activity."""
-        return {
-            ACTIVITY_CHARGING: "mdi:battery-charging",
-            ACTIVITY_DISCHARGING: "mdi:battery-minus",
-            ACTIVITY_IDLE: "mdi:battery-outline",
-        }[self._tracker.activity]
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -713,7 +705,6 @@ class BatteryCycleSensor(SensorEntity):
 
     _attr_should_poll = False
     _attr_translation_key = "equivalent_full_cycles"
-    _attr_icon = "mdi:battery-sync"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_native_unit_of_measurement = "cycles"
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -789,10 +780,3 @@ class BatteryPowerSensor(SensorEntity):
             attrs["source_entity"] = source_entity
         return attrs
 
-    @property
-    def icon(self) -> str:
-        return {
-            ACTIVITY_CHARGING: "mdi:battery-charging",
-            ACTIVITY_DISCHARGING: "mdi:battery-minus",
-            ACTIVITY_IDLE: "mdi:battery-outline",
-        }[self._tracker.activity]

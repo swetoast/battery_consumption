@@ -217,6 +217,12 @@ A Companion App hardware cycle count is comparison context only. It does not rep
 
 Optional power sensor. A valid Companion battery-power entity provides measured power. Otherwise, the integration uses the original estimate based on confirmed battery movement, configured capacity, and elapsed time. The sensor attributes identify whether the current value is measured or estimated.
 
+## Iconography
+
+Battery level and Battery power use their native Home Assistant device-class icons for consistent dashboard behavior. Battery activity changes icon with its state: charging, discharging, or idle. Equivalent full cycles uses a battery-cycle icon, and the Reset totals action has its own reset icon.
+
+State-based icons are defined through Home Assistant icon translations rather than runtime entity properties.
+
 ## Resetting totals
 
 Call the `battery_consumption.reset_totals` action and target one Battery Consumption entity.

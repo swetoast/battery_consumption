@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [2.22.0] - 2026-09-29
+
+### Added
+
+- Home Assistant icon translations for Battery activity states.
+- A dedicated icon for the Reset totals action.
+
+### Changed
+
+- Moved Battery activity and Equivalent full cycles icons from Python properties to `icons.json`.
+- Battery power now uses the native Home Assistant power device-class icon instead of duplicating Battery activity icons.
+- Battery level continues to use the native Home Assistant battery device-class icon.
+
 ## [2.21.0] - 2026-09-29
 
 ### Added
@@ -159,7 +172,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Meaningful-change filtering, battery activity sessions, and equivalent full-cycle tracking.
 
-[Unreleased]: https://github.com/swetoast/battery_consumption/compare/2.21.0...HEAD
+[Unreleased]: https://github.com/swetoast/battery_consumption/compare/2.22.0...HEAD
+[2.22.0]: https://github.com/swetoast/battery_consumption/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/swetoast/battery_consumption/compare/2.20.1...2.21.0
 [2.20.1]: https://github.com/swetoast/battery_consumption/compare/2.20.0...2.20.1
 [2.20.0]: https://github.com/swetoast/battery_consumption/compare/2.19.0...2.20.0

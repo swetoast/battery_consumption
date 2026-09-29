@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "sensor": {
+      "activity": {
+        "default": "mdi:battery-outline",
+        "state": {
+          "charging": "mdi:battery-charging",
+          "discharging": "mdi:battery-minus",
+          "idle": "mdi:battery-outline"
+        }
+      },
+      "equivalent_full_cycles": {
+        "default": "mdi:battery-sync"
+      }
+    }
+  },
+  "services": {
+    "reset_totals": "mdi:battery-sync-outline"
+  }
+}
