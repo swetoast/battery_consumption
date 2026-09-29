@@ -1,0 +1,251 @@
+name: Validation
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+  pull_request:
+    branches:
+      - main
+      - beta
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --disable-pip-version-check \
+            jsonschema \
+            mypy==1.18.2 \
+            ruff
+
+      - name: Lint source, tests, and scripts
+        run: |
+          python -m ruff check \
+            custom_components \
+            tests \
+            scripts
+
+      - name: Type-check shared contracts
+        run: |
+          python -m mypy \
+            --follow-imports=skip \
+            custom_components/battery_consumption/models.py
+
+      - name: Compile Python source
+        run: |
+          python -m compileall -q \
+            custom_components \
+            tests \
+            scripts
+
+      - name: Validate device-profile catalog
+        run: |
+          python scripts/validate_device_profiles.py \
+            custom_components/battery_consumption/device_profiles.json
+
+      - name: Validate device-profile JSON Schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from jsonschema import Draft202012Validator
+
+          component = Path(
+              "custom_components/battery_consumption"
+          )
+
+          schema = json.loads(
+              (
+                  component / "device_profiles.schema.json"
+              ).read_text(encoding="utf-8")
+          )
+          catalog = json.loads(
+              (
+                  component / "device_profiles.json"
+              ).read_text(encoding="utf-8")
+          )
+
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(catalog)
+
+          if catalog.get("schema_version") != 1:
+              raise SystemExit(
+                  "Unsupported device-profile schema version"
+              )
+
+          if not catalog.get("catalog_version"):
+              raise SystemExit(
+                  "The catalog version is missing"
+              )
+
+          print(
+              "Validated "
+              f"{len(catalog.get('devices', []))} profiles"
+          )
+          PY
+
+      - name: Verify integration metadata
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          component = Path(
+              "custom_components/battery_consumption"
+          )
+
+          manifest = json.loads(
+              (component / "manifest.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          required_manifest_fields = {
+              "codeowners",
+              "config_flow",
+              "documentation",
+              "domain",
+              "iot_class",
+              "issue_tracker",
+              "name",
+              "version",
+          }
+
+          missing = required_manifest_fields.difference(
+              manifest
+          )
+
+          if missing:
+              raise SystemExit(
+                  "Missing manifest fields: "
+                  + ", ".join(sorted(missing))
+              )
+
+          if manifest["domain"] != "battery_consumption":
+              raise SystemExit(
+                  "Unexpected integration domain"
+              )
+
+          if manifest["name"] != "Battery Consumption":
+              raise SystemExit(
+                  "Unexpected integration name"
+              )
+
+          required_files = (
+              component / "__init__.py",
+              component / "config_flow.py",
+              component / "const.py",
+              component / "manifest.json",
+              component / "sensor.py",
+              component / "strings.json",
+              component / "translations" / "en.json",
+              component / "device_profiles.json",
+              component / "device_profiles.schema.json",
+              component / "icons.json",
+          )
+
+          missing_files = [
+              str(path)
+              for path in required_files
+              if not path.is_file()
+          ]
+
+          if missing_files:
+              raise SystemExit(
+                  "Missing integration files: "
+                  + ", ".join(missing_files)
+              )
+
+          print(
+              "Validated Battery Consumption "
+              f"{manifest['version']}"
+          )
+          PY
+
+      - name: Check repository cleanliness
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          unwanted = []
+
+          for path in Path(".").rglob("*"):
+              if not path.is_file():
+                  continue
+
+              if "__pycache__" in path.parts:
+                  unwanted.append(str(path))
+                  continue
+
+              if path.suffix in {".pyc", ".pyo"}:
+                  unwanted.append(str(path))
+                  continue
+
+              if path.name in {
+                  ".DS_Store",
+                  "Thumbs.db",
+              }:
+                  unwanted.append(str(path))
+
+          if unwanted:
+              raise SystemExit(
+                  "Unwanted repository files:\n"
+                  + "\n".join(sorted(unwanted))
+              )
+
+          print("Repository contains no unwanted files")
+          PY
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions: {}
+
+    steps:
+      - name: Validate integration with HACS
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Validate integration with Hassfest
+        uses: home-assistant/actions/hassfest@master
