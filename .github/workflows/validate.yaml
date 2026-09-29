@@ -66,6 +66,17 @@ jobs:
             tests \
             scripts
 
+          find custom_components tests scripts \
+            -type d \
+            -name "__pycache__" \
+            -prune \
+            -exec rm -rf {} +
+
+          find custom_components tests scripts \
+            -type f \
+            \( -name "*.pyc" -o -name "*.pyo" \) \
+            -delete
+
       - name: Validate device-profile catalog
         run: |
           python scripts/validate_device_profiles.py \
@@ -79,41 +90,31 @@ jobs:
 
           from jsonschema import Draft202012Validator
 
-          component = Path(
-              "custom_components/battery_consumption"
-          )
+          component = Path("custom_components/battery_consumption")
 
           schema = json.loads(
-              (
-                  component / "device_profiles.schema.json"
-              ).read_text(encoding="utf-8")
+              (component / "device_profiles.schema.json").read_text(
+                  encoding="utf-8"
+              )
           )
-
           catalog = json.loads(
-              (
-                  component / "device_profiles.json"
-              ).read_text(encoding="utf-8")
+              (component / "device_profiles.json").read_text(
+                  encoding="utf-8"
+              )
           )
 
           Draft202012Validator.check_schema(schema)
           Draft202012Validator(schema).validate(catalog)
 
           if catalog.get("schema_version") != 1:
-              raise SystemExit(
-                  "Unsupported device-profile schema version"
-              )
+              raise SystemExit("Unsupported device-profile schema version")
 
           if not catalog.get("catalog_version"):
-              raise SystemExit(
-                  "Device-profile catalog version is missing"
-              )
+              raise SystemExit("Device-profile catalog version is missing")
 
           devices = catalog.get("devices")
-
           if not isinstance(devices, list):
-              raise SystemExit(
-                  "Device-profile devices field is not a list"
-              )
+              raise SystemExit("Device-profile devices field is not a list")
 
           print(f"Validated {len(devices)} device profiles")
           PY
@@ -124,14 +125,9 @@ jobs:
           import json
           from pathlib import Path
 
-          component = Path(
-              "custom_components/battery_consumption"
-          )
-
+          component = Path("custom_components/battery_consumption")
           manifest = json.loads(
-              (component / "manifest.json").read_text(
-                  encoding="utf-8"
-              )
+              (component / "manifest.json").read_text(encoding="utf-8")
           )
 
           required_manifest_fields = {
@@ -144,10 +140,7 @@ jobs:
               "name",
               "version",
           }
-
-          missing_fields = required_manifest_fields.difference(
-              manifest
-          )
+          missing_fields = required_manifest_fields.difference(manifest)
 
           if missing_fields:
               raise SystemExit(
@@ -156,14 +149,10 @@ jobs:
               )
 
           if manifest["domain"] != "battery_consumption":
-              raise SystemExit(
-                  "Unexpected integration domain"
-              )
+              raise SystemExit("Unexpected integration domain")
 
           if manifest["name"] != "Battery Consumption":
-              raise SystemExit(
-                  "Unexpected integration name"
-              )
+              raise SystemExit("Unexpected integration name")
 
           required_files = (
               component / "__init__.py",
@@ -180,11 +169,8 @@ jobs:
               component / "strings.json",
               component / "translations" / "en.json",
           )
-
           missing_files = [
-              str(path)
-              for path in required_files
-              if not path.is_file()
+              str(path) for path in required_files if not path.is_file()
           ]
 
           if missing_files:
@@ -193,10 +179,7 @@ jobs:
                   + ", ".join(missing_files)
               )
 
-          print(
-              "Validated Battery Consumption "
-              f"{manifest['version']}"
-          )
+          print(f"Validated Battery Consumption {manifest['version']}")
           PY
 
       - name: Verify documentation structure
@@ -210,11 +193,8 @@ jobs:
               Path("LICENSE"),
               Path("docs/ROADMAP.md"),
           )
-
           missing_files = [
-              str(path)
-              for path in required_files
-              if not path.is_file()
+              str(path) for path in required_files if not path.is_file()
           ]
 
           if missing_files:
@@ -226,101 +206,75 @@ jobs:
           roadmap_files = sorted(
               path
               for path in Path(".").rglob("*")
-              if path.is_file()
-              and path.name.casefold() == "roadmap.md"
+              if path.is_file() and path.name.casefold() == "roadmap.md"
           )
-
-          expected_roadmaps = [
-              Path("docs/ROADMAP.md")
-          ]
+          expected_roadmaps = [Path("docs/ROADMAP.md")]
 
           if roadmap_files != expected_roadmaps:
               raise SystemExit(
-                  "The repository must contain exactly one "
-                  "roadmap at docs/ROADMAP.md"
+                  "The repository must contain exactly one roadmap at "
+                  "docs/ROADMAP.md"
               )
 
-          readme = Path("README.md").read_text(
-              encoding="utf-8"
-          )
-
-          changelog = Path("CHANGELOG.md").read_text(
-              encoding="utf-8"
-          )
+          readme = Path("README.md").read_text(encoding="utf-8")
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
 
           if "img.shields.io/github/v/release" in readme:
-              raise SystemExit(
-                  "README.md contains a release widget"
-              )
+              raise SystemExit("README.md contains a release widget")
 
           if "## [Unreleased]" in changelog:
-              raise SystemExit(
-                  "CHANGELOG.md contains an Unreleased section"
-              )
+              raise SystemExit("CHANGELOG.md contains an Unreleased section")
 
-          if "[Unreleased\]:" in changelog:
-              raise SystemExit(
-                  "CHANGELOG.md contains an Unreleased link"
-              )
+          if "[Unreleased]:" in changelog:
+              raise SystemExit("CHANGELOG.md contains an Unreleased link")
 
           print("Documentation structure is valid")
           PY
 
-      - name: Check repository cleanliness
+      - name: Check tracked repository files
         run: |
           python - <<'PY'
-          from pathlib import Path
+          import subprocess
+          from pathlib import PurePosixPath
 
-          ignored_directories = {
-              ".git",
-              ".mypy_cache",
-              ".pytest_cache",
-             ".ruff_cache",
-          }
-
+          tracked_output = subprocess.run(
+              ["git", "ls-files", "-z"],
+              check=True,
+              capture_output=True,
+          ).stdout.decode("utf-8")
+          tracked_files = tracked_output.split("\0")
           unwanted_files = []
 
-          for path in Path(".").rglob("*"):
-              if not path.is_file():
+          for filename in tracked_files:
+              if not filename:
                   continue
 
-              if any(
-                  part in ignored_directories
-                  for part in path.parts
-              ):
-                  continue
+              path = PurePosixPath(filename)
 
               if "__pycache__" in path.parts:
-                  unwanted_files.append(str(path))
+                  unwanted_files.append(filename)
                   continue
 
               if path.suffix in {".pyc", ".pyo"}:
-                  unwanted_files.append(str(path))
+                  unwanted_files.append(filename)
                   continue
 
-              if path.name in {
-                  ".DS_Store",
-                  "Thumbs.db",
-              }:
-                  unwanted_files.append(str(path))
+              if path.name in {".DS_Store", "Thumbs.db"}:
+                  unwanted_files.append(filename)
 
           if unwanted_files:
-              formatted = "\n".join(
-                  sorted(unwanted_files)
-              )
               raise SystemExit(
-                  "Unwanted repository files:\n"
-                  + formatted
+                  "Unwanted tracked repository files:\n"
+                  + "\n".join(sorted(unwanted_files))
               )
 
-          print("Repository contains no unwanted files")
+          print("No unwanted cache or compiled files are tracked by Git")
           PY
 
   hacs:
     name: HACS validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     permissions: {}
 
     steps:
