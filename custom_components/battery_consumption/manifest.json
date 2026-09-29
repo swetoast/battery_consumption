@@ -4,10 +4,10 @@
   "codeowners": [
     "@swetoast"
   ],
+  "config_flow": true,
   "documentation": "https://github.com/swetoast/battery_consumption",
+  "integration_type": "helper",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/swetoast/battery_consumption/issues",
-  "requirements": [],
-  "version": "2.23.0",
-  "config_flow": true
+  "version": "2.23.0"
 }
