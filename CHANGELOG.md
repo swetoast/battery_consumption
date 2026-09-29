@@ -187,7 +187,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Meaningful-change filtering, battery activity sessions, and equivalent full-cycle tracking.
 
-[Unreleased]: https://github.com/swetoast/battery_consumption/compare/2.23.0...HEAD
 [2.23.0]: https://github.com/swetoast/battery_consumption/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/swetoast/battery_consumption/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/swetoast/battery_consumption/compare/2.20.1...2.21.0

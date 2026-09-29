@@ -452,6 +452,50 @@ Document the integration as users experience it without exposing unnecessary imp
 - Document profile contribution requirements.
 - Keep all user-facing documentation free of debug terminology and unnecessary internal detail.
 
+## Phase 10: Stronger typing and typed runtime data (in progress)
+
+### Goal
+
+Describe configuration, profiles, Companion inputs, result values, diagnostics, repairs, and runtime state precisely enough that type checking catches invalid combinations before release. This phase is internal quality work only and must not change Home Assistant entities, stored keys, calculations, totals, timestamps, restore behavior, or YAML compatibility.
+
+### Stage 1: Safe annotations and shared contracts (completed in 2.23.0)
+
+- Add explicit `Literal` types for capacity units, power units, activity states, activity sources, power sources, and profile origins.
+- Add typed storage-boundary dictionaries for config-entry and Companion values.
+- Add cohesive typed models for Companion entities, effective tracker configuration, device profiles, power results, and profile load reports.
+- Replace the unnamed power tuple with `BatteryPowerResult` while preserving the same state and attributes.
+- Add focused tests proving the typed result contract and accepted literal values.
+- Start incremental mypy enforcement in CI.
+
+### Stage 2: Typed profile and configuration normalization
+
+- Convert validated profile dictionaries into immutable `DeviceProfile` objects after JSON validation.
+- Add one normalization function from `ConfigEntry.data` and `ConfigEntry.options` to `EffectiveTrackerConfig`.
+- Keep Home Assistant storage dictionaries and every existing key unchanged.
+- Prove profile selector, suggestions, diagnostics, repairs, and sensor setup consume the same effective values as before.
+
+### Stage 3: Typed runtime data
+
+- Add `BatteryConsumptionRuntimeData` and a typed config-entry alias.
+- Load reusable profile and effective configuration data once during entry setup.
+- Supply the typed runtime data to sensors, diagnostics, and repairs.
+- Keep the legacy YAML path separate and behaviorally unchanged.
+
+### Stage 4: Full type-checking enforcement
+
+- Expand mypy from the shared contracts to all integration modules.
+- Enable stricter checks incrementally, including untyped definitions, implicit optional values, unreachable code, and unnecessary ignores.
+- Run the checker in the GitHub validation workflow.
+- Require type checks, regression tests, profile validation, HACS validation, and Hassfest before release.
+
+### Acceptance criteria
+
+- Type checking passes in the Home Assistant 2025.12.2 test environment.
+- No generic cast is used to pretend unvalidated JSON is a trusted profile.
+- Existing entity IDs, unique IDs, stored configuration, attributes, states, units, totals, timestamps, and restore behavior remain unchanged.
+- Original accounting methods remain structurally unchanged unless a separately approved bug fix requires otherwise.
+- Companion inputs remain optional and never alter the authoritative battery-level accounting.
+
 ## Test matrix
 
 Every release affecting these areas must cover:
@@ -559,47 +603,3 @@ The following are not planned for Battery Consumption:
 Battery Consumption will be considered successfully expanded when it can reliably support phones, watches, VR headsets, robot vacuums, rechargeable devices, and ordinary battery-powered sensors while maintaining one stable calculation contract.
 
 Users should receive immediate valid battery levels, accurate original accounting, useful optional Companion context, reliable device profiles, clear diagnostics, and actionable repairs without duplicated entities, repeated attributes, silent profile failures, or unexpected migrations.
-
-## Phase 10: Stronger typing and typed runtime data (in progress)
-
-### Goal
-
-Describe configuration, profiles, Companion inputs, result values, diagnostics, repairs, and runtime state precisely enough that type checking catches invalid combinations before release. This phase is internal quality work only and must not change Home Assistant entities, stored keys, calculations, totals, timestamps, restore behavior, or YAML compatibility.
-
-### Stage 1: Safe annotations and shared contracts (completed in 2.23.0)
-
-- Add explicit `Literal` types for capacity units, power units, activity states, activity sources, power sources, and profile origins.
-- Add typed storage-boundary dictionaries for config-entry and Companion values.
-- Add cohesive typed models for Companion entities, effective tracker configuration, device profiles, power results, and profile load reports.
-- Replace the unnamed power tuple with `BatteryPowerResult` while preserving the same state and attributes.
-- Add focused tests proving the typed result contract and accepted literal values.
-- Start incremental mypy enforcement in CI.
-
-### Stage 2: Typed profile and configuration normalization
-
-- Convert validated profile dictionaries into immutable `DeviceProfile` objects after JSON validation.
-- Add one normalization function from `ConfigEntry.data` and `ConfigEntry.options` to `EffectiveTrackerConfig`.
-- Keep Home Assistant storage dictionaries and every existing key unchanged.
-- Prove profile selector, suggestions, diagnostics, repairs, and sensor setup consume the same effective values as before.
-
-### Stage 3: Typed runtime data
-
-- Add `BatteryConsumptionRuntimeData` and a typed config-entry alias.
-- Load reusable profile and effective configuration data once during entry setup.
-- Supply the typed runtime data to sensors, diagnostics, and repairs.
-- Keep the legacy YAML path separate and behaviorally unchanged.
-
-### Stage 4: Full type-checking enforcement
-
-- Expand mypy from the shared contracts to all integration modules.
-- Enable stricter checks incrementally, including untyped definitions, implicit optional values, unreachable code, and unnecessary ignores.
-- Run the checker in the GitHub validation workflow.
-- Require type checks, regression tests, profile validation, HACS validation, and Hassfest before release.
-
-### Acceptance criteria
-
-- Type checking passes in the Home Assistant 2025.12.2 test environment.
-- No generic cast is used to pretend unvalidated JSON is a trusted profile.
-- Existing entity IDs, unique IDs, stored configuration, attributes, states, units, totals, timestamps, and restore behavior remain unchanged.
-- Original accounting methods remain structurally unchanged unless a separately approved bug fix requires otherwise.
-- Companion inputs remain optional and never alter the authoritative battery-level accounting.
