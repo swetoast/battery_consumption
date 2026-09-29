@@ -1,33 +1,117 @@
-name: "Validation And Formatting"
+name: Validation
+
 on:
   push:
+    branches:
+      - main
   pull_request:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
+  repository:
+    name: Repository checks
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v2
-        name: Download repo
+      - name: Check out repository
+        uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v2
-        name: Setup Python
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.8.x'
-      - uses: actions/cache@v2
-        name: Cache
+          python-version: "3.13"
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --disable-pip-version-check \
+            jsonschema \
+            mypy==1.18.2 \
+            ruff
+
+      - name: Lint source and tests
+        run: |
+          python -m ruff check custom_components tests scripts
+
+      - name: Type-check shared contracts
+        run: |
+          python -m mypy \
+            --follow-imports=skip \
+            custom_components/battery_consumption/models.py
+
+      - name: Compile Python source
+        run: |
+          python -m compileall -q custom_components tests scripts
+
+      - name: Validate device-profile catalog
+        run: |
+          python scripts/validate_device_profiles.py \
+            custom_components/battery_consumption/device_profiles.json
+
+      - name: Validate profile JSON Schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from jsonschema import Draft202012Validator
+
+          root = Path("custom_components/battery_consumption")
+          schema = json.loads(
+              (root / "device_profiles.schema.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          catalog = json.loads(
+              (root / "device_profiles.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(catalog)
+
+          assert catalog.get("schema_version") == 1
+          assert catalog.get("catalog_version")
+          PY
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
         with:
-          path: |
-            ~/.cache/pip
-          key: custom-component-ci
-      - uses: hacs/action@main
+          persist-credentials: false
+
+      - name: Validate with HACS
+        uses: hacs/action@main
         with:
-          CATEGORY: integration
-          ignore: brands
-      - uses: KTibow/ha-blueprint@stable
-        name: CI
+          category: integration
+
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+          persist-credentials: false
+
+      - name: Validate with Hassfest
+        uses: home-assistant/actions/hassfest@master
