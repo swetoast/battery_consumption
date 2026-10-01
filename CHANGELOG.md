@@ -32,6 +32,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - The unused Minimum meaningful change field was removed from the options. It never changed accounting. Stored values are kept for compatibility.
 - Repair texts for profiles and Companion entities point to the integration options.
 - Configuration mode labels are translated.
+- Removed `integration_type: helper` from the manifest. Home Assistant now lists Battery Consumption as a regular integration instead of a helper.
 - The test suite runs in CI against Home Assistant `2025.12.2`, with type checking for the whole integration.
 
 ### Compatibility
