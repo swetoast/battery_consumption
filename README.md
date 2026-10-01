@@ -1,68 +1,48 @@
 # Battery Consumption
 
 <p align="center">
-  <img src="logo.png" alt="Battery Consumption icon" width="220">
+  <img src="logo.png" alt="Battery Consumption logo" width="220">
 </p>
 
 <p align="center">
-  Track battery movement, accumulated charge and discharge, energy, activity sessions, equivalent full cycles, and estimated power in Home Assistant.
+  A Home Assistant custom integration for tracking battery movement, energy, activity, cycles, and optional device telemetry from an existing battery-level entity.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.10.5-blue" alt="Version 2.10.5">
-  <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2-blue" alt="Home Assistant 2025.12.2">
-  <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom"></a>
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+  <a href="https://github.com/swetoast/battery_consumption/actions/workflows/validate.yaml"><img src="https://github.com/swetoast/battery_consumption/actions/workflows/validate.yaml/badge.svg" alt="Validation"></a>
+  <img src="https://img.shields.io/badge/Home%20Assistant-2025.12.2%2B-blue" alt="Home Assistant 2025.12.2 or newer">
+  <a href="https://hacs.xyz/"><img src="https://img.shields.io/badge/HACS-Custom-orange" alt="HACS custom repository"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
 </p>
 
-Battery Consumption turns an existing percentage entity, or one of its attributes, into a detailed battery tracker. The integration updates when the source changes and keeps its accumulated values across Home Assistant restarts.
+## Overview
 
-## Optional Companion App battery inputs
+Battery Consumption turns an existing battery percentage entity, or a numeric attribute on an entity, into a persistent Home Assistant battery tracker. The battery level remains the main sensor state while the integration calculates charge, discharge, accumulated movement, energy, estimated power, battery activity, and equivalent full cycles.
 
-For phones and watches running the Home Assistant Companion App, a tracker can use optional supporting entities from the same Home Assistant device: is charging, battery state, charger type, measured battery power, battery temperature, battery health, hardware battery cycle count, and remaining charge time.
+The configured battery-level source is authoritative. Optional Home Assistant Companion App entities can improve activity, measured power, cycle context, and telemetry, but never alter the original battery accounting, totals, timestamps, or restore behavior.
 
-The setup flow suggests matching enabled entities from the same device. Every field remains optional, so ordinary battery-powered smart devices continue to work without Companion App sensors.
+## Key features
 
-The battery-level source remains the only input used by the original variation, charge, discharge, energy, timestamp, total, and restore calculations. Companion inputs only improve optional activity, power, cycle context, and telemetry outputs.
-
-
-### Optional sensor attribute ownership
-
-Each optional entity has one primary value and only the attributes needed to explain that value:
-
-- Battery activity owns session context and optional Companion telemetry.
-- Battery power owns measured or estimated source provenance.
-- Equivalent full cycles owns its calculation and optional hardware cycle comparison.
-- The main battery-level sensor retains the original accounting attributes unchanged.
-
-
-## Version 2.10.5
-
-Fixes the bundled Roborock profiles so they pass profile validation and appear in the Home Assistant device-profile selector. The fix adds the required 14.4 V nominal battery-pack voltage to every bundled Roborock profile, including the S8 Pro Ultra.
-
-## Version 2.10.5
-
-New trackers now read the current source state when added to Home Assistant, so Battery level is available immediately even when the source remains unchanged. The initial sample establishes the displayed level without adding charge, discharge, energy, cycle, or power totals. Restored trackers keep the existing restore path unchanged.
-
-## Version 2.10.5
-
-A tracker now initializes from the source entity whenever no usable restored battery level exists. This covers every valid initial numeric level, including trackers whose previous restored state was unavailable or unknown. The initial reading remains a baseline only and does not create charge, discharge, energy, power, or cycle totals.
-
-## Highlights
-
-- Configure and manage trackers from the Home Assistant user interface.
-- Track charge, discharge, accumulated movement, energy, and signed power.
-- Filter small source fluctuations with an optional meaningful-change threshold.
-- Track charging, discharging, and idle sessions.
-- Calculate equivalent full discharge cycles.
-- Group UI-created entities under one Battery Consumption device.
-- Preserve stable entity identities across reloads and reconfiguration.
+- UI-based setup, options, and reconfiguration.
+- Immediate battery-level availability from the current source state.
+- Persistent charge and discharge totals across Home Assistant restarts.
+- Optional battery capacity from a verified profile or manual configuration.
+- Energy calculations for `Wh`, `kWh`, and `MWh` capacities.
+- Conversion of `mAh` capacity to `Wh` using nominal voltage.
+- Optional activity, power, and equivalent-full-cycle sensors.
+- Conservative device-profile suggestions that require user approval.
+- Optional same-device Companion App support for phones and watches.
+- Config-entry diagnostics and actionable Home Assistant repairs.
+- Validated bundled and user-defined battery profiles.
 
 ## Requirements
 
-- Home Assistant `2025.12.2` or newer
-- A source entity or attribute that reports a numeric battery level from `0` through `100`
-- Battery capacity and a supported capacity unit only when energy or power calculations are required
+- Home Assistant `2025.12.2` or newer.
+- A source entity or attribute containing a numeric battery percentage from `0` through `100`.
+- Battery capacity only when energy, power, or cycle-related output is wanted.
+- Nominal voltage when capacity is entered in `mAh`.
+
+Home Assistant `2025.12.2` is the compatibility target. The repository test suite runs against Home Assistant `2025.12.2` in CI, together with static validation and type checking.
 
 ## Installation
 
@@ -70,200 +50,184 @@ A tracker now initializes from the source entity whenever no usable restored bat
 
 1. Open HACS in Home Assistant.
 2. Open the menu and select **Custom repositories**.
-3. Add `https://github.com/swetoast/battery_consumption`.
-4. Select **Integration** as the repository category.
-5. Install **Battery Consumption**.
-6. Restart Home Assistant.
-7. Open **Settings → Devices & services → Add integration**.
-8. Search for **Battery Consumption**.
+3. Add `https://github.com/swetoast/battery_consumption` as an **Integration** repository.
+4. Search for **Battery Consumption** and install it.
+5. Restart Home Assistant.
+6. Open **Settings > Devices & services > Add integration**.
+7. Search for **Battery Consumption**.
+
+HACS updates are published through GitHub Releases. A release tag and the integration version in `manifest.json` must match for an update to be published correctly.
 
 ### Manual installation
 
-1. Clone or download the source repository.
-2. Copy `custom_components/battery_consumption` into `<config>/custom_components/battery_consumption`.
-3. Restart Home Assistant.
-4. Open **Settings → Devices & services → Add integration**.
-5. Search for **Battery Consumption**.
+1. Copy `custom_components/battery_consumption` into the Home Assistant `custom_components` directory.
+2. Restart Home Assistant.
+3. Add **Battery Consumption** from **Settings > Devices & services**.
 
-## Configuration
-
-### Add a tracker
-
-1. Open **Settings → Devices & services**.
-2. Select **Add integration**.
-3. Search for **Battery Consumption**.
-4. Enter the tracker name and select the battery source.
-5. Choose **Device profile** or **Manual configuration**.
-6. Select the exact profile, or enter the manual battery specification.
-7. Configure tracking behavior and optional entities.
-
-Each source entity and source attribute combination can be configured once.
-
-### Naming standard
-
-The tracker name is combined with the integration namespace and entity purpose. For a tracker named `Pixel 9`, new entities use these initial entity IDs:
+The resulting path must be:
 
 ```text
-sensor.battery_consumption_pixel_9_battery_level
-sensor.battery_consumption_pixel_9_battery_activity
-sensor.battery_consumption_pixel_9_battery_power
-sensor.battery_consumption_pixel_9_equivalent_full_cycles
+/config/custom_components/battery_consumption/
 ```
 
-The virtual device is displayed as `Battery Consumption Pixel 9`. Entity names inside the device remain natural and translated: **Battery level**, **Battery activity**, **Battery power**, and **Equivalent full cycles**.
+## Quick start
 
-Entity IDs already registered by Home Assistant are not forcibly renamed. The namespaced format applies to new trackers and newly created optional entities. Stable unique IDs remain based on the config-entry ID, so changing the tracker name does not replace existing entities.
+1. Enter a short tracker name.
+2. Select the battery-level source entity.
+3. Enter a source attribute only when the percentage is stored in an attribute instead of the entity state.
+4. Choose a verified device profile or enter capacity manually.
+5. Keep optional Companion App fields empty unless matching entities exist on the same Home Assistant device.
+6. Choose which optional sensors should be created.
+7. Submit the form.
 
-### Available options
+The first valid source value becomes the baseline. It does not create charge, discharge, energy, power, cycle totals, or session movement.
 
-| Option | Purpose | Default |
-| --- | --- | --- |
-| Tracker name | Short device name used in displayed names and namespaced entity IDs | Required |
-| Source entity | Entity that provides the battery percentage | Required |
-| Source attribute | Optional attribute containing the percentage | Entity state |
-| Device profile | Known device battery profile or manual setup | Manual configuration |
-| Precision | Decimal places shown for calculated values | `2` |
-| Battery capacity | Capacity printed on the battery, such as `5050` | Optional |
-| Capacity unit | `mAh`, `Wh`, `kWh`, or `MWh`; mAh is converted automatically | Optional |
-| Battery nominal voltage | Required when manual capacity is entered in `mAh` | Required for manual `mAh` |
-| Minimum meaningful change | Percentage-point movement required before accounting confirms a change | `0` |
-| Session timeout | Minutes without confirmed movement before activity becomes idle | `15` |
-| Create battery activity sensor | Adds the charging, discharging, and idle sensor | Disabled |
-| Create equivalent full cycles sensor | Adds the derived cycle-count sensor | Disabled |
-| Create battery power sensor | Adds a native signed power sensor | Disabled |
+## How battery activity works
 
-Use **Configure** to change calculation options. Use **Reconfigure** to change the source entity or source attribute. Reconfiguration keeps the existing Home Assistant entity identity while starting accounting from the new source.
+Battery activity has three states:
+
+- `charging`
+- `discharging`
+- `idle`
+
+For a device without Companion App charging data:
+
+- A rising battery level reports `charging`.
+- A falling battery level reports `discharging`.
+- No movement reports `idle`.
+- Movement-derived activity returns to `idle` after the configured session timeout.
+- An initial value, including `100%`, is an idle baseline.
+- A rise from `99%` to `100%` is temporarily `charging`, then returns to `idle`.
+
+For a Companion App device, the integration uses this activity priority:
+
+1. `battery_state: full` reports `idle`.
+2. `is_charging: on` reports `charging`.
+3. Other recognized battery-state values provide charging or discharging context.
+4. Battery-level movement is the fallback.
+
+A separate `charged` state is intentionally not created. A generic `100%` reading does not prove that a device is connected to power or has finished its charging process.
+
+## Optional Companion App inputs
+
+The integration can use these optional entities when they belong to the same Home Assistant device as the battery-level source:
+
+- Is charging
+- Battery state
+- Charger type
+- Battery power
+- Battery temperature
+- Battery health
+- Hardware battery cycle count
+- Remaining charge time
+
+Every field is optional. Devices without Companion App sensors continue to use battery-level movement only.
+
+Companion inputs affect only optional output and context:
+
+- **Activity:** charging, discharging, full, and charger context.
+- **Power:** measured battery power when available, otherwise the original estimate.
+- **Cycles:** hardware cycle count as comparison context.
+- **Telemetry:** battery temperature, health, charger type, and remaining charge time.
+
+They do not change the original battery-level calculations, accumulated totals, timestamps, or restore behavior.
 
 ## Device profiles
 
-Select a known device during setup to fill battery capacity, unit, and nominal voltage automatically. The bundled catalog contains sourced profiles for popular Apple, Google, Samsung, Meta, and Valve devices, plus exact rechargeable AA, AAA, C, D, and 9V products from ANSMANN, Duracell, Panasonic, and VARTA. It also includes an Energizer CR2032 profile whose capacity is explicitly marked as load-dependent. Generic alkaline AA, AAA, C, D, and 9V profiles are intentionally excluded because their delivered capacity changes materially with load, cutoff voltage, temperature, and usage pattern.
+A device profile supplies verified battery capacity and, when required, nominal voltage. The setup flow can suggest a profile from the Home Assistant device linked to the selected source entity. The suggestion is never applied until it is selected and submitted. Ambiguous matches are not guessed.
 
-The built-in catalog is stored in `custom_components/battery_consumption/device_profiles.json`. To add devices without modifying integration files, create:
+Profiles have two origins:
 
-```text
-/config/battery_consumption_device_profiles.json
-```
+- **Bundled:** Included with the integration and validated during release checks.
+- **User:** Loaded from `battery_consumption_device_profiles.json` in the Home Assistant configuration directory.
 
-Use this format:
+A valid user profile with the same ID overrides the bundled profile. An invalid override is rejected and the bundled profile remains active.
+
+### Custom profile using watt-hours
 
 ```json
 {
   "schema_version": 1,
   "devices": [
     {
-      "id": "manufacturer_device_model",
-      "manufacturer": "Manufacturer",
-      "model": "Device model",
-      "capacity": 4000,
-      "capacity_unit": "mAh",
-      "nominal_voltage": 3.85,
-      "source": "https://example.com/device-specification"
+      "id": "example_device_20wh",
+      "manufacturer": "Example",
+      "model": "Device 20 Wh",
+      "capacity": 20,
+      "capacity_unit": "Wh",
+      "source": "https://example.com/device-specification",
+      "notes": "Verified 20 Wh battery capacity"
     }
   ]
 }
 ```
 
-Restart Home Assistant after editing the user profile file. User profiles are added to the bundled catalog. A user profile with the same `id` replaces the bundled entry. Invalid profiles are skipped and logged without preventing the integration from loading.
+### Custom profile using milliamp-hours
 
-The selected profile values are copied into the config entry, so an existing tracker keeps working if its profile is later removed or changed.
+```json
+{
+  "schema_version": 1,
+  "devices": [
+    {
+      "id": "example_device_5000mah",
+      "manufacturer": "Example",
+      "model": "Device 5000 mAh",
+      "capacity": 5000,
+      "capacity_unit": "mAh",
+      "nominal_voltage": 3.85,
+      "source": "https://example.com/device-specification",
+      "notes": "Verified 5000 mAh capacity at 3.85 V nominal voltage"
+    }
+  ]
+}
+```
+
+Validate a profile catalog locally:
+
+```bash
+python3 scripts/validate_device_profiles.py battery_consumption_device_profiles.json
+```
+
+Reload the integration after changing the user profile file.
 
 ## Entities
 
-UI-created entities are grouped under one Battery Consumption device.
-
 ### Battery level
 
-The primary sensor shows the current source percentage and uses the Home Assistant battery device class. It is always created.
+The main sensor keeps the monitored percentage as its state and retains the original accounting attributes. It records long-term statistics for the battery level. Its attributes include:
 
-Its attributes include:
-
-- Previous monitored value
 - Current variation
 - Current charge and discharge
 - Accumulated charge and discharge
-- Current and previous update times
-- Time between confirmed updates
-- Capacity and energy values when capacity is configured
-- Signed estimated power when a valid interval is available
+- Capacity and energy values when configured
+- Current and previous timestamps
+- Estimated instantaneous power
 
 ### Battery activity
 
-Optional regular sensor with these states:
-
-- `charging`
-- `discharging`
-- `idle`
-
-The icon changes with the current activity. Session attributes include the start time, starting level, confirmed change, and session energy when capacity is configured.
+Optional enum sensor with `charging`, `discharging`, and `idle` states. It owns session context and optional Companion telemetry.
 
 ### Equivalent full cycles
 
-Optional diagnostic sensor calculated from accumulated discharge:
+Optional diagnostic sensor calculated from accumulated discharge. A total of 100 percentage points of discharge equals one equivalent full cycle, even when accumulated across several partial sessions.
 
-```text
-equivalent full cycles = total accumulated discharge percentage / 100
-```
-
-Five separate 20% discharges therefore equal one equivalent full cycle. This is an accounting metric based on observed battery movement, not a battery-health estimate or the hardware battery-management system's internal cycle count.
+A Companion App hardware cycle count is comparison context only. It does not replace the calculated equivalent-full-cycle value.
 
 ### Battery power
 
-Optional power sensor created when battery capacity uses one of these supported units:
+Optional power sensor. A valid Companion battery-power entity provides measured power. Otherwise, the integration uses the original estimate based on confirmed battery movement, configured capacity, and elapsed time. The estimate returns to `0` when no battery movement arrives within the session timeout, so an old reading does not linger. The sensor attributes identify whether the current value is measured or estimated.
 
-| Capacity unit | Power unit |
-| --- | --- |
-| `Wh` | `W` |
-| `kWh` | `kW` |
-| `MWh` | `MW` |
+The `instant_power` attribute on the main sensor keeps the original behavior and always shows the latest interval.
 
-Power is calculated across the latest confirmed battery movement interval:
+## Iconography
 
-- Positive values indicate charging.
-- Negative values indicate discharging.
-- The sensor remains unavailable until a confirmed movement has a valid positive time interval.
+Battery level and Battery power use their native Home Assistant device-class icons for consistent dashboard behavior. Battery activity changes icon with its state: charging, discharging, or idle. Equivalent full cycles uses a battery-cycle icon, and the Reset totals action has its own reset icon.
 
-## Noise-resistant accounting
+State-based icons are defined through Home Assistant icon translations rather than runtime entity properties.
 
-Set **Minimum meaningful change** above `0` to reduce false totals caused by a noisy battery source.
+## Resetting totals
 
-With a threshold of `2`, this sequence is not recorded as charge or discharge:
-
-```text
-50 → 51 → 50 → 51
-```
-
-A later value of `52` confirms a two percentage-point charge from the last accounted level of `50`.
-
-The displayed battery level still follows the source. Only the accumulated accounting waits for confirmed movement.
-
-## Attribute reference
-
-| Attribute | Availability | Description |
-| --- | --- | --- |
-| `source` | Always | Monitored source entity |
-| `source_attribute` | When configured | Monitored source attribute |
-| `previous_value` | Always | Previous source value |
-| `last_updated` | Always | Time of the current source update |
-| `previous_last_updated` | Always | Time of the previous source update |
-| `delta_last_updated_in_minutes` | Always | Minutes between confirmed values |
-| `variation` | Always | Confirmed difference between current and accounted values |
-| `battery_charge` | Always | Positive confirmed movement, otherwise `0` |
-| `battery_discharge` | Always | Absolute negative confirmed movement, otherwise `0` |
-| `total_charge` | Always | Accumulated positive movement |
-| `total_discharge` | Always | Accumulated negative movement |
-| `capacity_unit` | With capacity | Configured battery-capacity unit |
-| `capacity` | With capacity | Configured full battery capacity |
-| `energy_level` | With capacity | Energy represented by the current battery level |
-| `energy_variation` | With capacity | Energy represented by the confirmed change |
-| `energy_charge` | With capacity | Energy represented by confirmed charging |
-| `energy_discharge` | With capacity | Energy represented by confirmed discharging |
-| `total_energy_charge` | With capacity | Energy represented by accumulated charging |
-| `total_energy_discharge` | With capacity | Energy represented by accumulated discharging |
-| `instant_power` | With capacity and valid interval | Signed estimated power over the latest confirmed interval |
-
-## Reset accumulated totals
-
-Use **Developer tools → Actions** and run **Battery Consumption: Reset totals** against any entity belonging to the tracker.
+Call the `battery_consumption.reset_totals` action and target one Battery Consumption entity.
 
 The action resets:
 
@@ -272,51 +236,78 @@ The action resets:
 - Equivalent full cycles
 - Current activity session
 
-Configuration, entities, and current battery level are not removed. Resetting totals cannot be undone.
+The tracker configuration, entities, and current battery level are not removed. Resetting totals cannot be undone.
+
+## Diagnostics and repairs
+
+Download diagnostics from the Battery Consumption config-entry menu. Diagnostics include integration and catalog versions, selected profile details, source validity, configured Companion input types, availability, and sanitized profile-loading outcomes. Diagnostics do not dump unrelated Home Assistant entities or complete registries.
+
+Battery Consumption creates repair issues for actionable configuration problems:
+
+- The battery-level source was removed.
+- An available source no longer provides the configured attribute.
+- A selected profile no longer exists.
+- A custom profile catalog is invalid.
+- A configured optional Companion entity was removed.
+- A Companion entity belongs to another Home Assistant device.
+
+Temporary `unknown` or `unavailable` source states do not create a missing-attribute repair. Correcting the configuration and reloading the entry removes resolved issues.
+
+## Updating
+
+HACS checks published GitHub Releases for newer versions. When an update is available:
+
+1. Open **Settings > Updates** or HACS.
+2. Read the release notes.
+3. Install the update.
+4. Restart Home Assistant.
+
+Before updating an established installation, create a Home Assistant backup. Existing entity IDs, unique IDs, totals, timestamps, and restore behavior are intended to remain stable across upgrades.
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Troubleshooting
 
-### Source entity is unavailable
+### The source is unavailable
 
 The Battery Consumption entities follow source availability. When the source returns, its first valid value establishes a fresh accounting baseline. Movement during the unavailable period is not counted as one large event.
 
-### Source value is rejected
+### The source value is rejected
 
 The source must provide a numeric value from `0` through `100`. Unknown, unavailable, nonnumeric, negative, and above-100 values are excluded from accounting.
 
-### Source attribute produces no value
+### A source attribute produces no value
 
-Confirm that the attribute exists and contains a numeric percentage. Leave **Source attribute** empty when the entity state already contains the percentage.
+Confirm that the configured attribute exists and contains a numeric percentage. Leave the source attribute empty when the entity state already contains the percentage.
 
 ### Energy or power is missing
 
-Energy values require battery capacity. The native power sensor also requires the capacity unit to be exactly `Wh`, `kWh`, or `MWh`.
+Energy values require battery capacity. `mAh` capacity also requires nominal voltage. Estimated power requires confirmed movement and elapsed time.
 
-### Activity remains idle
+### Activity remains charging or discharging
 
-Activity changes only after movement reaches **Minimum meaningful change**. Set the threshold to `0` to confirm every numeric change. Activity returns to idle after the configured session timeout.
+Movement-derived activity returns to `idle` after the configured session timeout. Companion-derived charging remains active while its explicit charging input remains active, except that an explicit `full` battery state reports `idle`.
 
-## Removal
+### A profile does not appear
 
-1. Open **Settings → Devices & services**.
-2. Open **Battery Consumption**.
-3. Open the menu for the tracker.
-4. Select **Delete**.
+Run the profile validator, correct every reported error, reload the integration, and check Home Assistant Repairs. Invalid user additions and overrides are rejected without replacing valid bundled profiles.
 
-Remove the custom repository through HACS only when no Battery Consumption trackers remain.
+## Support and contributing
 
-## Development
+Use the repository issue tracker for reproducible bug reports and feature requests. Include the Home Assistant version, Battery Consumption version, relevant diagnostics, expected behavior, and observed behavior.
 
-The repository includes:
+Device-profile contributions must use the repository's **Device battery profile** issue form. Each contribution requires an exact manufacturer and model, capacity, unit, nominal voltage for `mAh`, a reliable public source, and known regional or hardware variations. Series-wide profiles require evidence that every listed model uses the same battery specification.
 
-- Pytest regression tests for calculations and config-flow behavior
-- Ruff configuration
-- HACS validation
-- Hassfest validation
-- A consolidated GitHub Actions workflow
+The repository includes validation for JSON Schema, runtime profile loading, selector output, duplicate IDs and labels, ambiguous matching metadata, evidence fields, units, voltage, sorting, HACS, and Hassfest.
 
-## License
+## Project documentation
 
-Battery Consumption is distributed under the MIT License.
+- [Changelog](CHANGELOG.md)
+- [Completed roadmap and release test matrix](docs/ROADMAP.md)
+- [HACS information page](info.md)
 
-This repository is a fork of the original [Battery Consumption project by `jugla`](https://github.com/jugla/battery_consumption). The original copyright and permission notice remain in [`LICENSE`](LICENSE).
+## License and acknowledgements
+
+Battery Consumption is distributed under the MIT License. See [LICENSE](LICENSE).
+
+This repository is a fork of the original [Battery Consumption project by `jugla`](https://github.com/jugla/battery_consumption). The original copyright and permission notice remain in the license file.

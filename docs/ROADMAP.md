@@ -46,7 +46,7 @@ New functionality must be capability-driven. Missing optional sensors must never
 9. Profile matching must suggest, not silently assume.
 10. Every release must include the complete release ZIP and a standalone Python recovery script containing that exact ZIP as Base64.
 
-## Phase 1: Profile catalog integrity
+## Phase 1: Profile catalog integrity (completed in 2.11.0)
 
 ### Goal
 
@@ -82,7 +82,7 @@ Make the bundled and user-defined profile catalogs impossible to ship in a state
 - Invalid user data cannot break bundled data.
 - Catalog version and profile origin are available to diagnostics.
 
-## Phase 2: Device-aware profile suggestions
+## Phase 2: Device-aware profile suggestions (completed in 2.12.0)
 
 ### Goal
 
@@ -126,7 +126,7 @@ Reduce manual profile searching while keeping the user in control of capacity se
 - Existing config entries are not automatically changed.
 - Rejected suggestions stay dismissed.
 
-## Phase 3: Companion App expansion
+## Phase 3: Companion App expansion (completed in 2.13.0)
 
 ### Goal
 
@@ -252,7 +252,7 @@ Telemetry must not be repeated on the power or equivalent-cycle sensors.
 - The original battery-level accounting is byte-for-byte behaviorally compatible in regression tests.
 - Optional input loss does not make the main tracker unavailable.
 
-## Phase 4: Diagnostics
+## Phase 4: Diagnostics (completed in 2.14.0)
 
 ### Goal
 
@@ -297,7 +297,7 @@ Provide a standard Home Assistant diagnostics export containing sanitized inform
 - Sensitive and unrelated data are excluded.
 - Diagnostics remain useful even when the tracker is unavailable.
 
-## Phase 5: Home Assistant Repairs
+## Phase 5: Home Assistant Repairs (completed in 2.16.0)
 
 ### Goal
 
@@ -334,7 +334,7 @@ Create repair issues for:
 - Repairs do not spam during short outages.
 - Resolved problems remove their repair issue.
 
-## Phase 6: Configuration flow improvements
+## Phase 6: Configuration flow improvements (completed in 2.17.0)
 
 ### Goal
 
@@ -365,7 +365,7 @@ Make setup and reconfiguration clear, device-aware, and resistant to invalid com
 - A generic battery sensor can be configured without seeing irrelevant required fields.
 - Reconfiguration does not replace entities or reset totals.
 
-## Phase 7: User profile safety and tooling
+## Phase 7: User profile safety and tooling (completed in 2.18.0)
 
 ### Goal
 
@@ -390,7 +390,7 @@ Keep custom profiles flexible without allowing malformed overrides to break vali
 - Valid custom profiles appear in the selector after integration reload.
 - Override origin and outcome are traceable through diagnostics.
 
-## Phase 8: Profile contribution workflow
+## Phase 8: Profile contribution workflow (completed in 2.19.0)
 
 ### Goal
 
@@ -431,7 +431,7 @@ Every profile contribution must include:
 - Series profiles are only allowed when every listed model is verified to use the same battery specification.
 - Unverified variants remain separate or are omitted.
 
-## Phase 9: Documentation
+## Phase 9: Documentation (completed in 2.20.0)
 
 ### Goal
 
@@ -451,6 +451,50 @@ Document the integration as users experience it without exposing unnecessary imp
 - Document user profile examples.
 - Document profile contribution requirements.
 - Keep all user-facing documentation free of debug terminology and unnecessary internal detail.
+
+## Phase 10: Stronger typing and typed runtime data (in progress)
+
+### Goal
+
+Describe configuration, profiles, Companion inputs, result values, diagnostics, repairs, and runtime state precisely enough that type checking catches invalid combinations before release. This phase is internal quality work only and must not change Home Assistant entities, stored keys, calculations, totals, timestamps, restore behavior, or YAML compatibility.
+
+### Stage 1: Safe annotations and shared contracts (completed in 2.23.0)
+
+- Add explicit `Literal` types for capacity units, power units, activity states, activity sources, power sources, and profile origins.
+- Add typed storage-boundary dictionaries for config-entry and Companion values.
+- Add cohesive typed models for Companion entities, effective tracker configuration, device profiles, power results, and profile load reports.
+- Replace the unnamed power tuple with `BatteryPowerResult` while preserving the same state and attributes.
+- Add focused tests proving the typed result contract and accepted literal values.
+- Start incremental mypy enforcement in CI.
+
+### Stage 2: Typed profile and configuration normalization
+
+- Convert validated profile dictionaries into immutable `DeviceProfile` objects after JSON validation.
+- Add one normalization function from `ConfigEntry.data` and `ConfigEntry.options` to `EffectiveTrackerConfig`.
+- Keep Home Assistant storage dictionaries and every existing key unchanged.
+- Prove profile selector, suggestions, diagnostics, repairs, and sensor setup consume the same effective values as before.
+
+### Stage 3: Typed runtime data
+
+- Add `BatteryConsumptionRuntimeData` and a typed config-entry alias.
+- Load reusable profile and effective configuration data once during entry setup.
+- Supply the typed runtime data to sensors, diagnostics, and repairs.
+- Keep the legacy YAML path separate and behaviorally unchanged.
+
+### Stage 4: Full type-checking enforcement
+
+- Expand mypy from the shared contracts to all integration modules.
+- Enable stricter checks incrementally, including untyped definitions, implicit optional values, unreachable code, and unnecessary ignores.
+- Run the checker in the GitHub validation workflow.
+- Require type checks, regression tests, profile validation, HACS validation, and Hassfest before release.
+
+### Acceptance criteria
+
+- Type checking passes in the Home Assistant 2025.12.2 test environment.
+- No generic cast is used to pretend unvalidated JSON is a trusted profile.
+- Existing entity IDs, unique IDs, stored configuration, attributes, states, units, totals, timestamps, and restore behavior remain unchanged.
+- Original accounting methods remain structurally unchanged unless a separately approved bug fix requires otherwise.
+- Companion inputs remain optional and never alter the authoritative battery-level accounting.
 
 ## Test matrix
 

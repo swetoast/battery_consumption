@@ -1,14 +1,22 @@
 """Regression tests for the original calculation behavior."""
 from datetime import datetime, timedelta, timezone
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+
 from custom_components.battery_consumption.sensor import (
-    ACTIVITY_CHARGING, ACTIVITY_DISCHARGING, ACTIVITY_IDLE,
-    ATTR_CURRENT_POWER, BatteryConsumptionSensor,
+    ACTIVITY_CHARGING,
+    ACTIVITY_DISCHARGING,
+    ACTIVITY_IDLE,
+    ATTR_CURRENT_POWER,
+    BatteryConsumptionSensor,
 )
 
+
 def tracker(minimum=0):
-    return BatteryConsumptionSensor("id", "Pixel", "sensor.pixel", None, 2,
+    item = BatteryConsumptionSensor("id", "Pixel", "sensor.pixel", None, 2,
         19.4425, "Wh", minimum, 15, "id", "Pixel Pro 8")
+    # Unit tests drive the tracker directly, without an entity platform.
+    item.async_write_ha_state = Mock()
+    return item
 
 def event(value, seconds):
     state=Mock(); state.state=str(value); state.attributes={}
@@ -56,12 +64,13 @@ def test_initial_source_sample_is_available_without_accounting():
 
     item._initialize_from_current_source()
 
-    assert item.state == 100
+    assert item.native_value == 100
     assert item._previous_state is None
     assert item._delta == 0
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
     assert item._instant_power == 0
+    assert item.estimated_power == 0
 
 
 def test_initial_source_attribute_is_available_without_accounting():
@@ -76,7 +85,7 @@ def test_initial_source_attribute_is_available_without_accounting():
 
     item._initialize_from_current_source()
 
-    assert item.state == 73
+    assert item.native_value == 73
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
 
@@ -94,6 +103,73 @@ def test_unusable_restored_level_falls_back_to_current_source():
     if item._state is None:
         item._initialize_from_current_source()
 
-    assert item.state == 42
+    assert item.native_value == 42
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
+
+
+def _companion_state(entity_id: str, value: str):
+    state = Mock()
+    state.entity_id = entity_id
+    state.state = value
+    state.attributes = {}
+    return state
+
+
+def test_initial_100_percent_is_idle():
+    item = tracker()
+    item._state = 100
+    item._delta = 0
+    item._derive_optional_state()
+    assert item.activity == ACTIVITY_IDLE
+
+
+def test_non_companion_rise_to_100_is_temporarily_charging():
+    item = tracker()
+    item._previous_state = 99
+    item._state = 100
+    item._delta = 1
+    item.hass = Mock()
+    with patch(
+        "custom_components.battery_consumption.sensor.async_call_later",
+        return_value=Mock(),
+    ):
+        item._derive_optional_state(account_delta=True)
+    assert item.activity == ACTIVITY_CHARGING
+    item._async_activity_idle(None)
+    assert item.activity == ACTIVITY_IDLE
+
+
+def test_explicit_full_overrides_is_charging_on():
+    item = tracker()
+    item._companion_entities = {
+        "companion_is_charging": "binary_sensor.phone_is_charging",
+        "companion_battery_state": "sensor.phone_battery_state",
+    }
+    item.hass = Mock()
+    states = {
+        "binary_sensor.phone_is_charging": _companion_state(
+            "binary_sensor.phone_is_charging", "on"
+        ),
+        "sensor.phone_battery_state": _companion_state(
+            "sensor.phone_battery_state", "full"
+        ),
+    }
+    item.hass.states.get.side_effect = states.get
+    item._derive_optional_state()
+    assert item.activity == ACTIVITY_IDLE
+    assert item._activity_source_type == "battery_state"
+
+
+def test_explicit_charging_remains_charging_without_movement_timeout():
+    item = tracker()
+    item._companion_entities = {
+        "companion_is_charging": "binary_sensor.phone_is_charging"
+    }
+    item.hass = Mock()
+    item.hass.states.get.return_value = _companion_state(
+        "binary_sensor.phone_is_charging", "on"
+    )
+    item._derive_optional_state()
+    assert item.activity == ACTIVITY_CHARGING
+    assert item._activity_idle_cancel is None

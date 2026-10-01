@@ -1,0 +1,298 @@
+name: Validation
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+  pull_request:
+    branches:
+      - main
+      - beta
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install validation tools
+        run: |
+          python -m pip install \
+            --disable-pip-version-check \
+            jsonschema \
+            mypy==1.18.2 \
+            ruff
+
+      - name: Check for critical Python errors
+        run: |
+          python -m ruff check \
+            --select E9,F63,F7,F82 \
+            custom_components \
+            tests \
+            scripts
+
+      - name: Type-check shared contracts
+        run: |
+          python -m mypy \
+            --follow-imports=skip \
+            custom_components/battery_consumption/models.py
+
+      - name: Compile Python source
+        run: |
+          python -m compileall -q \
+            custom_components \
+            tests \
+            scripts
+
+          find custom_components tests scripts \
+            -type d \
+            -name "__pycache__" \
+            -prune \
+            -exec rm -rf {} +
+
+          find custom_components tests scripts \
+            -type f \
+            \( -name "*.pyc" -o -name "*.pyo" \) \
+            -delete
+
+      - name: Validate device-profile catalog
+        run: |
+          python scripts/validate_device_profiles.py \
+            custom_components/battery_consumption/device_profiles.json
+
+      - name: Validate device-profile JSON Schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from jsonschema import Draft202012Validator
+
+          component = Path("custom_components/battery_consumption")
+
+          schema = json.loads(
+              (component / "device_profiles.schema.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          catalog = json.loads(
+              (component / "device_profiles.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(catalog)
+
+          if catalog.get("schema_version") != 1:
+              raise SystemExit("Unsupported device-profile schema version")
+
+          if not catalog.get("catalog_version"):
+              raise SystemExit("Device-profile catalog version is missing")
+
+          devices = catalog.get("devices")
+          if not isinstance(devices, list):
+              raise SystemExit("Device-profile devices field is not a list")
+
+          print(f"Validated {len(devices)} device profiles")
+          PY
+
+      - name: Verify integration metadata
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          component = Path("custom_components/battery_consumption")
+          manifest = json.loads(
+              (component / "manifest.json").read_text(encoding="utf-8")
+          )
+
+          required_manifest_fields = {
+              "codeowners",
+              "config_flow",
+              "documentation",
+              "domain",
+              "iot_class",
+              "issue_tracker",
+              "name",
+              "version",
+          }
+          missing_fields = required_manifest_fields.difference(manifest)
+
+          if missing_fields:
+              raise SystemExit(
+                  "Missing manifest fields: "
+                  + ", ".join(sorted(missing_fields))
+              )
+
+          if manifest["domain"] != "battery_consumption":
+              raise SystemExit("Unexpected integration domain")
+
+          if manifest["name"] != "Battery Consumption":
+              raise SystemExit("Unexpected integration name")
+
+          required_files = (
+              component / "__init__.py",
+              component / "config_flow.py",
+              component / "const.py",
+              component / "device_profiles.json",
+              component / "device_profiles.schema.json",
+              component / "diagnostics.py",
+              component / "icons.json",
+              component / "manifest.json",
+              component / "models.py",
+              component / "repairs.py",
+              component / "sensor.py",
+              component / "strings.json",
+              component / "translations" / "en.json",
+          )
+          missing_files = [
+              str(path) for path in required_files if not path.is_file()
+          ]
+
+          if missing_files:
+              raise SystemExit(
+                  "Missing integration files: "
+                  + ", ".join(missing_files)
+              )
+
+          print(f"Validated Battery Consumption {manifest['version']}")
+          PY
+
+      - name: Verify documentation structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required_files = (
+              Path("README.md"),
+              Path("CHANGELOG.md"),
+              Path("LICENSE"),
+              Path("docs/ROADMAP.md"),
+          )
+          missing_files = [
+              str(path) for path in required_files if not path.is_file()
+          ]
+
+          if missing_files:
+              raise SystemExit(
+                  "Missing documentation files: "
+                  + ", ".join(missing_files)
+              )
+
+          roadmap_files = sorted(
+              path
+              for path in Path(".").rglob("*")
+              if path.is_file() and path.name.casefold() == "roadmap.md"
+          )
+          expected_roadmaps = [Path("docs/ROADMAP.md")]
+
+          if roadmap_files != expected_roadmaps:
+              raise SystemExit(
+                  "The repository must contain exactly one roadmap at "
+                  "docs/ROADMAP.md"
+              )
+
+          readme = Path("README.md").read_text(encoding="utf-8")
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+
+          if "img.shields.io/github/v/release" in readme:
+              raise SystemExit("README.md contains a release widget")
+
+          if "## [Unreleased]" in changelog:
+              raise SystemExit("CHANGELOG.md contains an Unreleased section")
+
+          if "[Unreleased]:" in changelog:
+              raise SystemExit("CHANGELOG.md contains an Unreleased link")
+
+          print("Documentation structure is valid")
+          PY
+
+      - name: Check tracked repository files
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import PurePosixPath
+
+          tracked_output = subprocess.run(
+              ["git", "ls-files", "-z"],
+              check=True,
+              capture_output=True,
+          ).stdout.decode("utf-8")
+          tracked_files = tracked_output.split("\0")
+          unwanted_files = []
+
+          for filename in tracked_files:
+              if not filename:
+                  continue
+
+              path = PurePosixPath(filename)
+
+              if "__pycache__" in path.parts:
+                  unwanted_files.append(filename)
+                  continue
+
+              if path.suffix in {".pyc", ".pyo"}:
+                  unwanted_files.append(filename)
+                  continue
+
+              if path.name in {".DS_Store", "Thumbs.db"}:
+                  unwanted_files.append(filename)
+
+          if unwanted_files:
+              raise SystemExit(
+                  "Unwanted tracked repository files:\n"
+                  + "\n".join(sorted(unwanted_files))
+              )
+
+          print("No unwanted cache or compiled files are tracked by Git")
+          PY
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+
+    steps:
+      - name: Validate integration with HACS
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Validate integration with Hassfest
+        uses: home-assistant/actions/hassfest@master

@@ -1,4 +1,5 @@
 {
-  "name": "battery_consumption",
-  "homeassistant": "2025.12.2"
+  "name": "Battery Consumption",
+  "homeassistant": "2025.12.2",
+  "hide_default_branch": true
 }

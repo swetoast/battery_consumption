@@ -348,7 +348,10 @@
       "capacity_unit": "mAh",
       "nominal_voltage": 3.85,
       "source": "https://www.amazon.com/SHENMZ-Pixel-Pro-HTC-Google/dp/B0DKDTGS7X",
-      "notes": "5050 mAh, 3.85 V, approximately 19.44 Wh"
+      "notes": "5050 mAh, 3.85 V, approximately 19.44 Wh",
+      "model_aliases": [
+        "Google Pixel 8 Pro"
+      ]
     },
     {
       "id": "google_pixel_watch",
@@ -367,7 +370,10 @@
       "capacity_unit": "mAh",
       "nominal_voltage": 3.87,
       "source": "https://www.ebay.com/itm/395783229847",
-      "notes": "306 mAh, 3.87 V, approximately 1.18 Wh"
+      "notes": "306 mAh, 3.87 V, approximately 1.18 Wh",
+      "model_aliases": [
+        "Google Pixel Watch 2"
+      ]
     },
     {
       "id": "google_pixel_watch_3_41mm",
@@ -717,7 +723,10 @@
       "capacity_unit": "mAh",
       "source": "https://www.instruktionsbok.se/roborock/bruksanvisning-s8-pro-ultra",
       "notes": "Peter's current robot vacuum. Published product specification: 5200 mAh rechargeable lithium-ion battery. Nominal battery-pack voltage: 14.4 V.",
-      "nominal_voltage": 14.4
+      "nominal_voltage": 14.4,
+      "model_aliases": [
+        "Roborock S8 Pro Ultra"
+      ]
     },
     {
       "id": "roborock_saros_10r",
@@ -1006,5 +1015,6 @@
       "source": "https://www.varta-ag.com/se/konsument/produkt-kategorier/accus/recharge-accu-power-9v-200-mah",
       "notes": "Rechargeable NiMH 9V block, 200 mAh, 8.4 V"
     }
-  ]
+  ],
+  "catalog_version": "2026.09.28.1"
 }
