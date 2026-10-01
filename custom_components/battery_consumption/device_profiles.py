@@ -10,10 +10,10 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
-_MATCH_SEPARATORS = " -_./()[]"
-
 from .const import USER_DEVICE_PROFILES_FILE
-from .models import ProfileLoadReport
+from .models import ProfileCatalogError, ProfileLoadReport
+
+_MATCH_SEPARATORS = " -_./()[]"
 
 _LOGGER = logging.getLogger(__name__)
 _SUPPORTED_UNITS = {"mAh", "Wh", "kWh", "MWh"}
@@ -32,8 +32,9 @@ def _validated_profile(raw: Any, source_name: str) -> dict[str, Any] | None:
     manufacturer = raw.get("manufacturer")
     model = raw.get("model")
     unit = raw.get("capacity_unit")
+    raw_capacity: Any = raw.get("capacity")
     try:
-        capacity = float(raw.get("capacity"))
+        capacity = float(raw_capacity)
     except (TypeError, ValueError):
         capacity = 0
 
@@ -51,7 +52,7 @@ def _validated_profile(raw: Any, source_name: str) -> dict[str, Any] | None:
         _LOGGER.warning("Skipping invalid battery profile %s in %s", profile_id, source_name)
         return None
 
-    voltage = raw.get("nominal_voltage")
+    voltage: Any = raw.get("nominal_voltage")
     if unit == "mAh":
         try:
             voltage = float(voltage)
@@ -90,7 +91,7 @@ def _validated_profile(raw: Any, source_name: str) -> dict[str, Any] | None:
 
 def _load_file_with_report(
     path: Path, required: bool, origin: str
-) -> tuple[dict[str, dict[str, Any]], int, str | None]:
+) -> tuple[dict[str, dict[str, Any]], int, ProfileCatalogError | None]:
     """Load one profile file and return profiles, rejection count, and error."""
     if not path.exists():
         if required:

@@ -54,7 +54,6 @@
         "description": "Configure outputs and optional supporting inputs for {device_name} ({manufacturer} {model}). All Companion fields are optional and must belong to this same Home Assistant device.",
         "data": {
           "precision": "Precision",
-          "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
           "create_cycle_sensor": "Create equivalent full cycles sensor",
@@ -70,8 +69,7 @@
         },
         "data_description": {
           "precision": "Number of decimal places shown for calculated values.",
-          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
-          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle and the estimated battery power returns to 0.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
           "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
@@ -153,7 +151,6 @@
         "description": "Configure outputs and optional supporting inputs for {device_name} ({manufacturer} {model}). All Companion fields are optional and must belong to this same Home Assistant device.",
         "data": {
           "precision": "Precision",
-          "minimum_change": "Minimum meaningful change",
           "session_timeout": "Session timeout",
           "create_activity_sensor": "Create battery activity sensor",
           "create_cycle_sensor": "Create equivalent full cycles sensor",
@@ -169,8 +166,7 @@
         },
         "data_description": {
           "precision": "Number of decimal places shown for calculated values.",
-          "minimum_change": "Percentage-point movement required before charge or discharge is confirmed. Use 0 to record every change.",
-          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle.",
+          "session_timeout": "Minutes without a confirmed change before battery activity returns to idle and the estimated battery power returns to 0.",
           "create_activity_sensor": "Create a regular sensor showing charging, discharging, or idle.",
           "create_cycle_sensor": "Create a diagnostic sensor showing equivalent full discharge cycles.",
           "create_power_sensor": "Create a power sensor from confirmed battery movement and elapsed time.",
@@ -222,11 +218,11 @@
   "issues": {
     "profile_missing": {
       "title": "Battery profile is no longer available",
-      "description": "The tracker {tracker_name} uses the profile {profile_id}, but that profile is not available. Reconfigure the integration and select an available profile or manual capacity configuration."
+      "description": "The tracker {tracker_name} uses the profile {profile_id}, but that profile is not available. Open the integration options and select an available profile or manual capacity configuration."
     },
     "companion_device_mismatch": {
       "title": "Companion entities belong to another device",
-      "description": "The tracker {tracker_name} has {count} supporting entity or entities registered to a different Home Assistant device. Reconfigure the integration and select supporting entities from the same device as the battery-level source."
+      "description": "The tracker {tracker_name} has {count} supporting entity or entities registered to a different Home Assistant device. Open the integration options and select supporting entities from the same device as the battery-level source."
     },
     "source_missing": {
       "title": "Battery-level source no longer exists",
@@ -238,11 +234,19 @@
     },
     "companion_entity_missing": {
       "title": "Optional Companion entity no longer exists",
-      "description": "The tracker {tracker_name} has {count} configured supporting entity or entities that no longer exist. Reconfigure the integration and select available supporting entities or leave those optional fields empty."
+      "description": "The tracker {tracker_name} has {count} configured supporting entity or entities that no longer exist. Open the integration options and select available supporting entities or leave those optional fields empty."
     },
     "user_profile_catalog_invalid": {
       "title": "Custom battery profile catalog is invalid",
-      "description": "The custom profile catalog used by {tracker_name} contains invalid data or {rejected_count} rejected entries. Correct battery_consumption_device_profiles.json and reload the integration. Valid bundled profiles remain available."
+      "description": "The custom profile catalog battery_consumption_device_profiles.json contains invalid data or {rejected_count} rejected entries. Correct the file and reload the integration. Valid bundled profiles remain available."
+    }
+  },
+  "selector": {
+    "configuration_mode": {
+      "options": {
+        "manual": "Manual configuration",
+        "profile": "Device profile"
+      }
     }
   }
 }

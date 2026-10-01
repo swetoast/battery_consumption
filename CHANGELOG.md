@@ -4,6 +4,40 @@ All notable changes to Battery Consumption are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.0] - 2026-10-01
+
+### Fixed
+
+- New trackers no longer fail to create their Battery level sensor when the source already reports a value.
+- A tracker whose source is unavailable at startup no longer fails to create its Battery level sensor when capacity is configured.
+- A removed battery-level source no longer stops the whole tracker from setting up. The repair issue is now raised as intended.
+- Repair checks now run after Home Assistant has started and again when the source or Companion entities change, so issues clear on their own once fixed.
+- The custom profile catalog issue is raised once instead of once per tracker, and it is removed together with the last tracker.
+- Companion entities cleared in the options are no longer reported as missing and are no longer filled in again the next time the options open.
+- A Companion-started activity session now starts at the current battery level and time.
+- The Reset totals action now also resets the current activity session, as documented.
+- The Reset totals action is registered once for every tracker, including YAML trackers.
+- The estimated battery power returns to `0` after the session timeout without battery movement.
+- Restored trackers use the source timestamp, so the first power estimate after a reset is correct.
+- Changing the source with Reconfigure keeps the totals but starts a new baseline, so the old and new sources are never subtracted.
+- Reconfigure can now clear the source attribute, and it reloads the tracker once instead of twice.
+- A manual battery capacity of `0` is rejected.
+- A non-numeric source is logged once per bad period instead of on every update.
+- The device software version is read from the manifest.
+
+### Changed
+
+- The default session timeout for new trackers is 60 minutes. Existing trackers keep their configured value.
+- The Battery level sensor now records long-term statistics.
+- The unused Minimum meaningful change field was removed from the options. It never changed accounting. Stored values are kept for compatibility.
+- Repair texts for profiles and Companion entities point to the integration options.
+- Configuration mode labels are translated.
+- The test suite runs in CI against Home Assistant `2025.12.2`, with type checking for the whole integration.
+
+### Compatibility
+
+- No entity IDs, unique IDs, stored keys, totals, or accounting calculations changed.
+
 ## [2.23.0] - 2026-09-29
 
 ### Added
@@ -187,6 +221,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Meaningful-change filtering, battery activity sessions, and equivalent full-cycle tracking.
 
+[2.24.0]: https://github.com/swetoast/battery_consumption/compare/2.23.0...2.24.0
 [2.23.0]: https://github.com/swetoast/battery_consumption/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/swetoast/battery_consumption/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/swetoast/battery_consumption/compare/2.20.1...2.21.0

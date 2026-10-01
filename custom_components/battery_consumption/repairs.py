@@ -12,34 +12,30 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er, issue_registry as ir
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 
 from .const import (
-    CONF_COMPANION_BATTERY_CYCLE_COUNT,
-    CONF_COMPANION_BATTERY_HEALTH,
-    CONF_COMPANION_BATTERY_POWER,
-    CONF_COMPANION_BATTERY_STATE,
-    CONF_COMPANION_BATTERY_TEMPERATURE,
-    CONF_COMPANION_CHARGER_TYPE,
-    CONF_COMPANION_IS_CHARGING,
-    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_DEVICE_PROFILE,
     CONF_TRACKER_NAME,
     DEVICE_PROFILE_MANUAL,
     DOMAIN,
 )
 from .device_profiles import async_load_device_profiles_with_report
+from .entry_config import COMPANION_KEYS as _COMPANION_KEYS
+from .entry_config import effective_entry_config
 
-_COMPANION_KEYS = (
-    CONF_COMPANION_IS_CHARGING,
-    CONF_COMPANION_BATTERY_STATE,
-    CONF_COMPANION_CHARGER_TYPE,
-    CONF_COMPANION_BATTERY_POWER,
-    CONF_COMPANION_BATTERY_TEMPERATURE,
-    CONF_COMPANION_BATTERY_HEALTH,
-    CONF_COMPANION_BATTERY_CYCLE_COUNT,
-    CONF_COMPANION_REMAINING_CHARGE_TIME,
+# One custom profile file serves every tracker, so its issue is global.
+USER_CATALOG_ISSUE_ID = "user_profile_catalog_invalid"
+
+_ENTRY_ISSUE_KINDS = (
+    "source_missing",
+    "source_attribute_missing",
+    "companion_entity_missing",
+    "profile_missing",
+    "companion_device_mismatch",
 )
+_SOURCE_ISSUE_KINDS = ("source_missing", "source_attribute_missing")
 
 
 def _issue_id(kind: str, entry_id: str) -> str:
@@ -48,8 +44,17 @@ def _issue_id(kind: str, entry_id: str) -> str:
 
 
 def _entry_data(entry: ConfigEntry) -> dict[str, Any]:
-    """Return effective config-entry data."""
-    return {**entry.data, **entry.options}
+    """Return the configuration the entry is actually running with."""
+    return effective_entry_config(entry)
+
+
+def has_source_issue(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Return whether a source-related issue is open for this entry."""
+    registry = ir.async_get(hass)
+    return any(
+        registry.async_get_issue(DOMAIN, _issue_id(kind, entry.entry_id)) is not None
+        for kind in _SOURCE_ISSUE_KINDS
+    )
 
 
 def _companion_mismatches(
@@ -152,25 +157,29 @@ async def async_update_entry_repairs(
     profiles, profile_report = await async_load_device_profiles_with_report(hass)
     profile_id = data.get(CONF_DEVICE_PROFILE, DEVICE_PROFILE_MANUAL)
 
+    # Earlier versions created this issue once per entry.
+    _delete_issue(hass, entry, USER_CATALOG_ISSUE_ID)
     if profile_report.has_user_errors:
-        _create_issue(
+        ir.async_create_issue(
             hass,
-            entry,
-            "user_profile_catalog_invalid",
-            {
-                "tracker_name": tracker_name,
+            DOMAIN,
+            USER_CATALOG_ISSUE_ID,
+            is_fixable=False,
+            is_persistent=True,
+            severity=ir.IssueSeverity.ERROR,
+            translation_key=USER_CATALOG_ISSUE_ID,
+            translation_placeholders={
                 "rejected_count": str(profile_report.rejected_user_entries),
             },
         )
     else:
-        _delete_issue(hass, entry, "user_profile_catalog_invalid")
+        ir.async_delete_issue(hass, DOMAIN, USER_CATALOG_ISSUE_ID)
 
     if _source_missing(hass, data):
         _create_issue(
             hass,
             entry,
-            "user_profile_catalog_invalid",
-        "source_missing",
+            "source_missing",
             {"tracker_name": tracker_name},
         )
     else:
@@ -232,11 +241,12 @@ async def async_delete_entry_repairs(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> None:
     """Delete repair issues when a config entry is removed."""
-    for kind in (
-        "source_missing",
-        "source_attribute_missing",
-        "companion_entity_missing",
-        "profile_missing",
-        "companion_device_mismatch",
-    ):
+    for kind in (*_ENTRY_ISSUE_KINDS, USER_CATALOG_ISSUE_ID):
         _delete_issue(hass, entry, kind)
+    remaining = [
+        other
+        for other in hass.config_entries.async_entries(DOMAIN)
+        if other.entry_id != entry.entry_id
+    ]
+    if not remaining:
+        ir.async_delete_issue(hass, DOMAIN, USER_CATALOG_ISSUE_ID)

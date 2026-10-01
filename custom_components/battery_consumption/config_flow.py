@@ -5,14 +5,19 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_ATTRIBUTE, CONF_SOURCE, CONF_UNIT_OF_MEASUREMENT
 from homeassistant.helpers import (
     config_validation as cv,
+)
+from homeassistant.helpers import (
     device_registry as dr,
+)
+from homeassistant.helpers import (
     entity_registry as er,
+)
+from homeassistant.helpers import (
     selector,
 )
 from homeassistant.util import slugify
@@ -20,26 +25,24 @@ from homeassistant.util import slugify
 from .const import (
     CONF_BATTERY_CAPACITY,
     CONF_BATTERY_VOLTAGE,
+    CONF_COMPANION_BATTERY_CYCLE_COUNT,
+    CONF_COMPANION_BATTERY_HEALTH,
+    CONF_COMPANION_BATTERY_POWER,
+    CONF_COMPANION_BATTERY_STATE,
+    CONF_COMPANION_BATTERY_TEMPERATURE,
+    CONF_COMPANION_CHARGER_TYPE,
+    CONF_COMPANION_IS_CHARGING,
+    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_CREATE_ACTIVITY_SENSOR,
     CONF_CREATE_CYCLE_SENSOR,
     CONF_CREATE_POWER_SENSOR,
-    CONF_COMPANION_IS_CHARGING,
-    CONF_COMPANION_BATTERY_STATE,
-    CONF_COMPANION_CHARGER_TYPE,
-    CONF_COMPANION_BATTERY_POWER,
-    CONF_COMPANION_BATTERY_TEMPERATURE,
-    CONF_COMPANION_BATTERY_HEALTH,
-    CONF_COMPANION_BATTERY_CYCLE_COUNT,
-    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_DEVICE_PROFILE,
-    CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
     CONF_TRACKER_NAME,
     DEFAULT_CREATE_ACTIVITY_SENSOR,
     DEFAULT_CREATE_CYCLE_SENSOR,
     DEFAULT_CREATE_POWER_SENSOR,
-    DEFAULT_MINIMUM_CHANGE,
     DEFAULT_PRECISION,
     DEFAULT_SESSION_TIMEOUT,
     DEVICE_PROFILE_MANUAL,
@@ -50,6 +53,7 @@ from .device_profiles import (
     profile_selector_options,
     suggest_device_profile,
 )
+from .entry_config import effective_entry_config
 
 CONF_CONFIGURATION_MODE = "configuration_mode"
 MODE_PROFILE = "profile"
@@ -72,11 +76,9 @@ def _mode_schema(default: str = DEVICE_PROFILE_MANUAL) -> vol.Schema:
         {
             vol.Required(CONF_CONFIGURATION_MODE, default=default): selector.SelectSelector(
                 selector.SelectSelectorConfig(
-                    options=[
-                        {"value": DEVICE_PROFILE_MANUAL, "label": "Manual configuration"},
-                        {"value": MODE_PROFILE, "label": "Device profile"},
-                    ],
+                    options=[DEVICE_PROFILE_MANUAL, MODE_PROFILE],
                     mode=selector.SelectSelectorMode.DROPDOWN,
+                    translation_key=CONF_CONFIGURATION_MODE,
                 )
             )
         }
@@ -85,7 +87,10 @@ def _mode_schema(default: str = DEVICE_PROFILE_MANUAL) -> vol.Schema:
 
 def _profile_selector(profiles: dict[str, dict[str, Any]]) -> selector.SelectSelector:
     """Build a searchable device profile selector."""
-    options = profile_selector_options(profiles)
+    options = [
+        selector.SelectOptionDict(value=option["value"], label=option["label"])
+        for option in profile_selector_options(profiles)
+    ]
     return selector.SelectSelector(
         selector.SelectSelectorConfig(
             options=options,
@@ -151,7 +156,7 @@ def _manual_schema() -> vol.Schema:
     return vol.Schema(
         {
             vol.Optional(CONF_BATTERY_CAPACITY): vol.All(
-                vol.Coerce(float), vol.Range(min=0)
+                vol.Coerce(float), vol.Range(min=0, min_included=False)
             ),
             vol.Optional(CONF_UNIT_OF_MEASUREMENT): vol.In(
                 ["mAh", "Wh", "kWh", "MWh"]
@@ -178,7 +183,6 @@ def _tracking_schema() -> vol.Schema:
             vol.Optional(CONF_COMPANION_BATTERY_CYCLE_COUNT): sensor,
             vol.Optional(CONF_COMPANION_REMAINING_CHARGE_TIME): sensor,
             vol.Required(CONF_PRECISION, default=DEFAULT_PRECISION): vol.All(vol.Coerce(int), vol.Range(min=0)),
-            vol.Required(CONF_MINIMUM_CHANGE, default=DEFAULT_MINIMUM_CHANGE): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
             vol.Required(CONF_SESSION_TIMEOUT, default=DEFAULT_SESSION_TIMEOUT): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
             vol.Required(CONF_CREATE_ACTIVITY_SENSOR, default=DEFAULT_CREATE_ACTIVITY_SENSOR): cv.boolean,
             vol.Required(CONF_CREATE_CYCLE_SENSOR, default=DEFAULT_CREATE_CYCLE_SENSOR): cv.boolean,
@@ -335,7 +339,7 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 wanted_key = _source_key(identity)
                 if any(
-                    _source_key({**entry.data, **entry.options}) == wanted_key
+                    _source_key(effective_entry_config(entry)) == wanted_key
                     for entry in self._async_current_entries()
                 ):
                     errors["base"] = "already_configured"
@@ -449,7 +453,7 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             for other in self._async_current_entries():
                 if other.entry_id == entry.entry_id:
                     continue
-                other_data = {**other.data, **other.options}
+                other_data = effective_entry_config(other)
                 if slugify(other.data.get(CONF_TRACKER_NAME, other.title)) == wanted_slug:
                     return self.async_show_form(
                         step_id="reconfigure",
@@ -471,10 +475,11 @@ class BatteryConsumptionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             for key in (CONF_TRACKER_NAME, CONF_SOURCE, CONF_ATTRIBUTE):
                 data.pop(key, None)
             data.update(identity)
-            self.hass.config_entries.async_update_entry(
-                entry, title=identity[CONF_TRACKER_NAME]
+            # Replace the data as a whole so a cleared attribute is removed,
+            # and update the title in the same call so the entry reloads once.
+            return self.async_update_reload_and_abort(
+                entry, title=identity[CONF_TRACKER_NAME], data=data
             )
-            return self.async_update_reload_and_abort(entry, data_updates=data)
 
         current = {
             CONF_TRACKER_NAME: entry.data.get(CONF_TRACKER_NAME, entry.title),
@@ -505,8 +510,8 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
         self._profiles: dict[str, dict[str, Any]] = {}
 
     def _current(self) -> dict[str, Any]:
-        """Return effective current configuration."""
-        return {**self.config_entry.data, **self.config_entry.options}
+        """Return the configuration the entry is actually running with."""
+        return effective_entry_config(self.config_entry)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -602,8 +607,7 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             key: current[key]
             for key in (
                 CONF_PRECISION,
-                CONF_MINIMUM_CHANGE,
-                CONF_SESSION_TIMEOUT,
+                            CONF_SESSION_TIMEOUT,
                 CONF_CREATE_ACTIVITY_SENSOR,
                 CONF_CREATE_CYCLE_SENSOR,
                 CONF_CREATE_POWER_SENSOR,
@@ -647,9 +651,12 @@ class BatteryConsumptionOptionsFlow(config_entries.OptionsFlow):
             elif data.get(CONF_UNIT_OF_MEASUREMENT) != "mAh":
                 data[CONF_BATTERY_VOLTAGE] = None
             return self.async_create_entry(data=data)
-        discovered = _companion_suggestions(self.hass, current.get(CONF_SOURCE))
-        for key, entity_id in discovered.items():
-            suggested.setdefault(key, entity_id)
+        # Offer discovered Companion entities only until options are saved once.
+        # After that, fields the user left empty stay empty.
+        if not self.config_entry.options:
+            discovered = _companion_suggestions(self.hass, current.get(CONF_SOURCE))
+            for key, entity_id in discovered.items():
+                suggested.setdefault(key, entity_id)
         return self.async_show_form(
             step_id="tracking",
             data_schema=self.add_suggested_values_to_schema(

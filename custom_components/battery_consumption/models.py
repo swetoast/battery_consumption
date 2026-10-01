@@ -12,7 +12,7 @@ BatteryActivity = Literal["charging", "discharging", "idle"]
 ActivitySourceType = Literal["battery_level", "is_charging", "battery_state"]
 PowerSourceType = Literal["measured", "estimated"]
 ProfileOrigin = Literal["bundled", "user"]
-ProfileCatalogError = Literal["invalid_json", "invalid_catalog"]
+ProfileCatalogError = Literal["invalid_json", "unsupported_schema", "invalid_devices"]
 
 
 class CompanionEntityConfig(TypedDict, total=False):
@@ -116,7 +116,7 @@ class ProfileLoadReport:
     user_loaded: int = 0
     user_overrides: list[str] = field(default_factory=list)
     rejected_user_entries: int = 0
-    user_catalog_error: str | None = None
+    user_catalog_error: ProfileCatalogError | None = None
 
     @property
     def has_user_errors(self) -> bool:

@@ -19,28 +19,11 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_BATTERY_CAPACITY,
     CONF_BATTERY_VOLTAGE,
-    CONF_COMPANION_BATTERY_CYCLE_COUNT,
-    CONF_COMPANION_BATTERY_HEALTH,
-    CONF_COMPANION_BATTERY_POWER,
-    CONF_COMPANION_BATTERY_STATE,
-    CONF_COMPANION_BATTERY_TEMPERATURE,
-    CONF_COMPANION_CHARGER_TYPE,
-    CONF_COMPANION_IS_CHARGING,
-    CONF_COMPANION_REMAINING_CHARGE_TIME,
     CONF_DEVICE_PROFILE,
 )
 from .device_profiles import async_load_device_profiles_with_report
-
-_COMPANION_KEYS = (
-    CONF_COMPANION_IS_CHARGING,
-    CONF_COMPANION_BATTERY_STATE,
-    CONF_COMPANION_CHARGER_TYPE,
-    CONF_COMPANION_BATTERY_POWER,
-    CONF_COMPANION_BATTERY_TEMPERATURE,
-    CONF_COMPANION_BATTERY_HEALTH,
-    CONF_COMPANION_BATTERY_CYCLE_COUNT,
-    CONF_COMPANION_REMAINING_CHARGE_TIME,
-)
+from .entry_config import COMPANION_KEYS as _COMPANION_KEYS
+from .entry_config import effective_entry_config
 
 
 def _catalog_metadata() -> dict[str, Any]:
@@ -71,7 +54,7 @@ def _source_diagnostics(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, 
     source_entity_id = data.get(CONF_SOURCE)
     source = hass.states.get(source_entity_id) if source_entity_id else None
     source_attribute = data.get(CONF_ATTRIBUTE)
-    value = source.attributes.get(source_attribute) if source and source_attribute else (
+    value: Any = source.attributes.get(source_attribute) if source and source_attribute else (
         source.state if source else None
     )
     numeric = False
@@ -115,7 +98,7 @@ def _profile_diagnostics(
     """Describe the selected profile without exposing catalog notes or sources."""
     profile_id = data.get(CONF_DEVICE_PROFILE)
     manual = profile_id in (None, "manual")
-    profile = profiles.get(profile_id) if not manual else None
+    profile = profiles.get(profile_id) if profile_id and not manual else None
     return {
         "selected_id": profile_id,
         "manual_configuration": manual,
@@ -133,7 +116,7 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return sanitized diagnostics for a config entry."""
-    data = {**entry.data, **entry.options}
+    data = effective_entry_config(entry)
     profiles, report = await async_load_device_profiles_with_report(hass)
     origins = [profile.get("origin") for profile in profiles.values()]
     return {

@@ -42,7 +42,7 @@ The configured battery-level source is authoritative. Optional Home Assistant Co
 - Battery capacity only when energy, power, or cycle-related output is wanted.
 - Nominal voltage when capacity is entered in `mAh`.
 
-Home Assistant `2025.12.2` is the compatibility target. Static validation is included in the repository. Exact runtime compatibility must still be confirmed in the target Home Assistant installation before treating a new release as production-verified.
+Home Assistant `2025.12.2` is the compatibility target. The repository test suite runs against Home Assistant `2025.12.2` in CI, together with static validation and type checking.
 
 ## Installation
 
@@ -194,7 +194,7 @@ Reload the integration after changing the user profile file.
 
 ### Battery level
 
-The main sensor keeps the monitored percentage as its state and retains the original accounting attributes, including:
+The main sensor keeps the monitored percentage as its state and retains the original accounting attributes. It records long-term statistics for the battery level. Its attributes include:
 
 - Current variation
 - Current charge and discharge
@@ -215,7 +215,9 @@ A Companion App hardware cycle count is comparison context only. It does not rep
 
 ### Battery power
 
-Optional power sensor. A valid Companion battery-power entity provides measured power. Otherwise, the integration uses the original estimate based on confirmed battery movement, configured capacity, and elapsed time. The sensor attributes identify whether the current value is measured or estimated.
+Optional power sensor. A valid Companion battery-power entity provides measured power. Otherwise, the integration uses the original estimate based on confirmed battery movement, configured capacity, and elapsed time. The estimate returns to `0` when no battery movement arrives within the session timeout, so an old reading does not linger. The sensor attributes identify whether the current value is measured or estimated.
+
+The `instant_power` attribute on the main sensor keeps the original behavior and always shows the latest interval.
 
 ## Iconography
 

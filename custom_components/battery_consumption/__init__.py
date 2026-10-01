@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_ATTRIBUTE,
@@ -14,16 +14,20 @@ from homeassistant.const import (
     CONF_UNIT_OF_MEASUREMENT,
     Platform,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import service
 from homeassistant.helpers.discovery import async_load_platform
-
-from .repairs import async_delete_entry_repairs, async_update_entry_repairs
+from homeassistant.helpers.event import (
+    async_track_entity_registry_updated_event,
+    async_track_state_change_event,
+)
+from homeassistant.helpers.start import async_at_started
 
 from .const import (
     CONF_BATTERY_CAPACITY,
-    CONF_BATTERY_VOLTAGE,
     CONF_BATTERY_CONSUMPTION,
+    CONF_BATTERY_VOLTAGE,
     CONF_MINIMUM_CHANGE,
     CONF_PRECISION,
     CONF_SESSION_TIMEOUT,
@@ -32,6 +36,12 @@ from .const import (
     DEFAULT_PRECISION,
     DEFAULT_SESSION_TIMEOUT,
     DOMAIN,
+)
+from .entry_config import COMPANION_KEYS, effective_entry_config
+from .repairs import (
+    async_delete_entry_repairs,
+    async_update_entry_repairs,
+    has_source_issue,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,8 +88,18 @@ CONFIG_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Set up Battery Consumption from YAML."""
+    """Set up Battery Consumption from YAML and register shared actions."""
     hass.data.setdefault(DATA_BATTERY_CONSUMPTION, {})
+
+    # Registered once for every tracker, whether set up from YAML or the UI.
+    service.async_register_platform_entity_service(
+        hass,
+        DOMAIN,
+        "reset_totals",
+        entity_domain=Platform.SENSOR,
+        schema=None,
+        func="async_reset_totals",
+    )
 
     for battery_consumption, conf in config.get(DOMAIN, {}).items():
         _LOGGER.debug("Set up %s.%s", DOMAIN, battery_consumption)
@@ -101,8 +121,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Battery Consumption from a config entry."""
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    await async_update_entry_repairs(hass, entry)
+    _async_setup_entry_repairs(hass, entry)
     return True
+
+
+@callback
+def _async_setup_entry_repairs(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Check repairs once Home Assistant has started, then on relevant changes."""
+    conf = effective_entry_config(entry)
+    source = conf.get(CONF_SOURCE)
+    watched = [entity_id for entity_id in (source, *(conf.get(key) for key in COMPANION_KEYS)) if entity_id]
+
+    async def _async_check(_hass: HomeAssistant | None = None) -> None:
+        await async_update_entry_repairs(hass, entry)
+
+    @callback
+    def _registry_updated(_event: Event[Any]) -> None:
+        entry.async_create_task(hass, _async_check(), f"{DOMAIN} repairs")
+
+    @callback
+    def _source_changed(_event: Event[Any]) -> None:
+        # Cheap guard: only re-check while a source issue is open, so normal
+        # battery updates never reload the profile catalog.
+        if has_source_issue(hass, entry):
+            _registry_updated(_event)
+
+    # Waiting for startup avoids false "source missing" issues for entities
+    # whose integrations load after this one.
+    entry.async_on_unload(async_at_started(hass, _async_check))
+    if watched:
+        entry.async_on_unload(
+            async_track_entity_registry_updated_event(hass, watched, _registry_updated)
+        )
+    if source:
+        entry.async_on_unload(
+            async_track_state_change_event(hass, [source], _source_changed)
+        )
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

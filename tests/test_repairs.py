@@ -23,9 +23,7 @@ def test_entry_options_override_entry_data():
     assert _entry_data(entry)["device_profile"] == "new"
 
 
-def test_companion_mismatch_is_empty_without_registered_source():
-    hass = Mock()
-    hass.data = {}
+async def test_companion_mismatch_is_empty_without_registered_source(hass):
     assert _companion_mismatches(hass, {"source": "sensor.unregistered"}) == []
 
 

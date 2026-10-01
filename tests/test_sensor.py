@@ -1,14 +1,22 @@
 """Regression tests for the original calculation behavior."""
 from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
+
 from custom_components.battery_consumption.sensor import (
-    ACTIVITY_CHARGING, ACTIVITY_DISCHARGING, ACTIVITY_IDLE,
-    ATTR_CURRENT_POWER, BatteryConsumptionSensor,
+    ACTIVITY_CHARGING,
+    ACTIVITY_DISCHARGING,
+    ACTIVITY_IDLE,
+    ATTR_CURRENT_POWER,
+    BatteryConsumptionSensor,
 )
 
+
 def tracker(minimum=0):
-    return BatteryConsumptionSensor("id", "Pixel", "sensor.pixel", None, 2,
+    item = BatteryConsumptionSensor("id", "Pixel", "sensor.pixel", None, 2,
         19.4425, "Wh", minimum, 15, "id", "Pixel Pro 8")
+    # Unit tests drive the tracker directly, without an entity platform.
+    item.async_write_ha_state = Mock()
+    return item
 
 def event(value, seconds):
     state=Mock(); state.state=str(value); state.attributes={}
@@ -56,12 +64,13 @@ def test_initial_source_sample_is_available_without_accounting():
 
     item._initialize_from_current_source()
 
-    assert item.state == 100
+    assert item.native_value == 100
     assert item._previous_state is None
     assert item._delta == 0
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
     assert item._instant_power == 0
+    assert item.estimated_power == 0
 
 
 def test_initial_source_attribute_is_available_without_accounting():
@@ -76,7 +85,7 @@ def test_initial_source_attribute_is_available_without_accounting():
 
     item._initialize_from_current_source()
 
-    assert item.state == 73
+    assert item.native_value == 73
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
 
@@ -94,7 +103,7 @@ def test_unusable_restored_level_falls_back_to_current_source():
     if item._state is None:
         item._initialize_from_current_source()
 
-    assert item.state == 42
+    assert item.native_value == 42
     assert item._cumulative_charge == 0
     assert item._cumulative_discharge == 0
 
